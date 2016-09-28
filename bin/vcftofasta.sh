@@ -740,17 +740,17 @@ elif [[ $1 == tb6 ]]; then
     filterFileCreations
 
 elif [[ $1 == para ]]; then
-    genotypingcodes="/bioinfo11/TStuber/Results/mycobacterium/mac/tags.txt"
+    genotypingcodes="/bioinfo11/TStuber/Results/mycobacterium/avium_complex/tags.txt"
     gbk_file="/home/shared/mycobacterium/mott/paratb/NC_002944.gbk"
     # This file tells the script how to cluster VCFs
-    DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/mac/para_cattle-bison/DefiningSNPsGroupDesignations.txt"
+    DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/avium_complex/para_cattle-bison/DefiningSNPsGroupDesignations.txt"
     FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
     FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
     RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/vcfs/RemoveFromAnalysis.txt"
     QUAL=150 # Minimum quality for calling a SNP
     export lowEnd=1
     export highEnd=200 # QUAL range to change ALT to N
-    bioinfoVCF="/bioinfo11/TStuber/Results/mycobacterium/mac/para_cattle-bison/vcfs"
+    bioinfoVCF="/bioinfo11/TStuber/Results/mycobacterium/avium_complex/para_cattle-bison/vcfs"
     echo "vcftofasta.sh ran as M. paraTB"
     echo "Script vcftofasta.sh ran using para variables" >> section5
     email_list="tod.p.stuber@aphis.usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
@@ -759,7 +759,7 @@ elif [[ $1 == para ]]; then
     # Excel file that is being used is at: /bioinfo11/TStuber/Results/mycobacterium/vcfs/Filtered_Regions.xlsx
     # Excel tab label "New groupings"
 
-    excelinfile="/bioinfo11/TStuber/Results/mycobacterium/mac/para_cattle-bison/vcfs/Filtered_Regions.xlsx"
+    excelinfile="/bioinfo11/TStuber/Results/mycobacterium/avium_complex/para_cattle-bison/vcfs/Filtered_Regions.xlsx"
     parseXLS | sed 's/ u//g' | tr "," "\t" | sed 's/\[//g' |sed 's/\]//g' |sed 's/ //g' | sed 's/^u//g' | sed 's/\.0//g' | tr -d "'"  > ${filterdir}/filterFile.txt
     filterFileCreations
 

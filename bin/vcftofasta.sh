@@ -744,8 +744,8 @@ elif [[ $1 == para ]]; then
     gbk_file="/home/shared/mycobacterium/mott/paratb/NC_002944.gbk"
     # This file tells the script how to cluster VCFs
     DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/mac/para_cattle-bison/DefiningSNPsGroupDesignations.txt"
-    FilterAllVCFs=no #(yes or no), Do you want to filter all VCFs?
-    FilterGroups=no #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
+    FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
+    FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
     RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/vcfs/RemoveFromAnalysis.txt"
     QUAL=150 # Minimum quality for calling a SNP
     export lowEnd=1

@@ -930,7 +930,12 @@ echo "AConeCallPosition is running, started -->  `date`"
 echo "" >> section2
 
 for i in *.vcf; do
-(for pos in $positionList; do awk -v x=$pos 'BEGIN {FS="\t"; OFS="\t"} { if($2 == x ) print FILENAME, "Pos:", $2, "QUAL:", $6, $8 }' $i; done | grep "AC=1;A" | awk 'BEGIN {FS=";"} {print $1, $2}' >> section2) &
+    (echo $i
+    for pos in $positionList; do 
+        group_id=`grep "$pos" ${DefiningSNPs} | awk '{print $4 "-" $1}'`
+        echo $pos
+        echo "$group_id"
+        awk -v x=$pos -v g=$group_id 'BEGIN {FS="\t"; OFS="\t"} { if($2 == x ) print FILENAME, g, "Pos:", $2, "QUAL:", $6, $8 }' $i; done | grep "AC=1;A" | awk 'BEGIN {FS=";"} {print $1, $2}' >> section2) &
     let count+=1
     [[ $((count%NR_CPUS)) -eq 0 ]] && wait
 done

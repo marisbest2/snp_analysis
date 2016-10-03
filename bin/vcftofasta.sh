@@ -1606,7 +1606,7 @@ mv $d.finished_table.txt $d.organized_table.txt
 
 rm quality.txt
 rm $d.transposed_table.txt
-rm -r ./starting_files
+#rm -r ./starting_files
 rm root
 
 # When multiple tables are being done decrease cpus being used

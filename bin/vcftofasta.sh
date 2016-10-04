@@ -1521,7 +1521,8 @@ rm ./$d.table.py
 
 table_sort_and_organize
 
-mv ${d}.organized_table.txt ${d}.sorted_table.txt ${d}.table.txt ../
+rm ${d}.table.txt
+mv ${d}.organized_table.txt ${d}.sorted_table.txt ../
 cd ..
 
 # Add map qualities to sorted table

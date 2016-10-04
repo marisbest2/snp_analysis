@@ -354,6 +354,7 @@ else
 fi
 done
 
+tr -d '\n' < $n.octalcode.txt | awk -v x="$n" 'BEGIN{OFS="\t"}{print x, $0}' > spoligo.txt
 WGSpoligo=`cat $n.octalcode.txt | tr -cd "[:print:]"`
 
 # Add infor to spoligoCheck.txt

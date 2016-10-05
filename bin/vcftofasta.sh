@@ -1525,6 +1525,7 @@ rm ${d}.table.txt
 mv ${d}.organized_table.txt ${d}.sorted_table.txt ../
 cd ..
 
+
 # Add map qualities to sorted table
 
 #n Get just the position.  The chromosome must be removed
@@ -1624,6 +1625,9 @@ fi
 
     wait
     sleep 2
+    # remove the original table. Not need with sorted and orgainized.
+    rm ${d}.table.txt
+    
 }
 
 #################################################################################

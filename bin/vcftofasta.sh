@@ -2361,6 +2361,10 @@ wait
 rm annotate-*.py 
 
 cd ${fulDir}
+rm *annotate.py.tre
+rm *gbk
+rm each_vcf-poslist.txt
+rm each_annotation_in
 
 cp ${DefiningSNPs} ./
 

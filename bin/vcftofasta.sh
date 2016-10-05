@@ -528,7 +528,7 @@ elif [[ $1 == bovis ]]; then
     DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/script2/DefiningSNPsGroupDesignations.txt"
     FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
     FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
-    RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/script2/RemoveFromAnalysis.txt"
+    #RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/script2/RemoveFromAnalysis.txt"
     QUAL=150 # Minimum quality for calling a SNP
     export lowEnd=1
     export highEnd=200 # QUAL range to change ALT to N
@@ -926,7 +926,7 @@ echo "AConeCallPosition is running, started -->  `date`"
 echo "" >> section2
 
 for i in *.vcf; do
-    (for pos in $positionList; do group_id=`grep "$pos" ${DefiningSNPs} | awk '{print $4 "-" $1}'`; awk -v x=$pos -v g=$group_id 'BEGIN {FS="\t"; OFS="\t"} { if($2 == x ) print FILENAME, g, "Pos:", $2, "QUAL:", $6, $8 }' $i; done | grep "AC=1;A" | awk 'BEGIN {FS=";"} {print $1, $2}' >> section2) &
+    (for pos in $positionList; do group_id=`grep "$pos" ${DefiningSNPs} | awk '{print $4 "-" $1}'`; awk -v x=$pos -v g=$group_id 'BEGIN {FS="\t"; OFS="\t"} { if($2 == x ) print FILENAME, g, "Pos:", $2, "QUAL:", $6, $8 }' $i 2> /dev/null; done | grep "AC=1;A" | awk 'BEGIN {FS=";"} {print $1, $2}' >> section2) & 
     let count+=1
     [[ $((count%NR_CPUS)) -eq 0 ]] && wait
 done

@@ -2573,6 +2573,11 @@ printf "\n\tZipping starting files\n"
 zip -rq starting_files.zip starting_files && rm -r starting_files
 #rm -r ${FilterDirectory}
 
+rm ${fulDir}/*annotate.py.tre
+rm ${fulDir}/*gbk
+rm ${fulDir}/each_vcf-poslist.txt
+rm ${fulDir}/each_annotation_in
+
 echo "Copy to ${bioinfoVCF}"
 cp -r $PWD ${bioinfoVCF}
 fileName=`basename $0`
@@ -2585,12 +2590,6 @@ if [ "$mflag" ]; then
 fi
 rm mytempfile
 rm email_log.html
-
-cd ${fulDir}
-rm *annotate.py.tre
-rm *gbk
-rm each_vcf-poslist.txt
-rm each_annotation_in
 
 echo ""
 echo "****************************** END ******************************"

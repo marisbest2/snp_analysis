@@ -2361,10 +2361,6 @@ wait
 rm annotate-*.py 
 
 cd ${fulDir}
-rm *annotate.py.tre
-rm *gbk
-rm each_vcf-poslist.txt
-rm each_annotation_in
 
 cp ${DefiningSNPs} ./
 
@@ -2589,6 +2585,13 @@ if [ "$mflag" ]; then
 fi
 rm mytempfile
 rm email_log.html
+
+cd ${fulDir}
+rm *annotate.py.tre
+rm *gbk
+rm each_vcf-poslist.txt
+rm each_annotation_in
+
 echo ""
 echo "****************************** END ******************************"
 echo ""

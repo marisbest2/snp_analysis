@@ -554,7 +554,6 @@ samtools sort $n.raw.bam -o $n.sorted.bam
 echo "***Indexing Bam"
 samtools index $n.sorted.bam
 # Remove duplicate molecules
-
 echo "***Marking Duplicates"
 java -Xmx4g -jar  ${picard} MarkDuplicates INPUT=$n.sorted.bam OUTPUT=$n.dup.bam METRICS_FILE=$n.FilteredReads.xls ASSUME_SORTED=true REMOVE_DUPLICATES=true
 
@@ -565,6 +564,7 @@ samtools index $n.dup.bam
 # locally realign reads such that the number of mismatching bases is minimized across all the reads
 # http://www.broadinstitute.org/gatk/gatkdocs/org_broadinstitute_sting_gatk_walkers_indels_RealignerTargetCreator.html
 echo "***Realigner Target Creator"
+
 java -Xmx4g -jar ${gatk} -T RealignerTargetCreator -I $n.dup.bam -R $ref -o $n.forIndelRealigner.intervals
 
 if [ ! -e $n.forIndelRealigner.intervals ]; then

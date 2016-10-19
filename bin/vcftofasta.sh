@@ -1625,8 +1625,8 @@ fi
 
     wait
     sleep 2
-    # remove the original table. Not need with sorted and orgainized.
-    rm ${d}.table.txt
+    # rename table to be more descriptive.
+    mv ${d}.table.txt ${d}.position_ordered_table.txt
     
 }
 

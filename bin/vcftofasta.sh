@@ -742,7 +742,7 @@ elif [[ $1 == para ]]; then
     DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/avium_complex/para_cattle-bison/DefiningSNPsGroupDesignations.txt"
     FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
     FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
-    RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/vcfs/RemoveFromAnalysis.txt"
+    RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/avium_complex/para_cattle-bison/vcfs/paraRemoveFromAnalysis.txt"
     QUAL=150 # Minimum quality for calling a SNP
     export lowEnd=1
     export highEnd=200 # QUAL range to change ALT to N

@@ -489,7 +489,7 @@ elif [[ $1 == ceti2 ]]; then
     # This file tells the script how to cluster VCFs
     DefiningSNPs="/bioinfo11/TStuber/Results/brucella/ceti2/script_dependents/Ceti2_Defining_SNPs.txt"
     coverageFiles="/bioinfo11/TStuber/Results/brucella/coverageFiles"
-    FilterAllVCFs=no #(yes or no), Do you want to filter all VCFs?
+    FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
     FilterGroups=no #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
     FilterDirectory="/bioinfo11/TStuber/Results/brucella/ceti2/script_dependents/FilterFiles" #Files containing positions to filter
     RemoveFromAnalysis="/bioinfo11/TStuber/Results/brucella/ceti2/script_dependents/RemoveFromAnalysis.txt"
@@ -742,7 +742,7 @@ elif [[ $1 == para ]]; then
     DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/avium_complex/para_cattle-bison/DefiningSNPsGroupDesignations.txt"
     FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
     FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
-    RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/vcfs/RemoveFromAnalysis.txt"
+    RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/avium_complex/para_cattle-bison/vcfs/paraRemoveFromAnalysis.txt"
     QUAL=150 # Minimum quality for calling a SNP
     export lowEnd=1
     export highEnd=200 # QUAL range to change ALT to N
@@ -1625,8 +1625,8 @@ fi
 
     wait
     sleep 2
-    # remove the original table. Not need with sorted and orgainized.
-    rm ${d}.table.txt
+    # rename table to be more descriptive.
+    mv ${d}.table.txt ${d}.position_ordered_table.txt
     
 }
 

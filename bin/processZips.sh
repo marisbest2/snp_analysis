@@ -106,6 +106,21 @@ if [ $1 == ab1 ]; then
 
     ###################################################################
 
+elif [ $1 == ab3 ]; then
+    cp /home/shared/brucella/abortus1/script_dependents/CP007682-7683c.fasta ./
+    hqs="/home/shared/brucella/abortus1/script_dependents/CP007682-7683cHighestQualitySNPs.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/brucella/abortus3/newFiles"
+    sharedSAN="/home/shared/brucella/abortus3/newFiles"
+
+    # Run BrucMLST.sh
+    echo "Starting Bruc_MLST.sh"
+    cd ../zips
+    ${BRUC_MLST} &
+    cd ../bwamem-gatk/
+    echo "Moving forward from Bruc_MLST.sh"
+
+    ###################################################################
+    
 elif [ $1 == mel ]; then
     cp /home/shared/brucella/melitensis/script_dependents/NC_00331c.fasta ./
     hqs="/home/shared/brucella/melitensis/script_dependents/B-REF-BM1-RESTRICTED-CDC-Rev1-highqualitysnps.vcf"
@@ -554,6 +569,7 @@ samtools sort $n.raw.bam -o $n.sorted.bam
 echo "***Indexing Bam"
 samtools index $n.sorted.bam
 # Remove duplicate molecules
+
 echo "***Marking Duplicates"
 java -Xmx4g -jar  ${picard} MarkDuplicates INPUT=$n.sorted.bam OUTPUT=$n.dup.bam METRICS_FILE=$n.FilteredReads.xls ASSUME_SORTED=true REMOVE_DUPLICATES=true
 
@@ -564,7 +580,6 @@ samtools index $n.dup.bam
 # locally realign reads such that the number of mismatching bases is minimized across all the reads
 # http://www.broadinstitute.org/gatk/gatkdocs/org_broadinstitute_sting_gatk_walkers_indels_RealignerTargetCreator.html
 echo "***Realigner Target Creator"
-
 java -Xmx4g -jar ${gatk} -T RealignerTargetCreator -I $n.dup.bam -R $ref -o $n.forIndelRealigner.intervals
 
 if [ ! -e $n.forIndelRealigner.intervals ]; then

@@ -1416,9 +1416,11 @@ awk '{print $0}' *.fas >> RAxMLfastaGroup.txt
 
 #exit 1
 
+MAX_CPUS=`grep -c ^processor /proc/cpuinfo`
+FIVE_LESS_CPUS=`expr $MAX_CPUS - 5`
 #raxmlHPC-SSE3 -f b -t ref -z tree -m GTRCAT -s alg -n ${d}
 snpcount=`awk 'BEGIN{OFS="\t"}END{print NF-1}' ../${d}.table.txt`
-raxmlHPC-PTHREADS-AVX2 -s RAxMLfastaGroup.txt -n ${d} ­b 123476 -m GTRCAT -p 12345 -T ${NR_CPUS}&> /dev/null && nw_reroot RAxML_bestTree.${d} root | nw_display -s -w 1000 -v 20 -b 'opacity:0' -i 'font-size:8' -l 'font-family:serif;font-style:italic' -d 'stroke-width:2;stroke:blue' -u "${d} position count --> ${snpcount}, substituions/site" - > ../${d}-tree.svg && inkscape -f ../${d}-tree.svg -A ../${d}-tree.pdf; nw_reroot RAxML_bestTree.${d} root > tableinput.${d}; nw_reroot RAxML_bestTree.${d} root > rooted_RAxML_bestTree.${d}; mv rooted_RAxML_bestTree.${d} RAxML_bestTree.${d} &> /dev/null
+raxmlHPC-PTHREADS-AVX2 -s RAxMLfastaGroup.txt -n ${d} ­b 123476 -m GTRCAT -p 12345 -T ${FIVE_LESS_CPUS}&> /dev/null && nw_reroot RAxML_bestTree.${d} root | nw_display -s -w 1000 -v 20 -b 'opacity:0' -i 'font-size:8' -l 'font-family:serif;font-style:italic' -d 'stroke-width:2;stroke:blue' -u "${d} position count --> ${snpcount}, substituions/site" - > ../${d}-tree.svg && inkscape -f ../${d}-tree.svg -A ../${d}-tree.pdf; nw_reroot RAxML_bestTree.${d} root > tableinput.${d}; nw_reroot RAxML_bestTree.${d} root > rooted_RAxML_bestTree.${d}; mv rooted_RAxML_bestTree.${d} RAxML_bestTree.${d} &> /dev/null
 wait
 if [ "$doing_allvcf" == "doing_allvcf" ]; then
     echo "RAxML done"

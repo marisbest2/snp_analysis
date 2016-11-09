@@ -742,7 +742,7 @@ elif [[ $1 == para ]]; then
     DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/avium_complex/para_cattle-bison/DefiningSNPsGroupDesignations.txt"
     FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
     FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
-    RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/avium_complex/para_cattle-bison/vcfs/paraRemoveFromAnalysis.txt"
+    #RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/avium_complex/para_cattle-bison/vcfs/paraRemoveFromAnalysis.txt"
     QUAL=150 # Minimum quality for calling a SNP
     export lowEnd=1
     export highEnd=200 # QUAL range to change ALT to N
@@ -1101,7 +1101,7 @@ cd ${startingdirectory}/$d/
 dir=$(basename $PWD)
 echo "Directory:  $dir"
 
-mkdir starting_files
+mkdir "starting_files"
 cp *.vcf ./starting_files
 
 	if [ $FilterGroups == yes ]; then
@@ -1416,10 +1416,21 @@ awk '{print $0}' *.fas >> RAxMLfastaGroup.txt
 
 #exit 1
 
-#raxmlHPC-SSE3 -f b -t ref -z tree -m GTRCAT -s alg -n ${d}
-snpcount=`awk 'BEGIN{OFS="\t"}END{print NF-1}' ../${d}.table.txt`
-raxmlHPC-PTHREADS-AVX2 -s RAxMLfastaGroup.txt -n ${d} ­b 123476 -m GTRCAT -p 12345 -T ${RAXML_CPUS}&> /dev/null && nw_reroot RAxML_bestTree.${d} root | nw_display -s -w 1000 -v 20 -b 'opacity:0' -i 'font-size:8' -l 'font-family:serif;font-style:italic' -d 'stroke-width:2;stroke:blue' -u "${d} position count --> ${snpcount}, substituions/site" - > ../${d}-tree.svg && inkscape -f ../${d}-tree.svg -A ../${d}-tree.pdf; nw_reroot RAxML_bestTree.${d} root > tableinput.${d}; nw_reroot RAxML_bestTree.${d} root > rooted_RAxML_bestTree.${d}; mv rooted_RAxML_bestTree.${d} RAxML_bestTree.${d} &> /dev/null
+# If an all_vcf tree is being built, build with PTHREADs RAxML, else use non-PTHREAD SSE3
+if [ $pthreads == "yes" ]; then
+    MAX_CPUS=`grep -c ^processor /proc/cpuinfo`
+    RAXML_CPUS=`expr $MAX_CPUS - 5`
+    #raxmlHPC-SSE3 -f b -t ref -z tree -m GTRCAT -s alg -n ${d}
+    snpcount=`awk 'BEGIN{OFS="\t"}END{print NF-1}' ../${d}.table.txt`
+    raxmlHPC-PTHREADS-AVX2 -s RAxMLfastaGroup.txt -n ${d} ­b 123476 -m GTRCAT -p 12345 -T ${RAXML_CPUS}&> /dev/null && nw_reroot RAxML_bestTree.${d} root | nw_display -s -w 1000 -v 20 -b 'opacity:0' -i 'font-size:8' -l 'font-family:serif;font-style:italic' -d 'stroke-width:2;stroke:blue' -u "${d} position count --> ${snpcount}, substituions/site" - > ../${d}-tree.svg && inkscape -f ../${d}-tree.svg -A ../${d}-tree.pdf; nw_reroot RAxML_bestTree.${d} root > tableinput.${d}; nw_reroot RAxML_bestTree.${d} root > rooted_RAxML_bestTree.${d}; mv rooted_RAxML_bestTree.${d} RAxML_bestTree.${d} &> /dev/null
+    wait
+    pthread="no"
+else
+    raxmlHPC-SSE3 -s RAxMLfastaGroup.txt -n ${d} ­b 123476 -m GTRCAT -p 12345 &> /dev/null && nw_reroot RAxML_bestTree.${d} root | nw_display -s -w 1000 -v 20 -b 'opacity:0' -i 'font-size:8' -l 'font-family:serif;font-style:italic' -d 'stroke-width:2;stroke:blue' -u "${d} position count --> ${snpcount}, substituions/site" - > ../${d}-tree.svg && inkscape -f ../${d}-tree.svg -A ../${d}-tree.pdf; nw_reroot RAxML_bestTree.${d} root > tableinput.${d}; nw_reroot RAxML_bestTree.${d} root > rooted_RAxML_bestTree.${d}; mv rooted_RAxML_bestTree.${d} RAxML_bestTree.${d} &> /dev/null
 wait
+fi
+
+
 if [ "$doing_allvcf" == "doing_allvcf" ]; then
     echo "RAxML done"
 else
@@ -1599,7 +1610,6 @@ mv $d.finished_table.txt $d.organized_table.txt
 
 rm quality.txt
 rm $d.transposed_table.txt
-rm -r ./starting_files
 rm root
 
 # When multiple tables are being done decrease cpus being used
@@ -2266,13 +2276,14 @@ rm parsimony_informative
 rm *zerofilteredsnps_alt
 }
 
+# if doing a single tree run RAxML with multiple threads
+pthread="no"
 if [ "$eflag" -o "$aflag" ]; then
     doing_allvcf="doing_allvcf"    
     all_vcfs
 	d="all_vcfs"
     cd ./fasta
-    MAX_CPUS=`grep -c ^processor /proc/cpuinfo`
-    RAXML_CPUS=`expr $MAX_CPUS - 5`
+    pthreads="yes"
     alignTable
 else
 	echo "not ran" > all_vcfs/not_ran
@@ -2397,7 +2408,6 @@ for d in $directories; do
     #echo "****************************************************"
     #echo "************* Orginizing Table: $d *****************"
     #echo "****************************************************"
-	RAXML_CPUS=10
     alignTable & 
 
     pwd 
@@ -2437,7 +2447,6 @@ for d in $directories; do
     #echo "****************************************************"
     #echo "************* Orginizing Table: $d *****************"
     #echo "****************************************************"
-    RAXML_CPUS=10
     alignTable & 
 pwd
 done
@@ -2476,7 +2485,6 @@ for d in $directories; do
     #echo "****************************************************"
     #echo "************* Orginizing Table: $d *****************"
     #echo "****************************************************"
-    RAXML_CPUS=10
     alignTable & 
 pwd
 done
@@ -2574,6 +2582,7 @@ rm emailAC1counts.txt
 #rm each_vcf-poslist.txt
 rm chroms
 
+find . -wholename "*/*/starting_files" -exec rm -r {} \;
 printf "\n\tZipping starting files\n"
 zip -rq starting_files.zip starting_files && rm -r starting_files
 #rm -r ${FilterDirectory}

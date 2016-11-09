@@ -107,8 +107,8 @@ if [ $1 == ab1 ]; then
     ###################################################################
 
 elif [ $1 == ab3 ]; then
-    cp /home/shared/brucella/abortus1/script_dependents/CP007682-7683c.fasta ./
-    hqs="/home/shared/brucella/abortus1/script_dependents/CP007682-7683cHighestQualitySNPs.vcf"
+    cp /home/shared/brucella/abortus3/script_dependents/CP007682-7683c.fasta ./
+    hqs="/home/shared/brucella/abortus3/script_dependents/CP007682-7683cHighestQualitySNPs.vcf"
     bioinfo="/bioinfo11/TStuber/Results/brucella/abortus3/newFiles"
     sharedSAN="/home/shared/brucella/abortus3/newFiles"
 

@@ -1424,7 +1424,7 @@ if [ $pthreads == "yes" ]; then
     snpcount=`awk 'BEGIN{OFS="\t"}END{print NF-1}' ../${d}.table.txt`
     raxmlHPC-PTHREADS-AVX2 -s RAxMLfastaGroup.txt -n ${d} ­b 123476 -m GTRCAT -p 12345 -T ${RAXML_CPUS}&> /dev/null && nw_reroot RAxML_bestTree.${d} root | nw_display -s -w 1000 -v 20 -b 'opacity:0' -i 'font-size:8' -l 'font-family:serif;font-style:italic' -d 'stroke-width:2;stroke:blue' -u "${d} position count --> ${snpcount}, substituions/site" - > ../${d}-tree.svg && inkscape -f ../${d}-tree.svg -A ../${d}-tree.pdf; nw_reroot RAxML_bestTree.${d} root > tableinput.${d}; nw_reroot RAxML_bestTree.${d} root > rooted_RAxML_bestTree.${d}; mv rooted_RAxML_bestTree.${d} RAxML_bestTree.${d} &> /dev/null
     wait
-    pthread="no"
+    pthreads="no"
 else
     raxmlHPC-SSE3 -s RAxMLfastaGroup.txt -n ${d} ­b 123476 -m GTRCAT -p 12345 &> /dev/null && nw_reroot RAxML_bestTree.${d} root | nw_display -s -w 1000 -v 20 -b 'opacity:0' -i 'font-size:8' -l 'font-family:serif;font-style:italic' -d 'stroke-width:2;stroke:blue' -u "${d} position count --> ${snpcount}, substituions/site" - > ../${d}-tree.svg && inkscape -f ../${d}-tree.svg -A ../${d}-tree.pdf; nw_reroot RAxML_bestTree.${d} root > tableinput.${d}; nw_reroot RAxML_bestTree.${d} root > rooted_RAxML_bestTree.${d}; mv rooted_RAxML_bestTree.${d} RAxML_bestTree.${d} &> /dev/null
 wait
@@ -1448,102 +1448,24 @@ tr ":" "\n" < tableinput.${d} | tr "," "\n" | sed 's/(//g' | sed 's/)//g' | grep
 
 cp ../${d}.table.txt ./
 
-function table_sort_and_organize () {
+########
+touch ${d}.organized_table.txt
 
-# Create "here-document" to prevent a dependent file.
-cat >./$d.table.py <<EOL
-#!/usr/bin/env python
-
-import pandas as pd
-
-# There must be a top row header name to match for join to work, "reference_pos"
-mytable = pd.read_csv("${d}.table.txt", delimiter="\t")
-
-# mylist must be ordered with 2 top columns "reference_pos" and "reference_call"
-mylist = pd.read_csv("cleanedAlignment.txt")
-
-# axis drops the entire column if column is empty
-mytable.dropna(axis='columns', how='all', inplace='True')
-
-# mytable orders to mylist (alignment file)
-# This sorts the rows vertically in the best position provided by RAxML
-mytable = mylist.merge(mytable, on='reference_pos', how="outer")
-
-mytable.to_csv("$d.sorted_table.txt", sep="\t", index=False)
-
-col_num = mytable.shape[1]
-#print ("There are %s columns in table." % col_num)
-
-row_num = mytable.shape[0]
-#print ("There are %s rows in table." % row_num)
-
-# Counting the number of SNPs/position and group
-# Iterate through each column of table
-# If sample call is equal to reference call (cell [0,x]), count finding
-# Place sum in new row for each column
-count=0
-# Get a column number
-for each_column in range(1,col_num):
-    # Iterate each cell in column
-    for each_cell in mytable.ix[0:,each_column]:
-        if each_cell == mytable.ix[0,each_column]:
-            count += 1
-    mytable.ix[row_num + 1,each_column] = count
-    #mytable.ix[1, 1]="myvalue"
-    count=0
-
-# Iterate through each column of table
-# Count distance SNP accures from reference call
-count=0
-# Get a column number
-for each_column in range(1,col_num):
-    # Iterate each cell in column
-    for each_cell in mytable.ix[0:,each_column]:
-        if each_cell == mytable.ix[0,each_column]:
-            count += 1
-        else:
-            mytable.ix[row_num + 2,each_column] = count
-            count=0
-            break
-
-mytrans = mytable.transpose()
-col_num = mytrans.shape[1]
-mytable = mytrans.sort_values([col_num, col_num - 1], ascending=[True, True]).transpose()
-
-# Put the last column to the front
-cols = mytable.columns.tolist()
-cols = cols[-1:] + cols[:-1]
-mytable = mytable[cols]
-
-# Remove the last row with number counts
-mytable = mytable[:-2]
-
-mytable.to_csv("$d.organized_table.txt", sep="\t", index=False)
-
-EOL
-
-chmod 755 ./$d.table.py
-
-./$d.table.py
-
-rm ./$d.table.py
-
-}
-
-table_sort_and_organize
+marco_table_sorter.pl ${d}.table.txt cleanedAlignment.txt ${d}.organized_table.txt
+########
 
 rm ${d}.table.txt
-mv ${d}.organized_table.txt ${d}.sorted_table.txt ../
+mv ${d}.organized_table.txt ../
 cd ..
 
 
 # Add map qualities to sorted table
 
 #n Get just the position.  The chromosome must be removed
-awk ' NR == 1 {print $0}' $d.sorted_table.txt | tr "\t" "\n" | sed "1d" | awk '{print NR, $0}' > $d.positions
+awk ' NR == 1 {print $0}' ${d}.organized_table.txt | tr "\t" "\n" | sed "1d" | awk '{print NR, $0}' > $d.positions
 
 printf "reference_pos\tmap-quality\n" > quality.txt
-echo "`date` --> Sorted table map quality gathering for $d"
+echo "`date` --> Organized table map quality gathering for $d"
 
 if [ "$doing_allvcf" == "doing_allvcf" ]; then
     # Done doing its job, reset, we don't want to run all thread in group tables
@@ -1600,17 +1522,8 @@ chmod 755 ./$d.mapvalues.py
 
 add_mapping_values_sorted
 sleep 5
-./$d.mapvalues.py $d.sorted_table.txt quality.txt
-mv $d.finished_table.txt $d.sorted_table.txt
-
-# Add map qualities to organized table
-echo "`date` --> Organized table map quality gathering for $d"
-./$d.mapvalues.py $d.organized_table.txt quality.txt
-mv $d.finished_table.txt $d.organized_table.txt
-
-rm quality.txt
-rm $d.transposed_table.txt
-rm root
+./$d.mapvalues.py ${d}.organized_table.txt quality.txt
+mv $d.finished_table.txt ${d}.organized_table.txt
 
 # When multiple tables are being done decrease cpus being used
 if [[ -z $gbk_file ]]; then
@@ -1620,9 +1533,6 @@ else
     # All positions in single file, "${dircalled}/each_annotation_in"
     # Inner merge of this file to all tables
     # Add annoations to tables
-    ./$d.mapvalues.py $d.sorted_table.txt ${dircalled}/each_annotation_in
-    # Rename output tables back to original names
-    mv $d.finished_table.txt $d.sorted_table.txt
 
     ./$d.mapvalues.py $d.organized_table.txt ${dircalled}/each_annotation_in
     # Rename output tables back to original names
@@ -2277,7 +2187,7 @@ rm *zerofilteredsnps_alt
 }
 
 # if doing a single tree run RAxML with multiple threads
-pthread="no"
+pthreads="no"
 if [ "$eflag" -o "$aflag" ]; then
     doing_allvcf="doing_allvcf"    
     all_vcfs

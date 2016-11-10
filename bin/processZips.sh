@@ -106,6 +106,21 @@ if [ $1 == ab1 ]; then
 
     ###################################################################
 
+elif [ $1 == ab3 ]; then
+    cp /home/shared/brucella/abortus3/script_dependents/CP007682-7683c.fasta ./
+    hqs="/home/shared/brucella/abortus3/script_dependents/CP007682-7683cHighestQualitySNPs.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/brucella/abortus3/newFiles"
+    sharedSAN="/home/shared/brucella/abortus3/newFiles"
+
+    # Run BrucMLST.sh
+    echo "Starting Bruc_MLST.sh"
+    cd ../zips
+    ${BRUC_MLST} &
+    cd ../bwamem-gatk/
+    echo "Moving forward from Bruc_MLST.sh"
+
+    ###################################################################
+    
 elif [ $1 == mel ]; then
     cp /home/shared/brucella/melitensis/script_dependents/NC_00331c.fasta ./
     hqs="/home/shared/brucella/melitensis/script_dependents/B-REF-BM1-RESTRICTED-CDC-Rev1-highqualitysnps.vcf"

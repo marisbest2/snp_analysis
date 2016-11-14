@@ -333,7 +333,7 @@ elif [[ $1 == ab3 ]]; then
     # Genbank files must have "NC" file names that match NC numbers in VCF chrom identification in column 1 of vcf
     # Example: File name: NC_017250.gbk and "gi|384222553|ref|NC_017250.1|" listed in vcf
     gbk_file="/home/shared/brucella/abortus3/script_dependents/CP007682.gbk"
-    gbk_file1="/home/shared/brucella/abortus1/script_dependents/CP007683.gbk"
+    gbk_file1="/home/shared/brucella/abortus3/script_dependents/CP007683.gbk"
     echo "$gbk_file" > gbk_files
     echo "$gbk_file1" >> gbk_files
     # This file tells the script how to cluster VCFs

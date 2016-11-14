@@ -116,7 +116,7 @@ echo "Brucella check= $check"
 
 if [[ $check > 0 ]]; then
 	echo "Brucella species found"
-	tagname=`grep $n /bioinfo11/TStuber/Results/_Brucella/bruc_tags.txt`
+	tagname=`grep $n /bioinfo11/TStuber/Results/brucella/bruc_tags.txt`
 	i=$brucbinary
 
 	if [ $i == 111111111111 ]
@@ -134,7 +134,7 @@ if [[ $check > 0 ]]; then
 	elif [ $i == 101111111111 ]
 		then
 		catch=`echo "Brucella abortus bv 3"`
-    	`processZips.sh ab1 $catch | tee tee_processZips_out.txt` &
+    	`processZips.sh ab3 $catch | tee tee_processZips_out.txt` &
     	echo "$catch" > tee_bruc_oligo_identifier_out2.txt
 
 	elif [ $i == 110111111111 ]

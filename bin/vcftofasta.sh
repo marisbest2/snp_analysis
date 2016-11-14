@@ -479,6 +479,32 @@ if [[ $1 == ab1 ]]; then
     echo "vcftofasta.sh ran as Brucella abortus bv 1, 2 or 4"
     echo "Script vcftofasta.sh ran using Brucella abortus bv 1, 2 or 4 variables" > section5
     email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Christine.R.Quance@usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
+    
+elif [[ $1 == ab3 ]]; then
+
+    getbrucname    
+    genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
+    # When more than one chromosome
+    # Genbank files must have "NC" file names that match NC numbers in VCF chrom identification in column 1 of vcf
+    # Example: File name: NC_017250.gbk and "gi|384222553|ref|NC_017250.1|" listed in vcf
+    gbk_file="/home/shared/brucella/abortus3/script_dependents/CP007682.gbk"
+    gbk_file1="/home/shared/brucella/abortus1/script_dependents/CP007683.gbk"
+    echo "$gbk_file" > gbk_files
+    echo "$gbk_file1" >> gbk_files
+    # This file tells the script how to cluster VCFs
+    DefiningSNPs="/bioinfo11/TStuber/Results/brucella/abortus3/script_dependents/Abortus3_Defining_SNPs.txt"
+    #coverageFiles="/bioinfo11/TStuber/Results/brucella/Abortus1/coverageFiles"
+    FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
+    FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
+    FilterDirectory="/bioinfo11/TStuber/Results/brucella/abortus3/script_dependents/FilterFiles" #Files containing positions to filter
+    RemoveFromAnalysis="/bioinfo11/TStuber/Results/brucella/abortus3/script_dependents/RemoveFromAnalysis.txt"
+    QUAL=300 # Minimum quality for calling a SNP
+    export lowEnd=1
+    export highEnd=350 # QUAL range to change ALT to N
+    bioinfoVCF="/bioinfo11/TStuber/Results/brucella/abortus3/vcfs"
+    echo "vcftofasta.sh ran as Brucella abortus bv 3"
+    echo "Script vcftofasta.sh ran using Brucella abortus bv 3 variables" > section5
+    email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Christine.R.Quance@usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
 
 elif [[ $1 == mel ]]; then
 

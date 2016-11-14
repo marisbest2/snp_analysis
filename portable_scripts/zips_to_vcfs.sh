@@ -29,7 +29,7 @@ echo "**************************** START ${PWD##*/} ****************************
 echo "**************************************************************************"
 
 # set path to script dependents folder
-SCRIPT_DEPENDENTS="/home/tstuber/workspace/snp_analysis/portable_scripts/script_dependents"
+SCRIPT_DEPENDENTS="/home/jhicks/Workspace/public/snp_analysis/portable_scripts/script_dependents"
 
 if [ -e ! $SCRIPT_DEPENDENTS/Mycobacterium_bovis/DefiningSNPsGroupDesignations.txt ]; then
     echo "Set path to script dependents folder"
@@ -134,7 +134,7 @@ if [ $1 == TBBOV ]; then
 
     # Run spoligoSpacerFinder.sh
     echo "Starting spoligoSpacerFinder.sh"
-    ${SPOLIGOSPACERFINDER} &
+   # ${SPOLIGOSPACERFINDER} &
     echo "Moving forward from spoligoSpacerFinder.sh"
 
 else
@@ -185,12 +185,14 @@ bwa index $ref
 #adding -B 8 will require reads to have few mismatches to align to reference.  -B 1 will allow more mismatch per read.
 echo "***Making Sam file"
 bwa mem -M -t 16 -R @RG"\t"ID:"$n""\t"PL:ILLUMINA"\t"PU:"$n"_RG1_UNIT1"\t"LB:"$n"_LIB1"\t"SM:"$n" $ref $forReads $revReads > $n.sam
+pause
  
 # -b	 Output in the BAM format.
 # -h	 Include the header in the output.
 #-F INT	 Skip alignments with bits present in INT [0]
 echo "***Making Bam file"
 samtools view -bh -F4 -T $ref $n.sam > $n.raw.bam
+pause
 
 ####### unmapped reads #######
 #Bam with mapped and unmapped reads
@@ -202,6 +204,7 @@ java -Xmx4g -jar ${picard} SamToFastq INPUT=$n.unmappedReads.sam FASTQ=${n}-unma
 rm $n.all.bam
 rm $n.unmappedReads.sam
 abyss-pe name=${n}_abyss k=64 in="${n}-unmapped_R1.fastq ${n}-unmapped_R2.fastq"
+pause
 
 mkdir ../unmappedReads
 mv ${n}-unmapped_R1.fastq ../unmappedReads
@@ -221,6 +224,7 @@ samtools index $n.sorted.bam
 
 echo "***Marking Duplicates"
 java -Xmx4g -jar  ${picard} MarkDuplicates INPUT=$n.sorted.bam OUTPUT=$n.dup.bam METRICS_FILE=$n.FilteredReads.xls ASSUME_SORTED=true REMOVE_DUPLICATES=true
+pause
 
 echo "***Index $n.dup.bam"
 samtools index $n.dup.bam

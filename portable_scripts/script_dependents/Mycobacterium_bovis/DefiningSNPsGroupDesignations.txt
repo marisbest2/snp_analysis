@@ -32,6 +32,10 @@ Designation	Position	ALT	Label
 31	1631486		Group
 32	1946309		Group
 33	3230213		Group
+<<<<<<< HEAD
+34	1608720	T	Group
+=======
+>>>>>>> 29a4b85a7e5d7058897d267bfe4bef5f7b299a54
 TB	3910673		Group
 			
 1A	1458346	T	Subgroup
@@ -74,7 +78,7 @@ TB	3910673		Group
 6A	3359732	T	Subgroup
 6B	1135296	T	Subgroup
 			
-7A	33083	T	Subgroup
+7A	1697511	T	Subgroup
 7B	1299341	T	Subgroup
 7B-1	1664316	T	Clade
 7B-2	3447544	A	Clade
@@ -98,7 +102,7 @@ TB	3910673		Group
 16E	1825637	T	Subgroup
 			
 17A	2103902	T	Subgroup
-17A-1	1560062	T	Clade
+17A-1	2940550	T	Clade
 17B	3519393	A	Subgroup
 17B-1	2993729	T	Clade
 17B-2	1580242	T	Clade
@@ -109,6 +113,10 @@ TB	3910673		Group
 17C	2129760	T	Subgroup
 17D	2318105	T	Subgroup
 17E	1079861	T	Subgroup
+<<<<<<< HEAD
+17F	1292824	T	Subgroup
+=======
+>>>>>>> 29a4b85a7e5d7058897d267bfe4bef5f7b299a54
 18A	1361098	T	Subgroup
 19A	4195527	T	Subgroup
 19A-1	1513244	T	Clade

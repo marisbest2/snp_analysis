@@ -297,10 +297,9 @@ chmod 755 ./annotate.py
     
 #####################################################
 
-function snpTableSorter () {
-
+# single quotes need around EOL to prevent variable expansion
 # Create "here-document" to prevent a dependent file.
-cat >./snpTableSorter.pl <<EOL
+cat >./snpTableSorter.pl <<'EOL'
 #!/usr/bin/env perl
 
 use strict;
@@ -450,7 +449,6 @@ foreach my $sample (@orderedSam)
 EOL
 
 chmod 755 ./snpTableSorter.pl
-}
 
 #####################################################
 
@@ -1607,6 +1605,7 @@ cp ../${d}.table.txt ./
 
 ########
 touch ${d}.organized_table.txt
+ls ${dircalled}/snpTableSorter.pl
 
 ${dircalled}/snpTableSorter.pl ${d}.table.txt cleanedAlignment.txt ${d}.organized_table.txt
 ########
@@ -1614,7 +1613,6 @@ ${dircalled}/snpTableSorter.pl ${d}.table.txt cleanedAlignment.txt ${d}.organize
 rm ${d}.table.txt
 mv ${d}.organized_table.txt ../
 cd ..
-
 
 # Add map qualities to sorted table
 
@@ -2327,6 +2325,9 @@ echo "" >> root.fas
 
 totalSNPs=`grep -c ".*" parsimony_filtered_total_pos`
 echo "Total informative SNPs: $totalSNPs"
+
+# Make a file containing all fasta files. Used awk instead of cat to insure newline between files
+awk '{print $0}' *.fas > ${d}_alignment.fasta
 
 #Clean-up
 rm concatemer

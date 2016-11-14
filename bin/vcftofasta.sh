@@ -1566,7 +1566,7 @@ rm concatemer
 rm *.tod
 mkdir fasta
 mv *.fas ./fasta
-#rm root
+rm root
 rm *vcf
 rm filtered_total_alt
 rm filtered_total_pos
@@ -1705,6 +1705,7 @@ add_mapping_values_sorted
 sleep 5
 ./$d.mapvalues.py ${d}.organized_table.txt quality.txt
 mv $d.finished_table.txt ${d}.organized_table.txt
+rm quality.txt
 
 # When multiple tables are being done decrease cpus being used
 if [[ -z $gbk_file ]]; then
@@ -1843,8 +1844,6 @@ for i in *.vcf; do
             name=$searchName
             echo "n is $n"
             echo "$name" >> section1
-            mkdir -p FilesNotRenamed
-            cp $i ./FilesNotRenamed
             mv $i ${name}.vcf
 #            echo "A"
         else
@@ -2465,7 +2464,7 @@ else
 fi
 ###
 wait
-rm annotate-*.py 
+rm annotate*py 
 
 cd ${fulDir}
 
@@ -2681,8 +2680,9 @@ printf "\n\tZipping starting files\n"
 zip -rq starting_files.zip starting_files && rm -r starting_files
 #rm -r ${FilterDirectory}
 
+rm ${fulDir}/snpTableSorter.pl
 rm ${fulDir}/*annotate.py.tre
-rm ${fulDir}/*gbk
+rm ${fulDir}/*gbk*
 rm ${fulDir}/each_vcf-poslist.txt
 rm ${fulDir}/each_annotation_in
 

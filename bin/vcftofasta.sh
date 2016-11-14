@@ -297,6 +297,161 @@ chmod 755 ./annotate.py
     
 #####################################################
 
+# single quotes need around EOL to prevent variable expansion
+# Create "here-document" to prevent a dependent file.
+cat >./snpTableSorter.pl <<'EOL'
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use diagnostics;
+use List::MoreUtils qw(firstidx);
+use Data::Dumper qw(Dumper);
+
+#I/O
+my $tableIN = $ARGV[0]; #.table.txt
+my $sampleOrderIN = $ARGV[1]; #cleanedAlignment.txt
+my $organizedOUT = $ARGV[2]; #.organized_table.txt
+
+#Check if 3 arguments
+if (scalar(@ARGV) != 3)
+{
+   print "Usage: perl snpTableSorter.pl <table.txt> <cleanedAlignment.txt>  <organized_table.txt>\n";
+   exit;
+}
+
+# Parse table file
+
+#open table.txt
+open(my $tableFH, '<', $tableIN) or die "Can't read $tableIN: $!\n";
+
+my %table;
+
+chomp(my $header = <$tableFH>); #first line -> reference_pos
+my @refPosList = split(/\t/, $header);
+#@refPos = $refPos[1..$#refPos]; #"delete" fist elment of array
+
+while (my $line = <$tableFH>)
+{
+    chomp($line); #remove carriage return
+    next if $line eq ''; #skip if empty
+    
+    my @fields = split(/\t/, $line);
+    my $sample = $fields[0];
+    for my $i (1..$#fields)
+    {
+        push( @{ $table{$sample}{$refPosList[$i]} }, $fields[$i] );
+    }
+}
+
+#print Dumper \%table;
+
+# Order positions and samples
+
+my %countPos;
+#my %countSam; #Commented because order comes from the RAxML output
+
+#number of REF alleles
+foreach my $sample(sort keys %table)
+{
+    my $cntREF = 0;
+    foreach my $pos (sort keys %{ $table{$sample} })
+    {
+        my $REF = @{ $table{'reference_call'}{$pos} }[0];
+        my $allele = @{ $table{$sample}{$pos} }[0];
+        
+        $countPos{$pos} += 1 if ( $allele eq $REF );
+#        $countSam{$sample} += 1 if ( $allele eq $REF); #Commented because order comes from the RAxML output
+    }
+}
+
+#print Dumper \%counts;
+
+#Order positions based on REF allele counts and save to array
+my @orderedPos;
+foreach my $pos (sort { $countPos{$a} <=> $countPos{$b} } keys %countPos)
+{
+#	print $counts{$pos}; #count values
+#	print "\n";
+	push(@orderedPos, $pos); #position names
+}
+
+#open cleanedAlignment.txt
+open(my $samFH, '<', $sampleOrderIN) or die "Can't read $sampleOrderIN: $!\n";
+
+#skip fisrt line
+chomp(my $header1 = <$samFH>); #first line -> reference_pos
+
+my @orderedSam;
+
+#read the rest of the file
+while (my $line = <$samFH>)
+{
+    chomp($line); #remove carriage return
+    next if $line eq ''; #skip if empty
+    
+    push(@orderedSam, $line);
+}
+
+#refine position sorting by determining the row number of the first ALT allele
+my %rank;
+my $cnt = 0;
+
+foreach my $sample (@orderedSam)
+{
+	$cnt += 1;
+	foreach my $pos (@orderedPos)
+	{
+		my $REF = @{ $table{'reference_call'}{$pos} }[0];
+		my $allele = @{ $table{$sample}{$pos} }[0];
+		
+		if ( $allele ne $REF && !exists $rank{$pos} && !defined $rank{$pos} )
+		{
+			$rank{$pos} = $cnt;
+		}
+	}
+}
+
+
+#Order positions based on REF allele counts and save to array
+my @orderedPosTuned;
+#foreach my $pos (sort { $countPos{$a} <=> $countPos{$b} || $rank{$a} <=> $rank{$b} } keys %countPos)
+foreach my $pos (sort { $rank{$a} <=> $rank{$b} || $countPos{$a} <=> $countPos{$b} } keys %countPos)
+{
+#	print $counts{$pos}; #count values -> debug
+#	print "\n";
+	push(@orderedPosTuned, $pos); #position names
+} 
+
+#   Output sorted table
+
+#Write to file
+open(my $tmpFH, '>', $organizedOUT) or die "Could not write to $organizedOUT: $!\n";
+
+print { $tmpFH } ("reference_pos\t");
+
+my $positions = join("\t", @orderedPosTuned);
+print { $tmpFH } ("$positions\n");
+
+
+foreach my $sample (@orderedSam)
+{
+	print { $tmpFH } ("$sample");
+	
+	foreach my $pos (@orderedPosTuned)
+	{
+		my $allele = @{ $table{$sample}{$pos} }[0];
+		print { $tmpFH } ("\t$allele");
+	}
+	print { $tmpFH } ("\n");
+}
+
+EOL
+
+chmod 755 ./snpTableSorter.pl
+
+#####################################################
+
 # Environment controls:
 
 if [[ $1 == ab1 ]]; then
@@ -768,7 +923,7 @@ elif [[ $1 == para ]]; then
     DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/avium_complex/para_cattle-bison/DefiningSNPsGroupDesignations.txt"
     FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
     FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
-    RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/avium_complex/para_cattle-bison/vcfs/paraRemoveFromAnalysis.txt"
+    #RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/avium_complex/para_cattle-bison/vcfs/paraRemoveFromAnalysis.txt"
     QUAL=150 # Minimum quality for calling a SNP
     export lowEnd=1
     export highEnd=200 # QUAL range to change ALT to N
@@ -1127,7 +1282,7 @@ cd ${startingdirectory}/$d/
 dir=$(basename $PWD)
 echo "Directory:  $dir"
 
-mkdir starting_files
+mkdir "starting_files"
 cp *.vcf ./starting_files
 
 	if [ $FilterGroups == yes ]; then
@@ -1442,10 +1597,21 @@ awk '{print $0}' *.fas >> RAxMLfastaGroup.txt
 
 #exit 1
 
-#raxmlHPC-SSE3 -f b -t ref -z tree -m GTRCAT -s alg -n ${d}
-snpcount=`awk 'BEGIN{OFS="\t"}END{print NF-1}' ../${d}.table.txt`
-raxmlHPC-SSE3 -s RAxMLfastaGroup.txt -n ${d} ­b 123476 -m GTRCAT -p 12345 &> /dev/null && nw_reroot RAxML_bestTree.${d} root | nw_display -s -w 1000 -v 20 -b 'opacity:0' -i 'font-size:8' -l 'font-family:serif;font-style:italic' -d 'stroke-width:2;stroke:blue' -u "${d} position count --> ${snpcount}, substituions/site" - > ../${d}-tree.svg && inkscape -f ../${d}-tree.svg -A ../${d}-tree.pdf; nw_reroot RAxML_bestTree.${d} root > tableinput.${d}; nw_reroot RAxML_bestTree.${d} root > rooted_RAxML_bestTree.${d}; mv rooted_RAxML_bestTree.${d} RAxML_bestTree.${d} &> /dev/null
+# If an all_vcf tree is being built, build with PTHREADs RAxML, else use non-PTHREAD SSE3
+if [ $pthreads == "yes" ]; then
+    MAX_CPUS=`grep -c ^processor /proc/cpuinfo`
+    RAXML_CPUS=`expr $MAX_CPUS - 5`
+    #raxmlHPC-SSE3 -f b -t ref -z tree -m GTRCAT -s alg -n ${d}
+    snpcount=`awk 'BEGIN{OFS="\t"}END{print NF-1}' ../${d}.table.txt`
+    raxmlHPC-PTHREADS-AVX2 -s RAxMLfastaGroup.txt -n ${d} ­b 123476 -m GTRCAT -p 12345 -T ${RAXML_CPUS}&> /dev/null && nw_reroot RAxML_bestTree.${d} root | nw_display -s -w 1000 -v 20 -b 'opacity:0' -i 'font-size:8' -l 'font-family:serif;font-style:italic' -d 'stroke-width:2;stroke:blue' -u "${d} position count --> ${snpcount}, substituions/site" - > ../${d}-tree.svg && inkscape -f ../${d}-tree.svg -A ../${d}-tree.pdf; nw_reroot RAxML_bestTree.${d} root > tableinput.${d}; nw_reroot RAxML_bestTree.${d} root > rooted_RAxML_bestTree.${d}; mv rooted_RAxML_bestTree.${d} RAxML_bestTree.${d} &> /dev/null
+    wait
+    pthreads="no"
+else
+    raxmlHPC-SSE3 -s RAxMLfastaGroup.txt -n ${d} ­b 123476 -m GTRCAT -p 12345 &> /dev/null && nw_reroot RAxML_bestTree.${d} root | nw_display -s -w 1000 -v 20 -b 'opacity:0' -i 'font-size:8' -l 'font-family:serif;font-style:italic' -d 'stroke-width:2;stroke:blue' -u "${d} position count --> ${snpcount}, substituions/site" - > ../${d}-tree.svg && inkscape -f ../${d}-tree.svg -A ../${d}-tree.pdf; nw_reroot RAxML_bestTree.${d} root > tableinput.${d}; nw_reroot RAxML_bestTree.${d} root > rooted_RAxML_bestTree.${d}; mv rooted_RAxML_bestTree.${d} RAxML_bestTree.${d} &> /dev/null
 wait
+fi
+
+
 if [ "$doing_allvcf" == "doing_allvcf" ]; then
     echo "RAxML done"
 else
@@ -1463,102 +1629,24 @@ tr ":" "\n" < tableinput.${d} | tr "," "\n" | sed 's/(//g' | sed 's/)//g' | grep
 
 cp ../${d}.table.txt ./
 
-function table_sort_and_organize () {
+########
+touch ${d}.organized_table.txt
+ls ${dircalled}/snpTableSorter.pl
 
-# Create "here-document" to prevent a dependent file.
-cat >./$d.table.py <<EOL
-#!/usr/bin/env python
-
-import pandas as pd
-
-# There must be a top row header name to match for join to work, "reference_pos"
-mytable = pd.read_csv("${d}.table.txt", delimiter="\t")
-
-# mylist must be ordered with 2 top columns "reference_pos" and "reference_call"
-mylist = pd.read_csv("cleanedAlignment.txt")
-
-# axis drops the entire column if column is empty
-mytable.dropna(axis='columns', how='all', inplace='True')
-
-# mytable orders to mylist (alignment file)
-# This sorts the rows vertically in the best position provided by RAxML
-mytable = mylist.merge(mytable, on='reference_pos', how="outer")
-
-mytable.to_csv("$d.sorted_table.txt", sep="\t", index=False)
-
-col_num = mytable.shape[1]
-#print ("There are %s columns in table." % col_num)
-
-row_num = mytable.shape[0]
-#print ("There are %s rows in table." % row_num)
-
-# Counting the number of SNPs/position and group
-# Iterate through each column of table
-# If sample call is equal to reference call (cell [0,x]), count finding
-# Place sum in new row for each column
-count=0
-# Get a column number
-for each_column in range(1,col_num):
-    # Iterate each cell in column
-    for each_cell in mytable.ix[0:,each_column]:
-        if each_cell == mytable.ix[0,each_column]:
-            count += 1
-    mytable.ix[row_num + 1,each_column] = count
-    #mytable.ix[1, 1]="myvalue"
-    count=0
-
-# Iterate through each column of table
-# Count distance SNP accures from reference call
-count=0
-# Get a column number
-for each_column in range(1,col_num):
-    # Iterate each cell in column
-    for each_cell in mytable.ix[0:,each_column]:
-        if each_cell == mytable.ix[0,each_column]:
-            count += 1
-        else:
-            mytable.ix[row_num + 2,each_column] = count
-            count=0
-            break
-
-mytrans = mytable.transpose()
-col_num = mytrans.shape[1]
-mytable = mytrans.sort_values([col_num, col_num - 1], ascending=[True, True]).transpose()
-
-# Put the last column to the front
-cols = mytable.columns.tolist()
-cols = cols[-1:] + cols[:-1]
-mytable = mytable[cols]
-
-# Remove the last row with number counts
-mytable = mytable[:-2]
-
-mytable.to_csv("$d.organized_table.txt", sep="\t", index=False)
-
-EOL
-
-chmod 755 ./$d.table.py
-
-./$d.table.py
-
-rm ./$d.table.py
-
-}
-
-table_sort_and_organize
+${dircalled}/snpTableSorter.pl ${d}.table.txt cleanedAlignment.txt ${d}.organized_table.txt
+########
 
 rm ${d}.table.txt
-mv ${d}.organized_table.txt ${d}.sorted_table.txt ../
+mv ${d}.organized_table.txt ../
 cd ..
-
 
 # Add map qualities to sorted table
 
 #n Get just the position.  The chromosome must be removed
-awk ' NR == 1 {print $0}' $d.sorted_table.txt | tr "\t" "\n" | sed "1d" | awk '{print NR, $0}' > $d.positions
+awk ' NR == 1 {print $0}' ${d}.organized_table.txt | tr "\t" "\n" | sed "1d" | awk '{print NR, $0}' > $d.positions
 
 printf "reference_pos\tmap-quality\n" > quality.txt
-echo "`date` --> Sorted table map quality gathering for $d"
+echo "`date` --> Organized table map quality gathering for $d"
 
 if [ "$doing_allvcf" == "doing_allvcf" ]; then
     # Done doing its job, reset, we don't want to run all thread in group tables
@@ -1615,18 +1703,8 @@ chmod 755 ./$d.mapvalues.py
 
 add_mapping_values_sorted
 sleep 5
-./$d.mapvalues.py $d.sorted_table.txt quality.txt
-mv $d.finished_table.txt $d.sorted_table.txt
-
-# Add map qualities to organized table
-echo "`date` --> Organized table map quality gathering for $d"
-./$d.mapvalues.py $d.organized_table.txt quality.txt
-mv $d.finished_table.txt $d.organized_table.txt
-
-rm quality.txt
-rm $d.transposed_table.txt
-rm -r ./starting_files
-rm root
+./$d.mapvalues.py ${d}.organized_table.txt quality.txt
+mv $d.finished_table.txt ${d}.organized_table.txt
 
 # When multiple tables are being done decrease cpus being used
 if [[ -z $gbk_file ]]; then
@@ -1636,9 +1714,6 @@ else
     # All positions in single file, "${dircalled}/each_annotation_in"
     # Inner merge of this file to all tables
     # Add annoations to tables
-    ./$d.mapvalues.py $d.sorted_table.txt ${dircalled}/each_annotation_in
-    # Rename output tables back to original names
-    mv $d.finished_table.txt $d.sorted_table.txt
 
     ./$d.mapvalues.py $d.organized_table.txt ${dircalled}/each_annotation_in
     # Rename output tables back to original names
@@ -2277,6 +2352,9 @@ echo "" >> root.fas
 totalSNPs=`grep -c ".*" parsimony_filtered_total_pos`
 echo "Total informative SNPs: $totalSNPs"
 
+# Make a file containing all fasta files. Used awk instead of cat to insure newline between files
+awk '{print $0}' *.fas > ${d}_alignment.fasta
+
 #Clean-up
 rm concatemer
 rm *.tod
@@ -2292,11 +2370,14 @@ rm parsimony_informative
 rm *zerofilteredsnps_alt
 }
 
+# if doing a single tree run RAxML with multiple threads
+pthreads="no"
 if [ "$eflag" -o "$aflag" ]; then
     doing_allvcf="doing_allvcf"    
     all_vcfs
 	d="all_vcfs"
     cd ./fasta
+    pthreads="yes"
     alignTable
 else
 	echo "not ran" > all_vcfs/not_ran
@@ -2421,7 +2502,7 @@ for d in $directories; do
     #echo "****************************************************"
     #echo "************* Orginizing Table: $d *****************"
     #echo "****************************************************"
-	alignTable & 
+    alignTable & 
 
     pwd 
 done
@@ -2595,6 +2676,7 @@ rm emailAC1counts.txt
 #rm each_vcf-poslist.txt
 rm chroms
 
+find . -wholename "*/*/starting_files" -exec rm -r {} \;
 printf "\n\tZipping starting files\n"
 zip -rq starting_files.zip starting_files && rm -r starting_files
 #rm -r ${FilterDirectory}

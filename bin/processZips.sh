@@ -792,7 +792,7 @@ unpaired_reads=`sed -n 7,8p $n.FilteredReads.xls | awk '{print $2}' | tail -1`
 sed -n 7,8p $n.FilteredReads.xls | awk '{print $3}' >> $n.stats2.txt
 total_reads_pairs=`sed -n 7,8p $n.FilteredReads.xls | awk '{print $3}' | tail -1`
 sed -n 7,8p $n.FilteredReads.xls | awk '{print $8}' >> $n.stats2.txt
-duplicate_reads=`sed -n 7,8p $n.FilteredReads.xls | awk '{print $8}' >> $n.stats2.txt | tail -1`
+duplicate_reads=`sed -n 7,8p $n.FilteredReads.xls | awk '{print $8}' | tail -1`
 readcount=`sed -n 8p $n.FilteredReads.xls | awk '{print $3}'`
 echo "" >> $n.stats2.txt
 
@@ -818,7 +818,7 @@ awk 'BEGIN {OFS="\t"} { print $5,$6 }' $n.Quality_by_cycle.insert_size_metrics |
 
 echo 'Mean_Read_Length:' >> $n.stats.txt
 awk 'BEGIN {OFS="\t"} { print $16 }' $n.AlignmentMetrics | awk 'FNR == 10 {print $0}' >> $n.stats.txt
-average_read_length=`awk 'BEGIN {OFS="\t"} { print $16 }' $n.AlignmentMetrics | awk 'FNR == 10 {print $0}'`
+average_read_length=`awk 'BEGIN {OFS="\t"} { print $16 }' $n.AlignmentMetrics | awk 'FNR == 10 {print $0}' | sed 's/\..*//'`
 echo "" >> $n.stats.txt
 
 #  Add SNP call numbers to stats.txt file
@@ -856,8 +856,8 @@ cp $0 ./
 echo "***Sending files to the Network"
 cp -r ${startingdir} ${bioinfo}
 
-printf "$1\t$n\t$read1_size\t$read2_size\t$total_reads_pairs\t$unpaired_reads\t$duplicate_reads\t$average_read_length\t$r\t$aveCoverage\t$percGenomeCoverage\t$unmapped_contig_count\t$quality_snps\n" >> /scratch/report/pre_stat_table.txt
-
+printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%'d\t%d\t%s\t%s\t%s\t%d\t%d\n" $1 $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoverage $percGenomeCoverage $unmapped_contig_count $quality_snps >> /scratch/report/pre_stat_table.txt
+printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%'d\t%d\t%s\t%s\t%s\t%d\t%d\n" $1 $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoverage $percGenomeCoverage $unmapped_contig_count $quality_snps >> /scratch/report/stat_table_cumulative.txt
 
 #Make dailyStats.txt for each stats.txt made for each isolate.
 echo "" >> /scratch/report/dailyStats.txt

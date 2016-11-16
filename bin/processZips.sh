@@ -774,17 +774,25 @@ rm $n.coverage
 echo "***Getting stats for $n"
 
 echo "fastq.gz file sizes:" > $n.stats2.txt
-ls -lh ../zips/ | awk '{print $5}' | egrep -v '^$' >> $n.stats2.txt
+ls -lh ../zips/*gz | awk '{print $5}' | egrep -v '^$' >> $n.stats2.txt
+read1_size=`ls -lh ../zips/*gz | awk '{print $5}' | egrep -v '^$' | head -1`
+read2_size=`ls -lh ../zips/*gz | awk '{print $5}' | egrep -v '^$' | tail -1`
 
-echo "Unmapped fastq file sizes:" >> $n.stats2.txt
-ls -lh ../unmappedReads/*.fastq | awk '{print $5}' | egrep -v '^$' >> $n.stats2.txt
+echo "Unmapped fastq.gz file sizes:" >> $n.stats2.txt
+gzip ../unmappedReads/*fastq
+ls -lh ../unmappedReads/*gz | awk '{print $5}' | egrep -v '^$' >> $n.stats2.txt
 
 echo "Unmapped contig count:" >> $n.stats2.txt
 grep -c ">" ../unmappedReads/${n}_abyss-3.fa >> $n.stats2.txt
+unmapped_contig_count=`grep -c ">" ../unmappedReads/${n}_abyss-3.fa`
+
 echo "" >> $n.stats2.txt
 sed -n 7,8p $n.FilteredReads.xls | awk '{print $2}' >> $n.stats2.txt
+unpaired_reads=`sed -n 7,8p $n.FilteredReads.xls | awk '{print $2}' | tail -1`
 sed -n 7,8p $n.FilteredReads.xls | awk '{print $3}' >> $n.stats2.txt
+total_reads_pairs=`sed -n 7,8p $n.FilteredReads.xls | awk '{print $3}' | tail -1`
 sed -n 7,8p $n.FilteredReads.xls | awk '{print $8}' >> $n.stats2.txt
+duplicate_reads=`sed -n 7,8p $n.FilteredReads.xls | awk '{print $8}' >> $n.stats2.txt | tail -1`
 readcount=`sed -n 8p $n.FilteredReads.xls | awk '{print $3}'`
 echo "" >> $n.stats2.txt
 
@@ -810,7 +818,7 @@ awk 'BEGIN {OFS="\t"} { print $5,$6 }' $n.Quality_by_cycle.insert_size_metrics |
 
 echo 'Mean_Read_Length:' >> $n.stats.txt
 awk 'BEGIN {OFS="\t"} { print $16 }' $n.AlignmentMetrics | awk 'FNR == 10 {print $0}' >> $n.stats.txt
-
+average_read_length=`awk 'BEGIN {OFS="\t"} { print $16 }' $n.AlignmentMetrics | awk 'FNR == 10 {print $0}'`
 echo "" >> $n.stats.txt
 
 #  Add SNP call numbers to stats.txt file
@@ -819,6 +827,7 @@ egrep -v "#" $n.SNPsZeroCoverage.vcf | grep -c ".*" >> $n.stats.txt
 
 echo "SNPs of AC2 and QUAL > 300:" >> $n.stats.txt
 egrep -v "#" $n.SNPsZeroCoverage.vcf | egrep "AC=2" | awk '$6 > 300' | grep -c ".*" >> $n.stats.txt
+quality_snps=`egrep -v "#" $n.SNPsZeroCoverage.vcf | egrep "AC=2" | awk '$6 > 300' | grep -c ".*"`
 
 #  Show Mean Coverage at Terminal and coverageReport
 echo "Mean Coverage"
@@ -846,6 +855,9 @@ cp $0 ./
 
 echo "***Sending files to the Network"
 cp -r ${startingdir} ${bioinfo}
+
+printf "$1\t$n\t$read1_size\t$read2_size\t$total_reads_pairs\t$unpaired_reads\t$duplicate_reads\t$average_read_length\t$r\t$aveCoverage\t$percGenomeCoverage\t$unmapped_contig_count\t$quality_snps\n" >> /scratch/report/pre_stat_table.txt
+
 
 #Make dailyStats.txt for each stats.txt made for each isolate.
 echo "" >> /scratch/report/dailyStats.txt

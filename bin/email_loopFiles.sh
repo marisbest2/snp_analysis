@@ -2,6 +2,9 @@
 
 #  email_loopFiles.sh
 
+printf "Ref_type\tSample\tR1_zip\tR2_zip\ttotal_read_prs\tup_reads\tdup_reads\tave_read_length\tref\tave_cov\tper_cov\tunmapped_contigs\quality_snps\n" > /scratch/report/stat_table.txt
+printf "" > /scratch/report/pre_stat_table.txt
+
 echo "Start Time: `date`" > /scratch/report/dailyTime
 starttime=`date +%s`
 
@@ -32,13 +35,16 @@ echo "" >> /scratch/report/email_processZips.txt
 
 grep -v '*' /scratch/report/email_processZips.txt | grep -v "Stats for BAM file" | sed 's/ADD_MARKER/******************************************/g' > /scratch/report/email_processZips2.txt
 
+sort -k1,2 /scratch/report/pre_stat_table.txt >> /scratch/report/stat_table.txt
+enscript /scratch/report/stat_table.txt -B -j -r -f "Courier5" -o - | ps2pdf - /scratch/report/stat_table.pdf
+
 if [[ $1 == me ]]; then
 	email_list="tod.p.stuber@aphis.usda.gov"
 	else
 	email_list="tod.p.stuber@aphis.usda.gov Jessica.A.Hicks@aphis.usda.gov suelee.robbe-austerman@aphis.usda.gov patrick.m.camp@aphis.usda.gov David.T.Farrell@aphis.usda.gov Christine.R.Quance@aphis.usda.gov Robin.L.Swanson@aphis.usda.gov" 
 fi
 
-cat /scratch/report/email_processZips2.txt | mutt -s "WGS results" -- $email_list
+cat /scratch/report/email_processZips2.txt | mutt -a /scratch/report/stat_table.pdf -s "WGS results" -- $email_list
 
 date >> /scratch/report/mlstCheck_all.txt
 cat /scratch/report/mlstCheck.txt >> /scratch/report/mlstCheck_all.txt

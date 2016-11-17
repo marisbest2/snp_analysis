@@ -2,7 +2,7 @@
 
 #  email_loopFiles.sh
 
-printf "ref_type\tsample\tR1_zip\tR2_zip\ttotal_read_prs\tup_reads\tdup_reads\tave_read_length\tref\tave_cov\tper_cov\tunmapped_contigs\tquality_snps\n" > /scratch/report/stat_table.txt
+printf "ref_type\tsample\tR1_zip\tR2_zip\ttotal_read_prs\tup_reads\t%%dup_reads\tave_read_length\tref\tave_cov\tper_cov\tunmapped_contigs\tquality_snps\n" > /scratch/report/stat_table.txt
 printf "" > /scratch/report/pre_stat_table.txt
 printf "\n" >> /scratch/report/stat_table_cumulative.txt
 date >> /scratch/report/stat_table_cumulative.txt

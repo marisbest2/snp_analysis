@@ -856,8 +856,8 @@ cp $0 ./
 echo "***Sending files to the Network"
 cp -r ${startingdir} ${bioinfo}
 
-printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%'d\t%d\t%s\t%s\t%s\t%d\t%d\n" $1 $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoverage $percGenomeCoverage $unmapped_contig_count $quality_snps >> /scratch/report/pre_stat_table.txt
-printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%'d\t%d\t%s\t%s\t%s\t%d\t%d\n" $1 $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoverage $percGenomeCoverage $unmapped_contig_count $quality_snps >> /scratch/report/stat_table_cumulative.txt
+printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\n" $1 $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoverage $percGenomeCoverage $unmapped_contig_count $quality_snps >> /scratch/report/pre_stat_table.txt
+printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\n" $1 $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoverage $percGenomeCoverage $unmapped_contig_count $quality_snps >> /scratch/report/stat_table_cumulative.txt
 
 #Make dailyStats.txt for each stats.txt made for each isolate.
 echo "" >> /scratch/report/dailyStats.txt

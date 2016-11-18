@@ -185,6 +185,129 @@ wait
 rm ${output}/*.list
 }
 ####################################################
+# Create "here-document"
+cat >${root}/xlsxwriter.py
+#!/usr/bin/env python
+
+# python3
+
+import sys
+import csv
+import xlsxwriter
+
+filename = sys.argv[1].replace(".txt",".xlsx")
+wb = xlsxwriter.Workbook(filename)
+ws = wb.add_worksheet("Sheet1")
+with open(sys.argv[1],'r') as csvfile:
+    table = csv.reader(csvfile, delimiter='\t')
+    i = 0
+    for row in table:
+        ws.write_row(i, 0, row)
+        i += 1
+
+col = len(row)
+print (filename, ":", i, "x", col)
+
+formatA = wb.add_format({'bg_color':'#58FA82'})
+formatG = wb.add_format({'bg_color':'#F7FE2E'})
+formatC = wb.add_format({'bg_color':'#0000FF'})
+formatT = wb.add_format({'bg_color':'#FF0000'})
+formatnormal = wb.add_format({'bg_color':'#FDFEFE'})
+formatlowqual = wb.add_format({'font_color':'#C70039', 'bg_color':'#E2CFDD'})
+formathighqual = wb.add_format({'font_color':'#000000', 'bg_color':'#FDFEFE'})
+formatambigous = wb.add_format({'font_color':'#C70039', 'bg_color':'#E2CFDD'})
+formatN = wb.add_format({'bg_color':'#E2CFDD'})
+
+# in formating: 1,2,3,4,
+# 1 (row) and 2 (column) are first cell
+# 3 (row) and 4 (column) are last cell
+# Both rows and columns are zero indexed!
+# Example: to higlight last row -> i-1,1,i-1,col-1
+
+# order of conditions is very important
+# once a condition is written for cell it cannot be over written
+
+# Excel reads the qual vaules as text
+# therefore cannot use numerical(type:cell with <) criteria
+ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+                      'criteria':'containing',
+                      'value':60,
+                      'format':formathighqual})
+ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+                      'criteria':'containing',
+                      'value':59,
+                      'format':formathighqual})
+ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+                      'criteria':'not containing',
+                      'value':100,
+                      'format':formatlowqual})
+
+ws.conditional_format(2,1,i-3,col-1, {'type':'cell',
+                      'criteria':'==',
+                      'value':'B$2',
+                      'format':formatnormal})
+ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                      'criteria':'containing',
+                      'value':'A',
+                      'format':formatA})
+ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                      'criteria':'containing',
+                      'value':'G',
+                      'format':formatG})
+ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                      'criteria':'containing',
+                      'value':'C',
+                      'format':formatC})
+ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                      'criteria':'containing',
+                      'value':'T',
+                      'format':formatT})
+ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                      'criteria':'containing',
+                      'value':'S',
+                      'format':formatambigous})
+ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                      'criteria':'containing',
+                      'value':'Y',
+                      'format':formatambigous})
+ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                      'criteria':'containing',
+                      'value':'R',
+                      'format':formatambigous})
+ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                      'criteria':'containing',
+                      'value':'W',
+                      'format':formatambigous})
+ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                      'criteria':'containing',
+                      'value':'K',
+                      'format':formatambigous})
+ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                      'criteria':'containing',
+                      'value':'M',
+                      'format':formatambigous})
+ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                      'criteria':'containing',
+                      'value':'N',
+                      'format':formatN})
+
+ws.set_column(0, 0, 30)
+ws.set_column(1, col-1, 2)
+ws.freeze_panes(2, 1)
+format_rotation = wb.add_format({'rotation':'90'})
+ws.set_row(0, 140, format_rotation)
+formatannotation = wb.add_format({'font_color':'#0A028C', 'rotation':'90'})
+#set last row
+ws.set_row(i-1, 400, formatannotation)
+
+wb.close()
+
+EOL
+
+chmod 755 ${root}/xlsxwriter.py
+pause
+
+####################################################
 function parseXLS () {
 # Create "here-document"
 #install python module without su rights
@@ -2379,6 +2502,8 @@ if [ "$eflag" -o "$aflag" ]; then
     cd ./fasta
     pthreads="yes"
     alignTable
+    pwd
+    pause
 else
 	echo "not ran" > all_vcfs/not_ran
     echo "Tree not ran for all_vcfs"

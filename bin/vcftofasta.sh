@@ -2352,6 +2352,7 @@ totalSNPs=`grep -c ".*" parsimony_filtered_total_pos`
 echo "Total informative SNPs: $totalSNPs"
 
 # Make a file containing all fasta files. Used awk instead of cat to insure newline between files
+
 awk '{print $0}' *.fas > ${d}_alignment.fasta
 
 #Clean-up

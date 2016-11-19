@@ -85,6 +85,7 @@ starttime=$(date +%s)
 argUsed="$1"
 uniqdate=$(date "+%Y-%m-%dat%Hh%Mm%Ss")
 dircalled=$(pwd)
+root=$(pwd)
 echo "start time: $uniqdate"
 
 # Set flags
@@ -186,10 +187,8 @@ rm ${output}/*.list
 }
 ####################################################
 # Create "here-document"
-cat >${root}/xlsxwriter.py
+cat >${root}/excelwriter.py <<'EOL'
 #!/usr/bin/env python
-
-# python3
 
 import sys
 import csv
@@ -304,8 +303,7 @@ wb.close()
 
 EOL
 
-chmod 755 ${root}/xlsxwriter.py
-pause
+chmod 755 ${root}/excelwriter.py
 
 ####################################################
 function parseXLS () {
@@ -1698,12 +1696,12 @@ rm parsimony_filtered_total_pos
 rm parsimony_informative
 rm *zerofilteredsnps_alt
 
-if [[ -z $gbk_file ]]; then
-    cp /home/shared/Table_Template.xlsx ./${d}-Table_Template.xlsx
-else
-    # Copy template for annotated tables
-    cp /home/shared/aTable_Template.xlsx ./${d}-Table_Template.xlsx
-fi
+#if [[ -z $gbk_file ]]; then
+#    cp /home/shared/Table_Template.xlsx ./${d}-Table_Template.xlsx
+#else
+#    # Copy template for annotated tables
+#    cp /home/shared/aTable_Template.xlsx ./${d}-Table_Template.xlsx
+#fi
 
 done 
 }
@@ -1783,6 +1781,7 @@ else
 sleep 60
 fi
 
+echo "parallel done running"
 
 function add_mapping_values_sorted () {
 
@@ -1851,7 +1850,13 @@ fi
     wait
     sleep 2
     # rename table to be more descriptive.
+
+    # write tables to excel
     mv ${d}.table.txt ${d}.position_ordered_table.txt
+    ${root}/excelwriter.py ${d}.organized_table.txt
+    rm ${d}.organized_table.txt
+    ${root}/excelwriter.py ${d}.position_ordered_table.txt
+    rm ${d}.position_ordered_table.txt
     
 }
 
@@ -2502,8 +2507,6 @@ if [ "$eflag" -o "$aflag" ]; then
     cd ./fasta
     pthreads="yes"
     alignTable
-    pwd
-    pause
 else
 	echo "not ran" > all_vcfs/not_ran
     echo "Tree not ran for all_vcfs"
@@ -2596,12 +2599,12 @@ cd ${fulDir}
 
 cp ${DefiningSNPs} ./
 
-if [[ -z $gbk_file ]]; then
-    cp /home/shared/Table_Template.xlsx ./
-else
-    # Copy template for annotated tables
-    cp /home/shared/aTable_Template.xlsx ./Table_Template.xlsx
-fi
+#if [[ -z $gbk_file ]]; then
+#    cp /home/shared/Table_Template.xlsx ./
+#else
+#    # Copy template for annotated tables
+#    cp /home/shared/aTable_Template.xlsx ./Table_Template.xlsx
+#fi
 
 wait
 sleep 2
@@ -2628,7 +2631,6 @@ for d in $directories; do
     #echo "************* Orginizing Table: $d *****************"
     #echo "****************************************************"
     alignTable & 
-
     pwd 
 done
 
@@ -2811,6 +2813,7 @@ rm ${fulDir}/*annotate.py.tre
 rm ${fulDir}/*gbk*
 rm ${fulDir}/each_vcf-poslist.txt
 rm ${fulDir}/each_annotation_in
+rm ${root}/excelwriter.py
 
 echo "Copy to ${bioinfoVCF}"
 cp -r $PWD ${bioinfoVCF}

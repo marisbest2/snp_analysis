@@ -289,6 +289,10 @@ ws.conditional_format(2,1,i-3,col-1, {'type':'text',
                       'criteria':'containing',
                       'value':'N',
                       'format':formatN})
+ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                      'criteria':'containing',
+                      'value':'-',
+                      'format':formatN})
 
 ws.set_column(0, 0, 30)
 ws.set_column(1, col-1, 2)

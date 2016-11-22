@@ -1857,9 +1857,16 @@ fi
     mv ${d}.table.txt ${d}.position_ordered_table.txt
 
     # if no gbk for annonation tack a row to bottom of table so xlsxwriter has the proper row count for formating
+    # row needs to be complete for all columns
     if [[ -z $gbk_file ]]; then
         echo "No_gbk_available_for_annotation" >> ${d}.position_ordered_table.txt
+        max=$(awk 'max < NF { max = NF } END { print max }' ${d}.position_ordered_table.txt)
+        awk -v max=$max 'BEGIN{OFS="\t"}{ for(i=NF+1; i<=max; i++) $i = ""; print }' ${d}.position_ordered_table.txt > ${d}.position_ordered_table.temp
+        mv ${d}.position_ordered_table.temp ${d}.position_ordered_table.txt
         echo "No_gbk_available_for_annotation" >> ${d}.organized_table.txt
+        max=$(awk 'max < NF { max = NF } END { print max }' ${d}.organized_table.txt)
+        awk -v max=$max 'BEGIN{OFS="\t"}{ for(i=NF+1; i<=max; i++) $i = ""; print }' ${d}.organized_table.txt > ${d}.organized_table.temp
+        mv ${d}.organized_table.temp ${d}.organized_table.txt
     fi
 
     # write tables to excel

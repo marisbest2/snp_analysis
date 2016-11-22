@@ -1854,9 +1854,16 @@ fi
     wait
     sleep 2
     # rename table to be more descriptive.
+    mv ${d}.table.txt ${d}.position_ordered_table.txt
+
+    # if no gbk for annonation tack a row to bottom of table so xlsxwriter has the proper row count for formating
+    if [[ -z $gbk_file ]]; then
+        echo "No_gbk_available_for_annotation" >> ${d}.position_ordered_table.txt
+        echo "No_gbk_available_for_annotation" >> ${d}.organized_table.txt
+    fi
 
     # write tables to excel
-    mv ${d}.table.txt ${d}.position_ordered_table.txt
+
     ${root}/excelwriter.py ${d}.organized_table.txt
     rm ${d}.organized_table.txt
     ${root}/excelwriter.py ${d}.position_ordered_table.txt

@@ -447,6 +447,20 @@ ${SPOLIGOSPACERFINDER} &
 echo "Moving forward from spoligoSpacerFinder.sh"
 
 ###################################################################
+# H37Rv general
+elif [ $1 == H37Rv ]; then
+cp /home/shared/mycobacterium/tbc/snppipeline/tb4b/NC000962.fasta ./
+hqs="/home/shared/mycobacterium/tbc/snppipeline/tb4b/15-3162-highqualitysnps.vcf"
+bioinfo="/bioinfo11/TStuber/Results/mycobacterium/tbc/H37Rv/newfiles"
+gff_file="/home/shared/mycobacterium/tbc/snppipeline/tb4b/NC_000962.gff"
+
+# Run spoligoSpacerFinder.sh
+echo "Starting spoligoSpacerFinder.sh"
+${SPOLIGOSPACERFINDER} &
+echo "Moving forward from spoligoSpacerFinder.sh"
+
+###################################################################
+###################################################################
 ###################################################################
 ###################################################################
 
@@ -487,7 +501,7 @@ elif [ $1 == secd ]; then
    #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
 
 else
-    echo "Incorrect argument!  Must use one of the following arguments: ab1, mel, suisall, suis1, suis2, suis3, suis4, suis5, canis, ceti1, ceti2, ovis, TB1, TB2, TB3, TB4a, TB4b, TB5, TB6, TBBOV, para, past, h5n2 secd, taylorella, anc"
+    echo "Incorrect argument!  Must use one of the following arguments: ab1, mel, suisall, suis1, suis2, suis3, suis4, suis5, canis, ceti1, ceti2, ovis, TB1, TB2, TB3, TB4a, TB4b, TB5, TB6, TBBOV, H37Rv, para, past, h5n2 secd, taylorella, anc"
     exit 1
 fi
 

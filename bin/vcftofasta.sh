@@ -1065,7 +1065,7 @@ email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Suelee.Robbe-Au
 # Excel file that is being used is at: /bioinfo11/TStuber/Results/mycobacterium/vcfs/Filtered_Regions.xlsx
 # Excel tab label "New groupings"
 #Used with previously, with TB3 reference --> excelinfile="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb3/tb3Filtered_Regions.xlsx"
-excelinfile="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb3-NC_000962/tb3_NC_000962-Filtered_Regions.xlsx"
+excelinfile="/bioinfo11/TStuber/Results/mycobacterium/tbc/H37Rv/script_dependents/H37Rv-Filtered_Regions.xlsx"
 parseXLS | sed 's/ u//g' | tr "," "\t" | sed 's/\[//g' |sed 's/\]//g' |sed 's/ //g' | sed 's/^u//g' | sed 's/\.0//g' | tr -d "'"  > ${filterdir}/filterFile.txt
 filterFileCreations
 

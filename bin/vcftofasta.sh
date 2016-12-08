@@ -1864,6 +1864,10 @@ chmod 755 ./$d.mapvalues.py
 
 add_mapping_values_sorted
 sleep 5
+
+./$d.mapvalues.py ${d}.table.txt quality.txt
+mv $d.finished_table.txt ${d}.table.txt
+
 ./$d.mapvalues.py ${d}.organized_table.txt quality.txt
 mv $d.finished_table.txt ${d}.organized_table.txt
 rm quality.txt

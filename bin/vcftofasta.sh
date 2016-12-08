@@ -831,10 +831,10 @@ elif [[ $1 == bovis ]]; then
     genotypingcodes="/bioinfo11/TStuber/Results/mycobacterium/Untitled.tab"
     gbk_file="/home/shared/mycobacterium/tbc/snppipeline/tbbov/NC_002945.gbk"
     # This file tells the script how to cluster VCFs
-    DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/script2/script_dependents/DefiningSNPsGroupDesignations.txt"
+    DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/script_dependents/DefiningSNPsGroupDesignations.txt"
     FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
     FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
-    RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/script2/script_dependents/RemoveFromAnalysis.txt"
+    RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/script_dependents/RemoveFromAnalysis.txt"
     QUAL=150 # Minimum quality for calling a SNP
     export lowEnd=1
     export highEnd=200 # QUAL range to change ALT to N
@@ -854,7 +854,7 @@ elif [[ $1 == bovis ]]; then
     # Excel file that is being used is at: /bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/script2/Filtered_Regions.xlsx
     # Excel tab label "New groupings"
 
-    excelinfile="/bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/script2/script_dependents/Filtered_Regions.xlsx"
+    excelinfile="/bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/script_dependents/Filtered_Regions.xlsx"
     parseXLS | sed 's/ u//g' | tr "," "\t" | sed 's/\[//g' |sed 's/\]//g' |sed 's/ //g' | sed 's/^u//g' | sed 's/\.0//g' | tr -d "'"  > ${filterdir}/filterFile.txt
     filterFileCreations
 

@@ -1877,6 +1877,10 @@ else
     # Inner merge of this file to all tables
     # Add annoations to tables
 
+    ./$d.mapvalues.py ${d}.table.txt ${dircalled}/each_annotation_in
+    # Rename output tables back to original names
+    mv $d.finished_table.txt ${d}.table.txt
+
     ./$d.mapvalues.py $d.organized_table.txt ${dircalled}/each_annotation_in
     # Rename output tables back to original names
     mv $d.finished_table.txt $d.organized_table.txt
@@ -1886,23 +1890,24 @@ else
     rm $d.transposed_table.txt
 fi
 
-    wait
-    sleep 2
-    # rename table to be more descriptive.
-    mv ${d}.table.txt ${d}.position_ordered_table.txt
+wait
+sleep 2
+# rename table to be more descriptive.
+mv ${d}.table.txt ${d}.position_ordered_table.txt
 
-    # if no gbk for annonation tack a row to bottom of table so xlsxwriter has the proper row count for formating
-    # row needs to be complete for all columns
-    if [[ -z $gbk_file ]]; then
-        echo "No_gbk_available_for_annotation" >> ${d}.position_ordered_table.txt
-        max=$(awk 'max < NF { max = NF } END { print max }' ${d}.position_ordered_table.txt)
-        awk -v max=$max 'BEGIN{OFS="\t"}{ for(i=NF+1; i<=max; i++) $i = ""; print }' ${d}.position_ordered_table.txt > ${d}.position_ordered_table.temp
-        mv ${d}.position_ordered_table.temp ${d}.position_ordered_table.txt
-        echo "No_gbk_available_for_annotation" >> ${d}.organized_table.txt
-        max=$(awk 'max < NF { max = NF } END { print max }' ${d}.organized_table.txt)
-        awk -v max=$max 'BEGIN{OFS="\t"}{ for(i=NF+1; i<=max; i++) $i = ""; print }' ${d}.organized_table.txt > ${d}.organized_table.temp
-        mv ${d}.organized_table.temp ${d}.organized_table.txt
-    fi
+# if no gbk for annonation tack a row to bottom of table so xlsxwriter has the proper row count for formating
+# row needs to be complete for all columns
+if [[ -z $gbk_file ]]; then
+    echo "No_gbk_available_for_annotation" >> ${d}.position_ordered_table.txt
+    max=$(awk 'max < NF { max = NF } END { print max }' ${d}.position_ordered_table.txt)
+    awk -v max=$max 'BEGIN{OFS="\t"}{ for(i=NF+1; i<=max; i++) $i = ""; print }' ${d}.position_ordered_table.txt > ${d}.position_ordered_table.temp
+    mv ${d}.position_ordered_table.temp ${d}.position_ordered_table.txt
+    echo "No_gbk_available_for_annotation" >> ${d}.organized_table.txt
+    max=$(awk 'max < NF { max = NF } END { print max }' ${d}.organized_table.txt)
+    awk -v max=$max 'BEGIN{OFS="\t"}{ for(i=NF+1; i<=max; i++) $i = ""; print }' ${d}.organized_table.txt > ${d}.organized_table.temp
+    mv ${d}.organized_table.temp ${d}.organized_table.txt
+
+fi
 
     # write tables to excel
 

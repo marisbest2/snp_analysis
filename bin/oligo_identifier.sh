@@ -215,7 +215,7 @@ if [[ $check > 0 ]]; then
 
         if [ $i == 11101111 ] || [ $i == 11101101 ]
         then
-        catch="TB1"
+        catch="H37Rv"
 	`processZips.sh $catch | tee tee_processZips_out.txt` &
         echo "TB1" >> tee_tb_oligo_identifier_out2.txt
 	echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
@@ -223,7 +223,7 @@ if [[ $check > 0 ]]; then
 	
         elif [ $i == 01100111 ]
         then
-        catch="TB2"
+        catch="H37Rv"
         `processZips.sh mungi $catch | tee tee_processZips_out.txt` &
         echo "TB2" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
@@ -231,7 +231,7 @@ if [[ $check > 0 ]]; then
 
         elif [ $i == 01101011 ] || [ $i == 11101011 ]
         then
-        catch="TB3"
+        catch="H37Rv"
         `processZips.sh $catch | tee tee_processZips_out.txt` &
         echo "TB3" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
@@ -239,7 +239,7 @@ if [[ $check > 0 ]]; then
 
         elif [ $i == 01101111 ]
         then
-        catch="TB4a"
+        catch="H37Rv"
         `processZips.sh $catch | tee tee_processZips_out.txt` &
         echo "TB4a" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
@@ -248,7 +248,7 @@ if [[ $check > 0 ]]; then
 
         elif [ $i == 01101101 ] || [ $i == 11101101 ] || [ $i == 01101111 ]
         then
-        catch="TB4b"
+        catch="H37Rv"
         `processZips.sh $catch | tee tee_processZips_out.txt` &
         echo "TB4b" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
@@ -256,7 +256,7 @@ if [[ $check > 0 ]]; then
 
         elif [ $i == 11111111 ]
         then
-        catch="TB5"
+        catch="H37Rv"
         `processZips.sh $catch | tee tee_processZips_out.txt` &
         echo "TB5" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
@@ -264,7 +264,7 @@ if [[ $check > 0 ]]; then
 
         elif [ $i == 11001111 ]
         then
-        catch="TB6"
+        catch="H37Rv"
         `processZips.sh $catch | tee tee_processZips_out.txt` &
         echo "TB6" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
@@ -272,7 +272,7 @@ if [[ $check > 0 ]]; then
 
         elif [ $i == 10101110 ]
         then
-        catch="TB7"
+        catch="H37Rv"
         `processZips.sh $catch | tee tee_processZips_out.txt` &
         echo "TB7 are as TBBOV" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt

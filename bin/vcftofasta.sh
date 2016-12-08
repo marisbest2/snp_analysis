@@ -838,7 +838,7 @@ elif [[ $1 == bovis ]]; then
     QUAL=150 # Minimum quality for calling a SNP
     export lowEnd=1
     export highEnd=200 # QUAL range to change ALT to N
-    bioinfoVCF="/bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/script2/comparisons"
+    bioinfoVCF="/bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/script2"
     echo "vcftofasta.sh ran as M. bovis"
     echo "Script vcftofasta.sh ran using M. bovis variables" >> section5
     email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"

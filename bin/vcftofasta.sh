@@ -580,7 +580,6 @@ chmod 755 ./snpTableSorter.pl
 # Environment controls:
 
 if [[ $1 == ab1 ]]; then
-
     getbrucname    
     genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
     # When more than one chromosome
@@ -606,7 +605,6 @@ if [[ $1 == ab1 ]]; then
     email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Christine.R.Quance@usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
     
 elif [[ $1 == ab3 ]]; then
-
     getbrucname    
     genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
     # When more than one chromosome
@@ -632,7 +630,6 @@ elif [[ $1 == ab3 ]]; then
     email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Christine.R.Quance@usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
 
 elif [[ $1 == mel ]]; then
-
     getbrucname
     genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
     # This file tells the script how to cluster VCFs
@@ -651,7 +648,6 @@ elif [[ $1 == mel ]]; then
     email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Christine.R.Quance@usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
 
 elif [[ $1 == suis1 ]]; then
-
     getbrucname
     genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
     # When more than one chromosome
@@ -677,7 +673,6 @@ elif [[ $1 == suis1 ]]; then
     email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Christine.R.Quance@usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
 
 elif [[ $1 == suis2 ]]; then
-    
     getbrucname
     genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
     # This file tells the script how to cluster VCFs
@@ -696,7 +691,6 @@ elif [[ $1 == suis2 ]]; then
     email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Christine.R.Quance@usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
 
 elif [[ $1 == suis3 ]]; then
-
     getbrucname
     genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
     # This file tells the script how to cluster VCFs
@@ -715,7 +709,6 @@ elif [[ $1 == suis3 ]]; then
     email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Christine.R.Quance@usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
 
 elif [[ $1 == suis4 ]]; then
-
     getbrucname
     genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
     # This file tells the script how to cluster VCFs
@@ -734,7 +727,6 @@ elif [[ $1 == suis4 ]]; then
     email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Christine.R.Quance@usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
 
 elif [[ $1 == canis ]]; then
-    
     getbrucname
     genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
     # When more than one chromosome
@@ -759,9 +751,7 @@ elif [[ $1 == canis ]]; then
     echo "Script vcftofasta.sh ran using B. canis variables" > section5
     email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Christine.R.Quance@usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
 
-
 elif [[ $1 == ceti1 ]]; then
-    
     getbrucname
     genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
     # This file tells the script how to cluster VCFs
@@ -779,9 +769,7 @@ elif [[ $1 == ceti1 ]]; then
     echo "Script vcftofasta.sh ran using B ceti group 1 variables" > section5
     email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Christine.R.Quance@usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
 
-
 elif [[ $1 == ceti2 ]]; then
-
     getbrucname
     genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
     # When more than one chromosome
@@ -807,9 +795,7 @@ elif [[ $1 == ceti2 ]]; then
     echo "Script vcftofasta.sh ran using B ceti group 2 variables" > section5
     email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Christine.R.Quance@usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
 
-
 elif [[ $1 == ovis ]]; then
-
     getbrucname
     genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
     # This file tells the script how to cluster VCFs
@@ -858,88 +844,22 @@ elif [[ $1 == bovis ]]; then
     parseXLS | sed 's/ u//g' | tr "," "\t" | sed 's/\[//g' |sed 's/\]//g' |sed 's/ //g' | sed 's/^u//g' | sed 's/\.0//g' | tr -d "'"  > ${filterdir}/filterFile.txt
     filterFileCreations
 
-elif [[ $1 == mungi ]]; then
-    genotypingcodes="/bioinfo11/TStuber/Results/mycobacterium/Untitled.tab"
-    gbk_file="/home/shared/mycobacterium/tbc/snppipeline/mungi/NC_000962.gbk"
-    # This file tells the script how to cluster VCFs
-    DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/tbc/mungi/mungiDefiningSNPsGroupDesignations.txt"
-    FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
-    FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
-    QUAL=150 # Minimum quality for calling a SNP
-    export lowEnd=1
-    export highEnd=200 # QUAL range to change ALT to N
-    bioinfoVCF="/bioinfo11/TStuber/Results/mycobacterium/tbc/mungi/script2/comparisons"
-    echo "vcftofasta.sh ran as ${1}"
-    echo "Script vcftofasta.sh ran using ${1} variables" >> section5
-    email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
-
-    # For tb inputXLS.py creates text files with positions to be filetered, and places them in FilterDirectory
-    # Excel file that is being used is at: /bioinfo11/TStuber/Results/mycobacterium/vcfs/Filtered_Regions.xlsx
-    # Excel tab label "New groupings"
-    excelinfile="/bioinfo11/TStuber/Results/mycobacterium/tbc/mungi/mungiFiltered_Regions.xlsx"
-    parseXLS | sed 's/ u//g' | tr "," "\t" | sed 's/\[//g' |sed 's/\]//g' |sed 's/ //g' | sed 's/^u//g' | sed 's/\.0//g' | tr -d "'"  >${filterdir}/filterFile.txt
-    filterFileCreations
-
-elif [[ $1 == tb1 ]]; then
-    genotypingcodes="/bioinfo11/TStuber/Results/mycobacterium/Untitled.tab"
-    # This file tells the script how to cluster VCFs
-    DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb1/tb1DefiningSNPsGroupDesignations.txt"
-    FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
-    FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
-    RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/vcfs/RemoveFromAnalysis.txt"
-    QUAL=150 # Minimum quality for calling a SNP
-    export lowEnd=1
-    export highEnd=200 # QUAL range to change ALT to N
-    bioinfoVCF="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb1/vcfs"
-    echo "vcftofasta.sh ran as ${1}"
-    echo "Script vcftofasta.sh ran using ${1} variables" >> section5
-    email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
-
-    # For tb inputXLS.py creates text files with positions to be filetered, and places them in FilterDirectory
-    # Excel file that is being used is at: /bioinfo11/TStuber/Results/mycobacterium/vcfs/Filtered_Regions.xlsx
-    # Excel tab label "New groupings"
-    excelinfile="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb1/tb1Filtered_Regions.xlsx"
-    parseXLS | sed 's/ u//g' | tr "," "\t" | sed 's/\[//g' |sed 's/\]//g' |sed 's/ //g' | sed 's/^u//g' | sed 's/\.0//g' | tr -d "'"  >${filterdir}/filterFile.txt
-    filterFileCreations
-
-elif [[ $1 == tb2 ]]; then
-    genotypingcodes="/bioinfo11/TStuber/Results/mycobacterium/Untitled.tab"
-    # This file tells the script how to cluster VCFs
-    DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb2/tb2DefiningSNPsGroupDesignations.txt"
-    FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
-    FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
-    RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/vcfs/RemoveFromAnalysis.txt"
-    QUAL=150 # Minimum quality for calling a SNP
-    export lowEnd=1
-    export highEnd=200 # QUAL range to change ALT to N
-    bioinfoVCF="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb2/vcfs"
-    echo "vcftofasta.sh ran as ${1}"
-    echo "Script vcftofasta.sh ran using ${1} variables" >> section5
-    email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
-
-    # For tb inputXLS.py creates text files with positions to be filetered, and places them in FilterDirectory
-    # Excel file that is being used is at: /bioinfo11/TStuber/Results/mycobacterium/vcfs/Filtered_Regions.xlsx
-    # Excel tab label "New groupings"
-    excelinfile="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb2/tb2Filtered_Regions.xlsx"
-    parseXLS | sed 's/ u//g' | tr "," "\t" | sed 's/\[//g' |sed 's/\]//g' |sed 's/ //g' | sed 's/^u//g' | sed 's/\.0//g' | tr -d "'"  > ${filterdir}/filterFile.txt
-    filterFileCreations
-
-elif [[ $1 == tb3 ]]; then
+elif [[ $1 == H37Rv ]]; then
     genotypingcodes="/bioinfo11/TStuber/Results/mycobacterium/Untitled.tab"
     # This file tells the script how to cluster VCFs
     #Used with previously, with TB3 reference --> DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb3/tb3DefiningSNPsGroupDesignations.txt"
 
     gbk_file="/home/shared/mycobacterium/tbc/snppipeline/mungi/NC_000962.gbk"
     # This file tells the script how to cluster VCFs
-    DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb3-NC_000962/tb3_NC_000962-DefiningSNPsGroupDesignations.txt"
+    DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/tbc/h37/script_dependents/H37Rv-DefiningSNPsGroupDesignations.txt"
 
     FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
     FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
-    RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/vcfs/RemoveFromAnalysis.txt"
+    #RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/vcfs/RemoveFromAnalysis.txt"
     QUAL=150 # Minimum quality for calling a SNP
     export lowEnd=1
     export highEnd=200 # QUAL range to change ALT to N
-    bioinfoVCF="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb3-NC_000962/script2"
+    bioinfoVCF="/bioinfo11/TStuber/Results/mycobacterium/tbc/h37/script2"
     echo "vcftofasta.sh ran as ${1}"
     echo "Script vcftofasta.sh ran using ${1} variables" >> section5
     email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
@@ -948,126 +868,9 @@ elif [[ $1 == tb3 ]]; then
     # Excel file that is being used is at: /bioinfo11/TStuber/Results/mycobacterium/vcfs/Filtered_Regions.xlsx
     # Excel tab label "New groupings"
     #Used with previously, with TB3 reference --> excelinfile="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb3/tb3Filtered_Regions.xlsx"
-    excelinfile="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb3-NC_000962/tb3_NC_000962-Filtered_Regions.xlsx"
+    excelinfile="/bioinfo11/TStuber/Results/mycobacterium/tbc/h37/script_dependents/H37Rv-Filtered_Regions.xlsx"
     parseXLS | sed 's/ u//g' | tr "," "\t" | sed 's/\[//g' |sed 's/\]//g' |sed 's/ //g' | sed 's/^u//g' | sed 's/\.0//g' | tr -d "'"  > ${filterdir}/filterFile.txt
     filterFileCreations
-
-elif [[ $1 == tb4a ]]; then
-    genotypingcodes="/bioinfo11/TStuber/Results/mycobacterium/Untitled.tab"
-    # This file tells the script how to cluster VCFs
-    DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb4a/tb4aDefiningSNPsGroupDesignations.txt"
-    FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
-    FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
-    RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/vcfs/RemoveFromAnalysis.txt"
-    QUAL=150 # Minimum quality for calling a SNP
-    export lowEnd=1
-    export highEnd=200 # QUAL range to change ALT to N
-    bioinfoVCF="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb4a/vcfs"
-    echo "vcftofasta.sh ran as ${1}"
-    echo "Script vcftofasta.sh ran using ${1} variables" >> section5
-    email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
-
-    # For tb inputXLS.py creates text files with positions to be filetered, and places them in FilterDirectory
-    # Excel file that is being used is at: /bioinfo11/TStuber/Results/mycobacterium/vcfs/Filtered_Regions.xlsx
-    # Excel tab label "New groupings"
-    excelinfile="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb4a/tb4aFiltered_Regions.xlsx"
-    parseXLS | sed 's/ u//g' | tr "," "\t" | sed 's/\[//g' |sed 's/\]//g' |sed 's/ //g' | sed 's/^u//g' | sed 's/\.0//g' | tr -d "'"  > ${filterdir}/filterFile.txt
-    filterFileCreations
-
-elif [[ $1 == tb4b ]]; then
-    genotypingcodes="/bioinfo11/TStuber/Results/mycobacterium/Untitled.tab"
-    gbk_file="/home/shared/mycobacterium/tbc/snppipeline/tb4b/NC_018143.gbk"
-    # This file tells the script how to cluster VCFs
-    DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb4b/tb4bDefiningSNPsGroupDesignations.txt"
-    FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
-    FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
-    RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/vcfs/RemoveFromAnalysis.txt"
-    QUAL=150 # Minimum quality for calling a SNP
-    export lowEnd=1
-    export highEnd=200 # QUAL range to change ALT to N
-    bioinfoVCF="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb4b/vcfs"
-    echo "vcftofasta.sh ran as ${1}"
-    echo "Script vcftofasta.sh ran using ${1} variables" >> section5
-    email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
-
-    # For tb inputXLS.py creates text files with positions to be filetered, and places them in FilterDirectory
-    # Excel file that is being used is at: /bioinfo11/TStuber/Results/mycobacterium/vcfs/Filtered_Regions.xlsx
-    # Excel tab label "New groupings"
-    excelinfile="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb4b/tb4bFiltered_Regions.xlsx"
-    parseXLS | sed 's/ u//g' | tr "," "\t" | sed 's/\[//g' |sed 's/\]//g' |sed 's/ //g' | sed 's/^u//g' | sed 's/\.0//g' | tr -d "'"  > ${filterdir}/filterFile.txt
-    filterFileCreations
-
-elif [[ $1 == tb5 ]]; then
-    genotypingcodes="/bioinfo11/TStuber/Results/mycobacterium/Untitled.tab"
-    # This file tells the script how to cluster VCFs
-    DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb5/tb5DefiningSNPsGroupDesignations.txt"
-    FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
-    FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
-    RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/vcfs/RemoveFromAnalysis.txt"
-    QUAL=150 # Minimum quality for calling a SNP
-    export lowEnd=1
-    export highEnd=200 # QUAL range to change ALT to N
-    bioinfoVCF="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb5/vcfs"
-    echo "vcftofasta.sh ran as ${1}"
-    echo "Script vcftofasta.sh ran using ${1} variables" >> section5
-    email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
-
-    # For tb inputXLS.py creates text files with positions to be filetered, and places them in FilterDirectory
-    # Excel file that is being used is at: /bioinfo11/TStuber/Results/mycobacterium/vcfs/Filtered_Regions.xlsx
-    # Excel tab label "New groupings"
-    excelinfile="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb5/tb5Filtered_Regions.xlsx"
-    parseXLS | sed 's/ u//g' | tr "," "\t" | sed 's/\[//g' |sed 's/\]//g' |sed 's/ //g' | sed 's/^u//g' | sed 's/\.0//g' | tr -d "'"  > ${filterdir}/filterFile.txt
-    filterFileCreations
-
-elif [[ $1 == tb6 ]]; then
-    genotypingcodes="/bioinfo11/TStuber/Results/mycobacterium/Untitled.tab"
-    # This file tells the script how to cluster VCFs
-    DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb6/tb6DefiningSNPsGroupDesignations.txt"
-    FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
-    FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
-    RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/vcfs/RemoveFromAnalysis.txt"
-    QUAL=150 # Minimum quality for calling a SNP
-    export lowEnd=1
-    export highEnd=200 # QUAL range to change ALT to N
-    bioinfoVCF="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb6/vcfs"
-    echo "vcftofasta.sh ran as ${1}"
-    echo "Script vcftofasta.sh ran using ${1} variables" >> section5
-    email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
-
-    # For tb inputXLS.py creates text files with positions to be filetered, and places them in FilterDirectory
-    # Excel file that is being used is at: /bioinfo11/TStuber/Results/mycobacterium/vcfs/Filtered_Regions.xlsx
-    # Excel tab label "New groupings"
-    excelinfile="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb6/tb6Filtered_Regions.xlsx"
-    parseXLS | sed 's/ u//g' | tr "," "\t" | sed 's/\[//g' |sed 's/\]//g' |sed 's/ //g' | sed 's/^u//g' | sed 's/\.0//g' | tr -d "'"  > ${filterdir}/filterFile.txt
-    filterFileCreations
-
-elif [[ $1 == H37Rv ]]; then
-genotypingcodes="/bioinfo11/TStuber/Results/mycobacterium/Untitled.tab"
-# This file tells the script how to cluster VCFs
-#Used with previously, with TB3 reference --> DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb3/tb3DefiningSNPsGroupDesignations.txt"
-
-gbk_file="/home/shared/mycobacterium/tbc/snppipeline/mungi/NC_000962.gbk"
-# This file tells the script how to cluster VCFs
-DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/tbc/H37Rv/script_dependents/H37Rv-DefiningSNPsGroupDesignations.txt"
-
-FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
-FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
-#RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/vcfs/RemoveFromAnalysis.txt"
-QUAL=150 # Minimum quality for calling a SNP
-export lowEnd=1
-export highEnd=200 # QUAL range to change ALT to N
-bioinfoVCF="/bioinfo11/TStuber/Results/mycobacterium/tbc/H37Rv/script2"
-echo "vcftofasta.sh ran as ${1}"
-echo "Script vcftofasta.sh ran using ${1} variables" >> section5
-email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
-
-# For tb inputXLS.py creates text files with positions to be filetered, and places them in FilterDirectory
-# Excel file that is being used is at: /bioinfo11/TStuber/Results/mycobacterium/vcfs/Filtered_Regions.xlsx
-# Excel tab label "New groupings"
-#Used with previously, with TB3 reference --> excelinfile="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb3/tb3Filtered_Regions.xlsx"
-excelinfile="/bioinfo11/TStuber/Results/mycobacterium/tbc/H37Rv/script_dependents/H37Rv-Filtered_Regions.xlsx"
-parseXLS | sed 's/ u//g' | tr "," "\t" | sed 's/\[//g' |sed 's/\]//g' |sed 's/ //g' | sed 's/^u//g' | sed 's/\.0//g' | tr -d "'"  > ${filterdir}/filterFile.txt
-filterFileCreations
 
 elif [[ $1 == para ]]; then
     genotypingcodes="/bioinfo11/TStuber/Results/mycobacterium/avium_complex/tags.txt"
@@ -1094,22 +897,21 @@ elif [[ $1 == para ]]; then
     filterFileCreations
 
 elif [[ $1 == h5n2 ]]; then
-
-	genotypingcodes="/bioinfo11/MKillian/Analysis/results/snp-genotypingcodes.txt"
-	# This file tells the script how to cluster VCFs
-	DefiningSNPs="/bioinfo11/MKillian/Analysis/results/influenza/h5n2/snp_analysis/script2/Defining_SNPs_H5N2.txt"
-	FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
-	FilterGroups=no #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
-	FilterDirectory="/bioinfo11/MKillian/Analysis/results/influenza/h5n2/snp_analysis/script2/FilterFiles" #Files containing positions to filter
-	RemoveFromAnalysis="bioinfo11/TStuber/Results/mycobacterium/vcfs/RemoveFromAnalysis.txt"
-	QUAL=300 # Minimum quality for calling a SNP
-	export lowEnd=1
-	export highEnd=350 # QUAL range to change ALT to N
-	bioinfoVCF="/bioinfo11/MKillian/Analysis/results/influenza/h5n2/snp_analysis/script2/"
-	echo "vcftofasta.sh ran as H5N2"
-	echo "Script vcftofasta.sh ran using h5n2 variables" > section5
-	email_list="tod.p.stuber@usda.gov" #Mary.L.Killian@aphis.usda.gov mia.kim.torchetti@aphis.usda.gov Suelee.Robbe-Austerman@aphis.usda.gov
-	#for i in *vcf; do awk 'BEGIN{OFS="\t"}$1 ~ /seg1/ || $1 ~ /^#/ {print $0}' $i > ../h5n2_2015-10-03-seg1/${i%.vcf}-seg1.vcf; done
+    genotypingcodes="/bioinfo11/MKillian/Analysis/results/snp-genotypingcodes.txt"
+    # This file tells the script how to cluster VCFs
+    DefiningSNPs="/bioinfo11/MKillian/Analysis/results/influenza/h5n2/snp_analysis/script2/Defining_SNPs_H5N2.txt"
+    FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
+    FilterGroups=no #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
+    FilterDirectory="/bioinfo11/MKillian/Analysis/results/influenza/h5n2/snp_analysis/script2/FilterFiles" #Files containing positions to filter
+    RemoveFromAnalysis="bioinfo11/TStuber/Results/mycobacterium/vcfs/RemoveFromAnalysis.txt"
+    QUAL=300 # Minimum quality for calling a SNP
+    export lowEnd=1
+    export highEnd=350 # QUAL range to change ALT to N
+    bioinfoVCF="/bioinfo11/MKillian/Analysis/results/influenza/h5n2/snp_analysis/script2/"
+    echo "vcftofasta.sh ran as H5N2"
+    echo "Script vcftofasta.sh ran using h5n2 variables" > section5
+    email_list="tod.p.stuber@usda.gov" #Mary.L.Killian@aphis.usda.gov mia.kim.torchetti@aphis.usda.gov Suelee.Robbe-Austerman@aphis.usda.gov
+    #for i in *vcf; do awk 'BEGIN{OFS="\t"}$1 ~ /seg1/ || $1 ~ /^#/ {print $0}' $i > ../h5n2_2015-10-03-seg1/${i%.vcf}-seg1.vcf; done
 
 elif [[ $1 == past ]]; then
     genotypingcodes="/bioinfo11/TStuber/Results/mycobacterium/Untitled.tab"
@@ -1133,9 +935,8 @@ elif [[ $1 == past ]]; then
     filterFileCreations
 
 else
-
     echo ""
-    echo "Incorrect argument!  Must use one of the following arguments: ab1, mel, suis1, suis2, suis3, suis4, canis, ceti1, ceti2, ovis, bovis, tb1, tb2, tb3, tb4a, tb4b, tb5, tb6, H37Rv, past, para, h5n2"
+    echo "Incorrect argument!  Must use one of the following arguments: ab1, mel, suis1, suis2, suis3, suis4, canis, ceti1, ceti2, ovis, bovis, H37Rv, past, para, h5n2"
     echo ""
     echo "Set optional flags"
     echo "flag -c with look for positions to filter.  By default, with no -c, this will not be done."

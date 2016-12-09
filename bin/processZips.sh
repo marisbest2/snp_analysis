@@ -300,208 +300,70 @@ elif [ $1 == tay5 ]; then
     bioinfo="/bioinfo11/TStuber/Results/gen-bact/taylorella/newFiles"
 
     ###################################################################
-    ###################################################################
 
-###################################################################
-# mtb ancestral strain
-elif [ $1 == anc ]; then
-cp /home/shared/mycobacterium/tbc/mtb-ancestor.fasta ./
-hqs="/home/shared/mycobacterium/tbc/15-5316-highqualitysnps.vcf"
-bioinfo="/bioinfo11/TStuber/Results/mycobacterium/tbc/ancestral/newfiles"
-#sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
-
-# Run spoligoSpacerFinder.sh
-#echo "Starting spoligoSpacerFinder.sh"
-#${SPOLIGOSPACERFINDER} &
-#echo "Moving forward from spoligoSpacerFinder.sh"
-
-###################################################################
-# Lineage 1
-elif [ $1 == TB1 ]; then
-cp /home/shared/mycobacterium/tbc/snppipeline/tb1/NC_017528.fasta ./
-hqs="/home/shared/mycobacterium/tbc/snppipeline/tb1/HQ-NC_017528.vcf"
-bioinfo="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb1/newFiles"
-#sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
-
-# Run spoligoSpacerFinder.sh
-echo "Starting spoligoSpacerFinder.sh"
-${SPOLIGOSPACERFINDER} &
-echo "Moving forward from spoligoSpacerFinder.sh"
-
-###################################################################
-# Lineage 2
-elif [ $1 == TB2 ]; then
-cp /home/shared/mycobacterium/tbc/snppipeline/tb2/NC_021251.fasta ./
-hqs="/home/shared/mycobacterium/tbc/snppipeline/tb2/HQ-NC021251.vcf"
-bioinfo="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb2-H37/newFiles"
-#sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
-
-# Run spoligoSpacerFinder.sh
-echo "Starting spoligoSpacerFinder.sh"
-${SPOLIGOSPACERFINDER} &
-echo "Moving forward from spoligoSpacerFinder.sh"
-
-###################################################################
-
-# Lineage 3
-elif [ $1 == TB3 ]; then
-#cp /home/shared/mycobacterium/tbc/snppipeline/tb3/NC_021193.fasta ./
-#hqs="/home/shared/mycobacterium/tbc/snppipeline/tb3/HQ-13-7575.vcf"
-#cp /home/shared/mycobacterium/tbc/snppipeline/tb3/NC_021193it3-readreference.fasta ./
-#hqs="/home/shared/mycobacterium/tbc/snppipeline/tb3/13-7575-highqualitysnps.vcf"
-
-#cp /home/shared/mycobacterium/tbc/mtb-ancestor.fasta ./
-#hqs="/home/shared/mycobacterium/tbc/15-5316-highqualitysnps.vcf"
-
-cp /home/shared/mycobacterium/tbc/snppipeline/tb4b/NC000962.fasta ./
-hqs="/home/shared/mycobacterium/tbc/snppipeline/tb4b/15-3162-highqualitysnps.vcf"
-bioinfo="/bioinfo11/TStuber/Results/mycobacterium/tbc/mungi/newFiles"
-gff_file="/home/shared/mycobacterium/tbc/snppipeline/tb4b/NC_000962.gff"
-
-bioinfo="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb3/newFiles"
-#sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
-
-# Run spoligoSpacerFinder.sh
-echo "Starting spoligoSpacerFinder.sh"
-${SPOLIGOSPACERFINDER} &
-echo "Moving forward from spoligoSpacerFinder.sh"
-
-###################################################################
-# Lineage 4.1 and 4.2
-elif [ $1 == TB4a ]; then
-cp /home/shared/mycobacterium/tbc/snppipeline/tb4a/NC002755.fasta ./
-hqs="/home/shared/mycobacterium/tbc/snppipeline/tb4a/HQ-NC002755.vcf"
-bioinfo="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb4a/newFiles"
-#sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
-
-# Run spoligoSpacerFinder.sh
-echo "Starting spoligoSpacerFinder.sh"
-${SPOLIGOSPACERFINDER} &
-echo "Moving forward from spoligoSpacerFinder.sh"
-
-###################################################################
-# Lineage 4.9
-elif [ $1 == TB4b ]; then
-cp /home/shared/mycobacterium/tbc/snppipeline/tb4b/NC018143.fasta ./
-hqs="/home/shared/mycobacterium/tbc/snppipeline/tb4b/HQ-NC018143.vcf"
-bioinfo="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb4b/newFiles"
-gff_file="/home/shared/mycobacterium/tbc/snppipeline/tb4b/NC_018143.gff"
-
-# Run spoligoSpacerFinder.sh
-echo "Starting spoligoSpacerFinder.sh"
-${SPOLIGOSPACERFINDER} &
-echo "Moving forward from spoligoSpacerFinder.sh"
-
-###################################################################
-# Used to find SNPs in Mungi isolate
-elif [ $1 == mungi ]; then
-cp /home/shared/mycobacterium/tbc/snppipeline/tb4b/NC000962.fasta ./
-hqs="/home/shared/mycobacterium/tbc/snppipeline/tb4b/15-3162-highqualitysnps.vcf"
-bioinfo="/bioinfo11/TStuber/Results/mycobacterium/tbc/mungi/newFiles"
-gff_file="/home/shared/mycobacterium/tbc/snppipeline/tb4b/NC_000962.gff"
-
-# Run spoligoSpacerFinder.sh
-#echo "Starting spoligoSpacerFinder.sh"
-#${SPOLIGOSPACERFINDER} &
-#echo "Moving forward from spoligoSpacerFinder.sh"
-
-###################################################################
-# Lineage 5
-elif [ $1 == TB5 ]; then
-cp /home/shared/mycobacterium/tbc/snppipeline/tb5/APKD01000001.fasta ./
-hqs="/home/shared/mycobacterium/tbc/snppipeline/tb5/HQ-16-2185-11.vcf"
-bioinfo="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb5/newFiles"
-#sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
-
-# Run spoligoSpacerFinder.sh
-echo "Starting spoligoSpacerFinder.sh"
-${SPOLIGOSPACERFINDER} &
-echo "Moving forward from spoligoSpacerFinder.sh"
-
-###################################################################
-# Lineage 6
-elif [ $1 == TB6 ]; then
-cp /home/shared/mycobacterium/tbc/snppipeline/tb6/NC_015758.fasta ./
-hqs="/home/shared/mycobacterium/tbc/snppipeline/tb6/HQ-NC015758.vcf"
-bioinfo="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb6/newFiles"
-#sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
-
-# Run spoligoSpacerFinder.sh
-echo "Starting spoligoSpacerFinder.sh"
-${SPOLIGOSPACERFINDER} &
-echo "Moving forward from spoligoSpacerFinder.sh"
-
-###################################################################
-
-# Lineage Bov-Afri, AF2122
+    # Lineage Bov-Afri, AF2122
 elif [ $1 == TBBOV ]; then
-cp /home/shared/mycobacterium/tbc/snppipeline/tbbov/NC_002945.fasta ./
-hqs="/home/shared/mycobacterium/tbc/snppipeline/tbbov/HighestQualitySNPs.vcf"
-gff_file="/home/shared/mycobacterium/tbc/snppipeline/tbbov/NC_002945.gff"
-bioinfo="/bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/newFiles"
-#sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
+    cp /home/shared/mycobacterium/tbc/snppipeline/tbbov/NC_002945.fasta ./
+    hqs="/home/shared/mycobacterium/tbc/snppipeline/tbbov/HighestQualitySNPs.vcf"
+    gff_file="/home/shared/mycobacterium/tbc/snppipeline/tbbov/NC_002945.gff"
+    bioinfo="/bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/newFiles"
+    #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
 
-# Run spoligoSpacerFinder.sh
-echo "Starting spoligoSpacerFinder.sh"
-${SPOLIGOSPACERFINDER} &
-echo "Moving forward from spoligoSpacerFinder.sh"
+    # Run spoligoSpacerFinder.sh
+    echo "Starting spoligoSpacerFinder.sh"
+    ${SPOLIGOSPACERFINDER} &
+    echo "Moving forward from spoligoSpacerFinder.sh"
 
-###################################################################
-# H37Rv general
+    ###################################################################
+    # H37Rv general
 elif [ $1 == H37Rv ]; then
-cp /home/shared/mycobacterium/tbc/snppipeline/tb4b/NC000962.fasta ./
-hqs="/home/shared/mycobacterium/tbc/snppipeline/tb4b/15-3162-highqualitysnps.vcf"
-bioinfo="/bioinfo11/TStuber/Results/mycobacterium/tbc/H37Rv/newfiles"
-gff_file="/home/shared/mycobacterium/tbc/snppipeline/tb4b/NC_000962.gff"
+    cp /home/shared/mycobacterium/tbc/snppipeline/tb4b/NC000962.fasta ./
+    hqs="/home/shared/mycobacterium/tbc/snppipeline/tb4b/15-3162-highqualitysnps.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/mycobacterium/tbc/h37/newfiles"
+    gff_file="/home/shared/mycobacterium/tbc/snppipeline/tb4b/NC_000962.gff"
 
-# Run spoligoSpacerFinder.sh
-echo "Starting spoligoSpacerFinder.sh"
-${SPOLIGOSPACERFINDER} &
-echo "Moving forward from spoligoSpacerFinder.sh"
+    # Run spoligoSpacerFinder.sh
+    echo "Starting spoligoSpacerFinder.sh"
+    ${SPOLIGOSPACERFINDER} &
+    echo "Moving forward from spoligoSpacerFinder.sh"
 
-###################################################################
-###################################################################
-###################################################################
-###################################################################
-
-###################################################################
+    ###################################################################
+    ###################################################################
 
 elif [ $1 == para ]; then
-   cp /home/shared/mycobacterium/mott/paratb/NC_002944.fasta ./
-   hqs="/home/shared/mycobacterium/mott/paratb/HQ-NC002944.vcf"
-   bioinfo="/bioinfo11/TStuber/Results/mycobacterium/mac/para_cattle-bison/newFiles"
-   #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
+    cp /home/shared/mycobacterium/mott/paratb/NC_002944.fasta ./
+    hqs="/home/shared/mycobacterium/mott/paratb/HQ-NC002944.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/mycobacterium/mac/para_cattle-bison/newFiles"
+    #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
 
 elif [ $1 == past ]; then
-   cp /home/shared/pasteurella/NZ_CM001581.fasta ./
-   hqs="/home/shared/pasteurella/BTYP-9814-pasteurella-highqualitysnps.vcf"
-   #bioinfo="/bioinfo11/TStuber/Results/gen-bact/Pasteurella/newFiles"
-   #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
-
+    cp /home/shared/pasteurella/NZ_CM001581.fasta ./
+    hqs="/home/shared/pasteurella/BTYP-9814-pasteurella-highqualitysnps.vcf"
+    #bioinfo="/bioinfo11/TStuber/Results/gen-bact/Pasteurella/newFiles"
+    #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
 
 elif [ $1 == h5n2 ]; then
-   cp /home/shared/virus/ai/h5n2/TY-BC-FAV10-2014.fasta ./
-   hqs="/home/shared/virus/ai/h5n2/14111-1-highqualitysnps.vcf"
-   bioinfo="/bioinfo11/MKillian/Analysis/results/influenza/h5n2/snp_analysis/newfiles/"
-   #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
+    cp /home/shared/virus/ai/h5n2/TY-BC-FAV10-2014.fasta ./
+    hqs="/home/shared/virus/ai/h5n2/14111-1-highqualitysnps.vcf"
+    bioinfo="/bioinfo11/MKillian/Analysis/results/influenza/h5n2/snp_analysis/newfiles/"
+    #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
 
 elif [ $1 == h5nx ]; then
-cp /home/shared/virus/ai/h5nx/BC-turkey-PB2-HA-MP.fasta ./
-hqs="/home/shared/virus/ai/h5nx/11602-1-highqualitysnps.vcf"
-bioinfo=""
-#sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
+    cp /home/shared/virus/ai/h5nx/BC-turkey-PB2-HA-MP.fasta ./
+    hqs="/home/shared/virus/ai/h5nx/11602-1-highqualitysnps.vcf"
+    bioinfo=""
+    #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
 
     ###################################################################
 
-
 elif [ $1 == secd ]; then
-   cp /home/shared/virus/secd/scriptDependents/KC210145.fasta ./
-   hqs="/home/shared/virus/secd/scriptDependents/HighestQualitySNPs.vcf"
-   #bioinfo=""
-   #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
+    cp /home/shared/virus/secd/scriptDependents/KC210145.fasta ./
+    hqs="/home/shared/virus/secd/scriptDependents/HighestQualitySNPs.vcf"
+    #bioinfo=""
+    #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
 
 else
-    echo "Incorrect argument!  Must use one of the following arguments: ab1, mel, suisall, suis1, suis2, suis3, suis4, suis5, canis, ceti1, ceti2, ovis, TB1, TB2, TB3, TB4a, TB4b, TB5, TB6, TBBOV, H37Rv, para, past, h5n2 secd, taylorella, anc"
+    echo "Incorrect argument!  Must use one of the following arguments: ab1, mel, suisall, suis1, suis2, suis3, suis4, suis5, canis, ceti1, ceti2, ovis, TBBOV, H37Rv, para, past, h5n2 secd, taylorella"
     exit 1
 fi
 

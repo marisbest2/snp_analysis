@@ -114,6 +114,69 @@ while getopts 'cmea' OPTION; do
 done
 shift $(($OPTIND - 1))
 
+#################################################################################
+# If there are 2 vcf files with the same name one of the files might unknowingly
+# get cut out of the analysis and keep the undesired vcf instead.  This will
+# alert if 2 vcf with the same TB number are present.
+# The regular expression used in sed should be changed based on vcf naming convention
+
+function testDuplicates () {
+
+echo "Checking for empty or duplicate VCFs."
+
+directorytest="${PWD##*/}"
+    if [[ $directorytest == VCF_Source_All ]]; then
+    echo "Change directory name and restart"
+    exit 1
+    fi
+
+for i in *; do
+    (if [[ -s $i ]] ; then
+            echo "$i has data" > /dev/null 2>&1
+            else
+        echo ""
+            echo ""$i" is empty.  Fix and restart script"
+            echo ""
+        exit 1
+    fi
+    getbase=$(basename "$i")
+    number=$(echo $getbase | sed $tbNumberV | sed $tbNumberW)
+    echo $number >> list) &
+    let count+=1
+    [[ $((count%NR_CPUS)) -eq 0 ]] && wait
+    done
+    wait
+
+duplist=$(sort list | uniq -d)
+rm list
+dupNumberSize=$(echo $duplist | wc | awk '{print $3}')
+if [ $dupNumberSize -gt 4 ]
+then
+    echo "These are duplicated VCFs."
+    echo "Must remove duplication, and restart script."
+    echo "$duplist"
+    exit 1 # Error status
+else
+    echo "Good! No duplicate VCFs present"
+fi
+}
+
+#################################################################################
+
+# Test for duplicate VCFs
+testDuplicates
+wait
+#Prepare Filter files.
+#filterFilespreparation
+
+vcfcount=`ls *vcf | wc -l`
+printf "\n $vcfcount vcf files\n\n"
+
+#copy the original vcfs to /starting_files
+mkdir starting_files
+cp -p *.* ./starting_files
+rm *.*
+
 ####################################################
 filterdir="/home/shared/${uniqdate}-FilterFiles"
 mkdir ${filterdir}
@@ -998,54 +1061,6 @@ fi
 
 #################################################################################
 
-# If there are 2 vcf files with the same name one of the files might unknowingly
-# get cut out of the analysis and keep the undesired vcf instead.  This will
-# alert if 2 vcf with the same TB number are present.
-# The regular expression used in sed should be changed based on vcf naming convention
-
-function testDuplicates () {
-
-echo "Checking for empty or duplicate VCFs."
-
-directorytest="${PWD##*/}"
-	if [[ $directorytest == VCF_Source_All ]]; then
-	echo "Change directory name and restart"
-	exit 1
-	fi
-
-for i in *; do
-	(if [[ -s $i ]] ; then
-        	echo "$i has data" > /dev/null 2>&1
-        	else
-		echo ""
-        	echo ""$i" is empty.  Fix and restart script"
-        	echo ""
-		exit 1
-	fi
-    getbase=$(basename "$i")
-    number=$(echo $getbase | sed $tbNumberV | sed $tbNumberW)
-    echo $number >> list) &
-    let count+=1
-    [[ $((count%NR_CPUS)) -eq 0 ]] && wait
-    done
-    wait
-
-duplist=$(sort list | uniq -d)
-rm list
-dupNumberSize=$(echo $duplist | wc | awk '{print $3}')
-if [ $dupNumberSize -gt 4 ]
-then
-    echo "These are duplicated VCFs."
-    echo "Must remove duplication, and restart script."
-    echo "$duplist"
-    exit 1 # Error status
-else
-    echo "Good! No duplicate VCFs present"
-fi
-}
-
-#################################################################################
-
 # Looks for defining positions in VCF files.
 # If an AC=1 is found at a defined position it is flagged as a posible mixed infection.
 # These defining positions must be SNPs found cluster's main branch
@@ -1716,6 +1731,11 @@ fi
 
     # write tables to excel
 
+pwd 
+
+nexus_tree_convert.sh RAxML*tre
+for i in `cat ${root}/recentfiles`; do perl -i -pe "s/$i\$/\t${i}\[\&\!color=\#ff0000\]/" RAxML*-nexus.tre; done
+
     ${root}/excelwriter.py ${d}.organized_table.txt
     rm ${d}.organized_table.txt
     ${root}/excelwriter.py ${d}.position_ordered_table.txt
@@ -1746,22 +1766,6 @@ echo "Only samples in this file will be ran when elite is used as the secound ar
 
 ####################
 
-# Test for duplicate VCFs
-testDuplicates
-wait
-#Prepare Filter files.
-#filterFilespreparation
-wait
-#Test for match coverage file
-#checkMatchingCoverageFile
-
-vcfcount=`ls *vcf | wc -l`
-printf "\n $vcfcount vcf files\n\n"
-
-#copy the original vcfs to /starting_files
-mkdir starting_files
-mv *.* ./starting_files
-
 # If bovis are ran default will only run with files check "misc" in FileMaker
 # Untitled.tab exported from FileMaker must contain "isolate names" followed by "Misc".
 
@@ -1770,25 +1774,19 @@ mv *.* ./starting_files
 
         for i in `cat elite`; do
         name=`ls starting_files | grep $i`
-        cp ./starting_files/$name ./
+        cp -p ./starting_files/$name ./
         done
 
         for i in `find ./starting_files/ -mtime -2`; do
-        cp $i ./
+        cp -p $i ./
         done
 
     else
         echo "all samples will be ran"
-        cp ./starting_files/* ./
+        cp -p ./starting_files/* ./
 	fi
 
 rm elite
-
-#Remove possible "## in vcf headers
-echo 'Removing possible "## in vcf headers'
-
-ls *vcf | parallel 'sed  '"'"'s/^"##/##/'"'"' {} > {.}.temp' && \
-for f in *temp; do mv "$f" "${f%.temp}.vcf"; done
 
 #################################################################################
 
@@ -1813,7 +1811,16 @@ echo "Files are being renamed"
 for i in *.txt; do
     mv $i ${i%.txt}.vcf
 done
+
 for i in *.vcf; do
+    #check age of file
+    yes=""
+    if test `find "${i}" -mtime -1`; then
+        echo "file is less than day old"
+        yes="get"
+    fi
+    
+
     echo "******************** Naming convention ********************"
     echo "Original File: $i"
     base=`basename "$i"`
@@ -1854,8 +1861,19 @@ for i in *.vcf; do
 #            echo "D"
         fi
     fi
+    if [[ $yes == "get" ]]; then
+        echo ${name} >> ${root}/recentfiles
+    fi
 done
+
 rm outfile
+
+#Remove possible "## in vcf headers
+echo 'Removing possible "## in vcf headers'
+
+ls *vcf | parallel 'sed  '"'"'s/^"##/##/'"'"' {} > {.}.temp' && \
+for f in *temp; do mv "$f" "${f%.temp}.vcf"; done
+
 ##################### Start: Make Files Unix Compatiable #####################
 
 #Fix validated (VAL) vcf files.  This is used in vcftofasta scripts to prepare validated vcf files opened and saved in Excel.

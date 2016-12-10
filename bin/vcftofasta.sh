@@ -89,26 +89,27 @@ root=$(pwd)
 echo "start time: $uniqdate"
 
 help () {
-    echo ""
-    echo "Incorrect argument!  Must use one of the following arguments: ab1, mel, suis1, suis2, suis3, suis4, canis, ceti1, ceti2, ovis, bovis, H37Rv, past, para, h5n2"
-    echo ""
-    echo "Set optional flags"
-    echo "flag -c with look for positions to filter.  By default, with no -c, this will not be done."
-    echo "flag -m will email just "M"e"
-    echo "flag -e will run the bovis "E"lite representative samples"
-    echo "flag -a get "a"ll_vcf alignment table"
-    echo ""
-    echo "Example: [prompt]$ vcftofasta.sh -mea bovis"
-    echo ""
+    printf "\n\nMust use one of the following arguments: ab1, mel, suis1, suis2, suis3, suis4, canis, ceti1, ceti2, ovis, bovis, H37Rv, past, para, h5n2\n\n"
+    printf "Options:\n"
+    printf "\t -c --> looks for positions to filter\n"
+    printf "\t -m --> limit email recipients\n"
+    printf "\t -e --> only run elites\n"
+    printf "\t -a --> make all_vcf tree\n"
+    printf "\t -t --> time set for inclusion\n\n"
+
+    printf "Usage:\n"
+    printf "\t ~$ vcftofasta.sh -e bovis\n"
+    printf "\t ~$ vcftofasta.sh -mt 2 H37Rv\n"
+    printf "\t ~$ vcftofasta.sh -mat 2 H37Rv\n\n"
+    printf "\t ~$ vcftofasta.sh -ac ovis\n\n"
+
+    printf "set -t to 0 to negate\n"
+    printf "-t sets both those to include when running elite and coloring\n"
+    printf "-t default [1]\n"
+    printf "tables not made if over 8000 columns\n\n"
     rm sectiontime
     exit 1
 }
-
-# Set flags
-# flag -c with look for positions to filter.  By default, with no -c, this will not be done.
-# flag -m will email just "M"e
-# flag -e will run the bovis "E"lite representative samples
-# flag -a get "a"ll_vcf alignment table
 
 cflag=
 mflag=

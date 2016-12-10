@@ -171,7 +171,7 @@ for i in *; do
         exit 1
     fi
     getbase=$(basename "$i")
-    number=$(echo $getbase | sed $tbNumberV | sed $tbNumberW)
+    number=$(echo $getbase | sed 's/[._].*//')
     echo $number >> list) &
     let count+=1
     [[ $((count%NR_CPUS)) -eq 0 ]] && wait
@@ -1035,8 +1035,6 @@ fi
 # Set variables:
 
 # Sed searches put into variables
-tbNumberV='s/_.*//' #Remove all charaters at and beyond "_"
-tbNumberW='s/\..*//' #Remove all charaters at and beyond "."
 tbNumberOnly='s/.*\([0-9]\{2\}-[0-9,FM]\{4,6\}\).*/\1/' #Only tb Number, *laboratory specific*
 dropEXT='s/\(.*\)\..*/\1/' #Just drop the extention from the file
 
@@ -1842,14 +1840,14 @@ for i in *.vcf; do
     echo "******************** Naming convention ********************"
     echo "Original File: $i"
     base=`basename "$i"`
-    searchName=`echo $base | sed $tbNumberV | sed $tbNumberW | sed 's/V//'`
+    searchName=`echo $base | sed 's/[._].*//' | sed 's/V//'`
     echo "searchName: $searchName"
     # Direct script to text file containing a list of the correct labels to use.
     # The file must be a txt file.
     p=`grep "$searchName" "outfile" | head -1`
     echo "This is what was found in tag file: $p"
     newName=`echo $p | awk '{print $1}' | tr -d "[:space:]"` # Captured the new name
-    n=`echo $base | sed $tbNumberV | sed $tbNumberW`
+    n=`echo $base | sed 's/[._].*//'`
     noExtention=`echo $base | sed $dropEXT`
     VALtest=`echo $i | grep "VAL"`
 #    echo "VALtest: $VALtest"

@@ -88,6 +88,22 @@ dircalled=$(pwd)
 root=$(pwd)
 echo "start time: $uniqdate"
 
+help () {
+    echo ""
+    echo "Incorrect argument!  Must use one of the following arguments: ab1, mel, suis1, suis2, suis3, suis4, canis, ceti1, ceti2, ovis, bovis, H37Rv, past, para, h5n2"
+    echo ""
+    echo "Set optional flags"
+    echo "flag -c with look for positions to filter.  By default, with no -c, this will not be done."
+    echo "flag -m will email just "M"e"
+    echo "flag -e will run the bovis "E"lite representative samples"
+    echo "flag -a get "a"ll_vcf alignment table"
+    echo ""
+    echo "Example: [prompt]$ vcftofasta.sh -mea bovis"
+    echo ""
+    rm sectiontime
+    exit 1
+}
+
 # Set flags
 # flag -c with look for positions to filter.  By default, with no -c, this will not be done.
 # flag -m will email just "M"e
@@ -98,8 +114,12 @@ cflag=
 mflag=
 eflag=
 aflag=
-while getopts 'cmea' OPTION; do
+while getopts ':ht:cmea' OPTION; do
     case $OPTION in
+        h) hflag=1
+        ;;
+        t) timeset=$OPTARG
+        ;;
         c) cflag=1
         ;;
         m) mflag=1
@@ -113,6 +133,17 @@ while getopts 'cmea' OPTION; do
     esac
 done
 shift $(($OPTIND - 1))
+
+if [ "$hflag" ]; then
+    help
+    exit 1
+fi
+
+# if no time is set default to 1 day
+# set to zero to negate
+if [[ -z $timeset ]]; then
+    timeset=1
+fi
 
 #################################################################################
 # If there are 2 vcf files with the same name one of the files might unknowingly
@@ -998,20 +1029,7 @@ elif [[ $1 == past ]]; then
     filterFileCreations
 
 else
-    echo ""
-    echo "Incorrect argument!  Must use one of the following arguments: ab1, mel, suis1, suis2, suis3, suis4, canis, ceti1, ceti2, ovis, bovis, H37Rv, past, para, h5n2"
-    echo ""
-    echo "Set optional flags"
-    echo "flag -c with look for positions to filter.  By default, with no -c, this will not be done."
-    echo "flag -m will email just "M"e"
-    echo "flag -e will run the bovis "E"lite representative samples"
-    echo "flag -a get "a"ll_vcf alignment table"
-    echo ""
-    echo "Example: [prompt]$ vcftofasta.sh -mea bovis"
-    echo ""
-    rm sectiontime
-    exit 1
-
+    help
 fi
 #################################################################################
 # Set variables:
@@ -1777,7 +1795,7 @@ echo "Only samples in this file will be ran when elite is used as the secound ar
         cp -p ./starting_files/$name ./
         done
 
-        for i in `find ./starting_files/ -mtime -2`; do
+        for i in `find ./starting_files/ -mtime -${timeset}`; do
         cp -p $i ./
         done
 
@@ -1815,7 +1833,7 @@ done
 for i in *.vcf; do
     #check age of file
     yes=""
-    if test `find "${i}" -mtime -1`; then
+    if test `find "${i}" -mtime -${timeset}`; then
         echo "file is less than day old"
         yes="get"
     fi

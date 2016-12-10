@@ -1751,7 +1751,8 @@ fi
 pwd 
 
 nexus_tree_convert.sh RAxML*tre
-for i in `cat ${root}/recentfiles`; do perl -i -pe "s/$i\$/\t${i}\[\&\!color=\#ff0000\]/" RAxML*-nexus.tre; done
+for i in `cat ${root}/recentfiles`; do perl -i -pe "s/$i\$/\t${i}\[\&\!color=\#ff0000\]/" RAxML*.nex; done
+rm RAxML*tre
 
     ${root}/excelwriter.py ${d}.organized_table.txt
     rm ${d}.organized_table.txt

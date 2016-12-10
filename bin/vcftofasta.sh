@@ -1806,19 +1806,6 @@ echo "Only samples in this file will be ran when elite is used as the secound ar
 
 rm elite
 
-#################################################################################
-
-# Count the number of chromosomes used in the reference when VCFs were made.
-#singleFile=`ls *.vcf | head -1`
-echo "Counting the number of chromosomes in first 100 samples, started -->  `date`"
-chromCount=`awk ' $0 !~ /^#/ {print $1}' $(ls *vcf | head -100) | sort | uniq -d | awk 'END {print NR}'`
-echo "The number of chromosomes/segments seen in VCF: $chromCount"
-awk ' $0 !~ /^#/ {print $1}' $(ls *vcf | head -100) | sort | uniq -d > chroms
-echo "These are the chromosomes/segments found:"
-cat chroms
-
-#################################################################################
-
 # Remove selected isolates from comparison
 # This is optional, and should be turned on or off based on laboratories preference
 removeIsolates
@@ -1908,7 +1895,16 @@ for v in *.vcf; do
     [[ $((count%NR_CPUS)) -eq 0 ]] && wait
 done
 wait
+#################################################################################
 
+# Count the number of chromosomes used in the reference when VCFs were made.
+#singleFile=`ls *.vcf | head -1`
+echo "Counting the number of chromosomes in first 100 samples, started -->  `date`"
+chromCount=`awk ' $0 !~ /^#/ {print $1}' $(ls *vcf | head -100) | sort | uniq -d | awk 'END {print NR}'`
+echo "The number of chromosomes/segments seen in VCF: $chromCount"
+awk ' $0 !~ /^#/ {print $1}' $(ls *vcf | head -100) | sort | uniq -d > chroms
+echo "These are the chromosomes/segments found:"
+cat chroms
 ########################################################################
 
 AConeCallPosition

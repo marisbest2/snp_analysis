@@ -2278,7 +2278,11 @@ else
         # Get chromosome identifier
         chrom_id=`head -1 ${dircalled}/each_vcf-poslist.txt | sed 's/\(.*\)-\(.*\)/\1/'`
         # make file if one does not already exist
-        touch "${dir_annonation}/${chrom_id}"
+
+        if [[ ! -e "${dir_annonation}/${chrom_id}" ]]; then 
+            touch "${dir_annonation}/${chrom_id}"
+            newfile_made=yes
+        fi 
         # get uniq positions from current analysis
         sort < ${dircalled}/each_vcf-poslist.txt | uniq > ${dircalled}/each_vcf-poslist.temp; mv ${dircalled}/each_vcf-poslist.temp ${dircalled}/each_vcf-poslist.txt
         # get the positions of those we already have annotation
@@ -2302,7 +2306,11 @@ else
         # add back newly found positions
         cat ${dircalled}/each_annotation_in | grep -v "reference_pos" >> ${dir_annonation}/${chrom_id}
         # provide all annotated positions downstream and add header 
-        printf "reference_pos\tannotation\n" > ${dircalled}/each_annotation_in
+        if [[ $newfile_made == "yes" ]]; then
+            echo "A new file was made"
+            printf "reference_pos\tannotation\n" > ${dircalled}/each_annotation_in
+        fi
+
         cat ${dir_annonation}/${chrom_id} >> ${dircalled}/each_annotation_in
     else
         # Get annotations for each position

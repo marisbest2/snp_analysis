@@ -86,6 +86,7 @@ argUsed="$1"
 uniqdate=$(date "+%Y-%m-%dat%Hh%Mm%Ss")
 dircalled=$(pwd)
 root=$(pwd)
+dir_annonation="/scratch/annonations"; mkdir -p $dir_annonation; chmod -R 777 $dir_annonation 
 echo "start time: $uniqdate"
 
 help () {
@@ -99,8 +100,8 @@ help () {
 
     printf "Usage:\n"
     printf "\t ~$ vcftofasta.sh -e bovis\n"
-    printf "\t ~$ vcftofasta.sh -mt 2 H37Rv\n"
-    printf "\t ~$ vcftofasta.sh -mat 2 H37Rv\n\n"
+    printf "\t ~$ vcftofasta.sh -mt 2 h37\n"
+    printf "\t ~$ vcftofasta.sh -mat 2 h37\n\n"
     printf "\t ~$ vcftofasta.sh -ac ovis\n\n"
 
     printf "set -t to 0 to negate\n"
@@ -2274,13 +2275,22 @@ if [[ -z $gbk_file ]]; then
     echo "No gbk file"
 else
     if [ $((chromCount)) -eq 1 ]; then
+        # Get chromosome identifier
+        chrom_id=`head -1 ${dircalled}/each_vcf-poslist.txt | sed 's/\(.*\)-\(.*\)/\1/'`
+        # make file if one does not already exist
+        touch "${dir_annonation}/${chrom_id}"
+        # get uniq positions from current analysis
+        sort < ${dircalled}/each_vcf-poslist.txt | uniq > ${dircalled}/each_vcf-poslist.temp; mv ${dircalled}/each_vcf-poslist.temp ${dircalled}/each_vcf-poslist.txt
+        # get the positions of those we already have annotation
+        awk '{print $1}' ${dir_annonation}/${chrom_id} > ${dircalled}/master
+        # get only locations not already annonated, only those in "each" and not in master are collected
+        diff ${dircalled}/master ${dircalled}/each_vcf-poslist.txt | grep "^> " | awk '{print $2}' > ${dircalled}/each_vcf-poslist.temp; mv ${dircalled}/each_vcf-poslist.temp ${dircalled}/each_vcf-poslist.txt
+    
         # Get annotations for each position
-        sort < ${dircalled}/each_vcf-poslist.txt | uniq > ${dircalled}/all_vcf-poslist.temp; mv ${dircalled}/all_vcf-poslist.temp ${dircalled}/each_vcf-poslist.txt
         printf "\nGetting annotation...\n\n"
         date
         annotate_table
         TOP_CPUS=60
-        printf "reference_pos\tannotation\n" > ${dircalled}/each_annotation_in
         for l in `cat ${dircalled}/each_vcf-poslist.txt`; do
             (chromosome=`echo ${l} | sed 's/\(.*\)-\(.*\)/\1/'`
             position=`echo ${l} | sed 's/\(.*\)-\(.*\)/\2/'`
@@ -2289,6 +2299,11 @@ else
             let count+=1
             [[ $((count%TOP_CPUS)) -eq 0 ]] && wait
         done
+        # add back newly found positions
+        cat ${dircalled}/each_annotation_in | grep -v "reference_pos" >> ${dir_annonation}/${chrom_id}
+        # provide all annotated positions downstream and add header 
+        printf "reference_pos\tannotation\n" > ${dircalled}/each_annotation_in
+        cat ${dir_annonation}/${chrom_id} >> ${dircalled}/each_annotation_in
     else
         # Get annotations for each position
         sort < ${dircalled}/each_vcf-poslist.txt | uniq > ${dircalled}/all_vcf-poslist.temp; mv ${dircalled}/all_vcf-poslist.temp ${dircalled}/each_vcf-poslist.txt
@@ -2318,6 +2333,7 @@ else
     fi
 fi
 ###
+pause
 
 awk '{print $2}' parsimony_filtered_total_alt | awk 'BEGIN{print "reference_call"}1' | tr '\n' '\t' | sed 's/$//' | awk '{print $0}' >> ${d}.table.txt
 

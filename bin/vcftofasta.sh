@@ -89,7 +89,7 @@ root=$(pwd)
 echo "start time: $uniqdate"
 
 help () {
-    printf "\n\nMust use one of the following arguments: ab1, mel, suis1, suis2, suis3, suis4, canis, ceti1, ceti2, ovis, bovis, H37Rv, past, para, h5n2\n\n"
+    printf "\n\nMust use one of the following arguments: ab1, mel, suis1, suis2, suis3, suis4, canis, ceti1, ceti2, ovis, bovis, h37, past, para, h5n2\n\n"
     printf "Options:\n"
     printf "\t -c --> looks for positions to filter\n"
     printf "\t -m --> limit email recipients\n"
@@ -939,7 +939,7 @@ elif [[ $1 == bovis ]]; then
     parseXLS | sed 's/ u//g' | tr "," "\t" | sed 's/\[//g' |sed 's/\]//g' |sed 's/ //g' | sed 's/^u//g' | sed 's/\.0//g' | tr -d "'"  > ${filterdir}/filterFile.txt
     filterFileCreations
 
-elif [[ $1 == H37Rv ]]; then
+elif [[ $1 == h37 ]]; then
     genotypingcodes="/bioinfo11/TStuber/Results/mycobacterium/Untitled.tab"
     # This file tells the script how to cluster VCFs
     #Used with previously, with TB3 reference --> DefiningSNPs="/bioinfo11/TStuber/Results/mycobacterium/tbc/tb3/tb3DefiningSNPsGroupDesignations.txt"

@@ -86,7 +86,7 @@ argUsed="$1"
 uniqdate=$(date "+%Y-%m-%dat%Hh%Mm%Ss")
 dircalled=$(pwd)
 root=$(pwd)
-dir_anotation="/scratch/zanotations"; mkdir -p $dir_anotation; chmod -R 777 $dir_anotation 
+dir_annotation="/scratch/zannotations"; mkdir -p $dir_annotation; chmod -R 777 $dir_annotation 
 echo "start time: $uniqdate"
 
 help () {
@@ -395,9 +395,9 @@ ws.set_column(1, col-1, 2)
 ws.freeze_panes(2, 1)
 format_rotation = wb.add_format({'rotation':'90'})
 ws.set_row(0, 140, format_rotation)
-formatanotation = wb.add_format({'font_color':'#0A028C', 'rotation':'90'})
+formatannotation = wb.add_format({'font_color':'#0A028C', 'rotation':'90'})
 #set last row
-ws.set_row(i-1, 400, formatanotation)
+ws.set_row(i-1, 400, formatannotation)
 
 wb.close()
 
@@ -1255,6 +1255,76 @@ rm total_pos
 
 #################################################################################
 
+function get_annotation () {
+    if [ $((chromCount)) -eq 1 ]; then
+        # Get chromosome identifier
+        chrom_id=`head -1 ${dircalled}/each_vcf-poslist.txt | sed 's/\(.*\)-\(.*\)/\1/'`
+        # make file if one does not already exist
+
+        if [[ ! -e "${dir_annotation}/${chrom_id}" ]]; then 
+            touch "${dir_annotation}/${chrom_id}"
+            newfile_made=yes
+        fi 
+        # get uniq positions from current analysis
+        sort < ${dircalled}/each_vcf-poslist.txt | uniq > ${dircalled}/each_vcf-poslist.temp; mv ${dircalled}/each_vcf-poslist.temp ${dircalled}/each_vcf-poslist.txt
+        # get the positions of those we already have annotation
+        awk '{print $1}' ${dir_annotation}/${chrom_id} > ${dircalled}/master
+        # get only locations not already annonated, only those in "each" and not in master are collected
+        diff ${dircalled}/master ${dircalled}/each_vcf-poslist.txt | grep "^> " | awk '{print $2}' > ${dircalled}/each_vcf-poslist.temp; mv ${dircalled}/each_vcf-poslist.temp ${dircalled}/each_vcf-poslist.txt
+    
+        # Get annotations for each position
+        printf "\nGetting annotation...\n\n"
+        date
+        annotate_table
+        TOP_CPUS=60
+        for l in `cat ${dircalled}/each_vcf-poslist.txt`; do
+            (chromosome=`echo ${l} | sed 's/\(.*\)-\(.*\)/\1/'`
+            position=`echo ${l} | sed 's/\(.*\)-\(.*\)/\2/'`
+            annotation=`./annotate.py $position`
+            printf "%s-%s\t%s\n" "$chromosome" "$position" "$annotation" >> ${dircalled}/each_annotation_in) &
+            let count+=1
+            [[ $((count%TOP_CPUS)) -eq 0 ]] && wait
+        done
+        # add back newly found positions
+        cat ${dircalled}/each_annotation_in | grep -v "reference_pos" >> ${dir_annotation}/${chrom_id}
+        # provide all annotated positions downstream and add header 
+        if [[ $newfile_made == "yes" ]]; then
+            echo "A new file was made"
+            printf "reference_pos\tannotation\n" > ${dircalled}/each_annotation_in
+        fi
+
+        cat ${dir_annotation}/${chrom_id} >> ${dircalled}/each_annotation_in
+    else
+        # Get annotations for each position
+        sort < ${dircalled}/each_vcf-poslist.txt | uniq > ${dircalled}/all_vcf-poslist.temp; mv ${dircalled}/all_vcf-poslist.temp ${dircalled}/each_vcf-poslist.txt
+        printf "\nGetting annotation...\n\n"
+        date
+        TOP_CPUS=60
+        printf "reference_pos\tannotation\n" > ${dircalled}/each_annotation_in
+        for i in `cat ${dircalled}/gbk_files`; do
+            # Get an annotating file specific for each gbk being used
+            name=`basename ${i}`
+            gbk_file=${i}
+            echo "name: $name"
+            echo "gbk_file: $gbk_file"
+            annotate_table
+            mv annotate.py annotate-${name%.gbk}.py
+        done
+        for l in `cat ${dircalled}/each_vcf-poslist.txt`; do
+            (chromosome=`echo ${l} | sed 's/\(.*\)-\(.*\)/\1/'`
+            # "nc_number" must match "${name%.gbk}"
+            nc_number=`echo $chromosome | sed 's/.*\(NC_[0-9]\{6\}\).*/\1/'`
+            position=`echo ${l} | sed 's/\(.*\)-\(.*\)/\2/'`
+            annotation=`./annotate-${nc_number}.py $position`
+            printf "%s-%s\t%s\n" "$chromosome" "$position" "$annotation" >> ${dircalled}/each_annotation_in) &
+            let count+=1
+            [[ $((count%TOP_CPUS)) -eq 0 ]] && wait
+        done
+    fi
+}
+
+#################################################################################
+
 #   Function: fasta and table creation
 function fasta_table () {
 
@@ -1480,7 +1550,7 @@ awk '{print $1}' parsimony_filtered_total_alt > parsimony_filtered_total_pos
 # Create table and fasta
 awk '{print $1}' parsimony_filtered_total_alt | awk 'BEGIN{print "reference_pos"}1' | tr '\n' '\t' | sed 's/$//' | awk '{print $0}' >> ${d}.table.txt
 
-# If e or a flag was called anotations are made in all_vcf function
+# If e or a flag was called annotations are made in all_vcf function
 if [ "$eflag" -o "$aflag" ]; then
     echo "${dircalled}/each_vcf-poslist.txt already complete, skipping"
 else
@@ -1710,16 +1780,16 @@ rm quality.txt
 if [[ -z $gbk_file ]]; then
        printf "\n\n\t There is not a gbk file to annotate tables \n\n"
 else
-    # Position with anotation made at line: 2090
-    # All positions in single file, "${dircalled}/each_anotation_in"
+    # Position with annotation made at line: 2090
+    # All positions in single file, "${dircalled}/each_annotation_in"
     # Inner merge of this file to all tables
     # Add annoations to tables
 
-    ./$d.mapvalues.py ${d}.table.txt ${dircalled}/each_anotation_in
+    ./$d.mapvalues.py ${d}.table.txt ${dircalled}/each_annotation_in
     # Rename output tables back to original names
     mv $d.finished_table.txt ${d}.table.txt
 
-    ./$d.mapvalues.py $d.organized_table.txt ${dircalled}/each_anotation_in
+    ./$d.mapvalues.py $d.organized_table.txt ${dircalled}/each_annotation_in
     # Rename output tables back to original names
     mv $d.finished_table.txt $d.organized_table.txt
 
@@ -1733,14 +1803,14 @@ sleep 2
 # rename table to be more descriptive.
 mv ${d}.table.txt ${d}.position_ordered_table.txt
 
-# if no gbk for anotation tack a row to bottom of table so xlsxwriter has the proper row count for formating
+# if no gbk for annotation tack a row to bottom of table so xlsxwriter has the proper row count for formating
 # row needs to be complete for all columns
 if [[ -z $gbk_file ]]; then
-    echo "No_gbk_available_for_anotation" >> ${d}.position_ordered_table.txt
+    echo "No_gbk_available_for_annotation" >> ${d}.position_ordered_table.txt
     max=$(awk 'max < NF { max = NF } END { print max }' ${d}.position_ordered_table.txt)
     awk -v max=$max 'BEGIN{OFS="\t"}{ for(i=NF+1; i<=max; i++) $i = ""; print }' ${d}.position_ordered_table.txt > ${d}.position_ordered_table.temp
     mv ${d}.position_ordered_table.temp ${d}.position_ordered_table.txt
-    echo "No_gbk_available_for_anotation" >> ${d}.organized_table.txt
+    echo "No_gbk_available_for_annotation" >> ${d}.organized_table.txt
     max=$(awk 'max < NF { max = NF } END { print max }' ${d}.organized_table.txt)
     awk -v max=$max 'BEGIN{OFS="\t"}{ for(i=NF+1; i<=max; i++) $i = ""; print }' ${d}.organized_table.txt > ${d}.organized_table.temp
     mv ${d}.organized_table.temp ${d}.organized_table.txt
@@ -2274,75 +2344,7 @@ awk '{print $1}' parsimony_filtered_total_alt | sed 's/$//' >> ${dircalled}/each
 if [[ -z $gbk_file ]]; then
     echo "No gbk file"
 else
-
-function get_anotation () {
-    if [ $((chromCount)) -eq 1 ]; then
-        # Get chromosome identifier
-        chrom_id=`head -1 ${dircalled}/each_vcf-poslist.txt | sed 's/\(.*\)-\(.*\)/\1/'`
-        # make file if one does not already exist
-
-        if [[ ! -e "${dir_anotation}/${chrom_id}" ]]; then 
-            touch "${dir_anotation}/${chrom_id}"
-            newfile_made=yes
-        fi 
-        # get uniq positions from current analysis
-        sort < ${dircalled}/each_vcf-poslist.txt | uniq > ${dircalled}/each_vcf-poslist.temp; mv ${dircalled}/each_vcf-poslist.temp ${dircalled}/each_vcf-poslist.txt
-        # get the positions of those we already have anotation
-        awk '{print $1}' ${dir_anotation}/${chrom_id} > ${dircalled}/master
-        # get only locations not already annonated, only those in "each" and not in master are collected
-        diff ${dircalled}/master ${dircalled}/each_vcf-poslist.txt | grep "^> " | awk '{print $2}' > ${dircalled}/each_vcf-poslist.temp; mv ${dircalled}/each_vcf-poslist.temp ${dircalled}/each_vcf-poslist.txt
-    
-        # Get anotations for each position
-        printf "\nGetting anotation...\n\n"
-        date
-        annotate_table
-        TOP_CPUS=60
-        for l in `cat ${dircalled}/each_vcf-poslist.txt`; do
-            (chromosome=`echo ${l} | sed 's/\(.*\)-\(.*\)/\1/'`
-            position=`echo ${l} | sed 's/\(.*\)-\(.*\)/\2/'`
-            anotation=`./annotate.py $position`
-            printf "%s-%s\t%s\n" "$chromosome" "$position" "$anotation" >> ${dircalled}/each_anotation_in) &
-            let count+=1
-            [[ $((count%TOP_CPUS)) -eq 0 ]] && wait
-        done
-        # add back newly found positions
-        cat ${dircalled}/each_anotation_in | grep -v "reference_pos" >> ${dir_anotation}/${chrom_id}
-        # provide all annotated positions downstream and add header 
-        if [[ $newfile_made == "yes" ]]; then
-            echo "A new file was made"
-            printf "reference_pos\tanotation\n" > ${dircalled}/each_anotation_in
-        fi
-
-        cat ${dir_anotation}/${chrom_id} >> ${dircalled}/each_anotation_in
-    else
-        # Get anotations for each position
-        sort < ${dircalled}/each_vcf-poslist.txt | uniq > ${dircalled}/all_vcf-poslist.temp; mv ${dircalled}/all_vcf-poslist.temp ${dircalled}/each_vcf-poslist.txt
-        printf "\nGetting anotation...\n\n"
-        date
-        TOP_CPUS=60
-        printf "reference_pos\tanotation\n" > ${dircalled}/each_anotation_in
-        for i in `cat ${dircalled}/gbk_files`; do
-            # Get an annotating file specific for each gbk being used
-            name=`basename ${i}`
-            gbk_file=${i}
-            echo "name: $name"
-            echo "gbk_file: $gbk_file"
-            annotate_table
-            mv annotate.py annotate-${name%.gbk}.py
-        done
-        for l in `cat ${dircalled}/each_vcf-poslist.txt`; do
-            (chromosome=`echo ${l} | sed 's/\(.*\)-\(.*\)/\1/'`
-            # "nc_number" must match "${name%.gbk}"
-            nc_number=`echo $chromosome | sed 's/.*\(NC_[0-9]\{6\}\).*/\1/'`
-            position=`echo ${l} | sed 's/\(.*\)-\(.*\)/\2/'`
-            anotation=`./annotate-${nc_number}.py $position`
-            printf "%s-%s\t%s\n" "$chromosome" "$position" "$anotation" >> ${dircalled}/each_anotation_in) &
-            let count+=1
-            [[ $((count%TOP_CPUS)) -eq 0 ]] && wait
-        done
-    fi
-}
-
+    get_annotation
 fi
 ###
 
@@ -2463,11 +2465,11 @@ echo "At line $LINENO, sleeping 5 second"; sleep 5s
 if [[ -z $gbk_file ]]; then
     echo "No gbk file"
 else
-    # If e or a flag was called anotations are made in all_vcf function
+    # If e or a flag was called annotations are made in all_vcf function
     if [ "$eflag" -o "$aflag" ]; then
         echo "${dircalled}/each_vcf-poslist.txt already complete, skipping"
     else
-        get_anotation
+        get_annotation
     fi
 fi
 ###
@@ -2678,7 +2680,7 @@ find . -wholename "*/*/fasta/*.fas" -exec rm {} \;
 rm all_vcfs/*vcf
 #rm $gbk_file
 rm emailAC1counts.txt
-#rm each_anotation_in
+#rm each_annotation_in
 #rm each_vcf-poslist.txt
 rm chroms
 
@@ -2691,7 +2693,7 @@ rm ${fulDir}/snpTableSorter.pl
 rm ${fulDir}/*annotate.py.tre
 rm ${fulDir}/*gbk*
 rm ${fulDir}/each_vcf-poslist.txt
-rm ${fulDir}/each_anotation_in
+rm ${fulDir}/each_annotation_in
 rm ${root}/excelwriter.py
 
 echo "Copy to ${bioinfoVCF}"

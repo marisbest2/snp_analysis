@@ -1285,15 +1285,15 @@ function get_annotation () {
             let count+=1
             [[ $((count%TOP_CPUS)) -eq 0 ]] && wait
         done
-        # add back newly found positions
-        cat ${dircalled}/each_annotation_in | grep -v "reference_pos" >> ${dir_annotation}/${chrom_id}
+
         # provide all annotated positions downstream and add header 
         if [[ $newfile_made == "yes" ]]; then
             echo "A new file was made"
-            printf "reference_pos\tannotation\n" > ${dircalled}/each_annotation_in
+            printf "reference_pos\tannotation\n" > ${dir_annotation}/${chrom_id}
         fi
-
-        cat ${dir_annotation}/${chrom_id} >> ${dircalled}/each_annotation_in
+        # add back newly found positions
+        cat ${dircalled}/each_annotation_in >> ${dir_annotation}/${chrom_id}
+        cat ${dir_annotation}/${chrom_id} > ${dircalled}/each_annotation_in
     else
         # Get annotations for each position
         sort < ${dircalled}/each_vcf-poslist.txt | uniq > ${dircalled}/all_vcf-poslist.temp; mv ${dircalled}/all_vcf-poslist.temp ${dircalled}/each_vcf-poslist.txt

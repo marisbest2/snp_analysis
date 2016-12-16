@@ -1262,15 +1262,19 @@ function get_annotation () {
         # make file if one does not already exist
 
         if [[ ! -e "${dir_annotation}/${chrom_id}" ]]; then 
+            echo "a new file has been made at $LINENO"
             touch "${dir_annotation}/${chrom_id}"
             newfile_made=yes
         fi 
         # get uniq positions from current analysis
         sort < ${dircalled}/each_vcf-poslist.txt | uniq > ${dircalled}/each_vcf-poslist.temp; mv ${dircalled}/each_vcf-poslist.temp ${dircalled}/each_vcf-poslist.txt
+        pause
+
         # get the positions of those we already have annotation
         awk '{print $1}' ${dir_annotation}/${chrom_id} > ${dircalled}/master
         # get only locations not already annonated, only those in "each" and not in master are collected
         diff ${dircalled}/master ${dircalled}/each_vcf-poslist.txt | grep "^> " | awk '{print $2}' > ${dircalled}/each_vcf-poslist.temp; mv ${dircalled}/each_vcf-poslist.temp ${dircalled}/each_vcf-poslist.txt
+        pause
     
         # Get annotations for each position
         printf "\nGetting annotation...\n\n"
@@ -1285,6 +1289,8 @@ function get_annotation () {
             let count+=1
             [[ $((count%TOP_CPUS)) -eq 0 ]] && wait
         done
+        wait
+        sleep 10
 
         # provide all annotated positions downstream and add header 
         if [[ $newfile_made == "yes" ]]; then
@@ -1294,6 +1300,8 @@ function get_annotation () {
         # add back newly found positions
         cat ${dircalled}/each_annotation_in >> ${dir_annotation}/${chrom_id}
         cat ${dir_annotation}/${chrom_id} > ${dircalled}/each_annotation_in
+        pause
+
     else
         # Get annotations for each position
         sort < ${dircalled}/each_vcf-poslist.txt | uniq > ${dircalled}/all_vcf-poslist.temp; mv ${dircalled}/all_vcf-poslist.temp ${dircalled}/each_vcf-poslist.txt

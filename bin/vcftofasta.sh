@@ -1735,6 +1735,7 @@ if [ $((position_count)) -lt 8000 ]; then
     fi
 else
     echo "Table not organized ${position_count} positions"
+    echo "Table not organized ${position_count} positions" > over_size_table_not_made
 fi
 
 echo "parallel done running"

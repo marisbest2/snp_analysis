@@ -2135,6 +2135,27 @@ echo "" > section3
 echo "NAME GROUP SUBGROUP CLADE" >> section3
 echo "" >> section3
 
+if [ $((chromCount)) -eq 1 ]; then
+    neg_grp_pos=`grep "!" "${DefiningSNPs}" | grep "Group" | awk '{print $2}'`
+    grp_number=`grep "!" "${DefiningSNPs}" | grep "Group" | awk '{print $1}'`
+    echo "Looking for inverted positions"
+    if [[ -n $neg_grp_pos ]]; then
+        for i in *vcf; do
+            # get vcfs without position listed for group
+            # Defining SNPs is indicated as inverted number search by "!"
+            #echo "neg_grp_pos: $neg_grp_pos grp_number: $grp_number"
+            mkdir -p ./Group-${grp_number}
+            findings=$(awk ' $0 !~ /^#/ && $6 > Q && $8 ~ /^AC=2;/ {print $2}' $i | grep "$neg_grp_pos")
+            if [[ -z $findings ]]; then
+                #echo "$i does not have $position"
+                mv $i ./Group-${grp_number}
+            fi
+            findings=""
+            echo "${i%.vcf} in negative search Group-${grp_number}" >> section3
+        done
+    fi
+fi
+
 for i in *.vcf; do
 
 	# If there is one chromosome present just get the position.  If multiple chromosomes are present than the chromsome identification needs to be identified.  The filter file needs to sync with this chromosome identification.  If multiple chromosomes the filter file will be kept as a text file.  If a single chromosome an linked Excel file can be used.
@@ -2151,7 +2172,7 @@ for i in *.vcf; do
 	##----Group
 
 	# If a group number matches a quality position in the VCF (formatedpos) then print the position
-	grep "Group" "${DefiningSNPs}" > groupsnps
+	grep "Group" "${DefiningSNPs}" | grep -v "!" > groupsnps
 
 	awk 'NR==FNR{a[$0];next}$2 in a' quality-${i%.vcf} groupsnps | awk '{print $1}' > group-foundpositions-${i%.vcf}
 

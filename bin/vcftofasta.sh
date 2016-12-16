@@ -1255,6 +1255,7 @@ rm total_pos
 
 #################################################################################
 
+# make a little local database of annotated positions, so they don't need to be created each run
 function get_annotation () {
     if [ $((chromCount)) -eq 1 ]; then
         # Get chromosome identifier
@@ -1268,40 +1269,44 @@ function get_annotation () {
         fi 
         # get uniq positions from current analysis
         sort < ${dircalled}/each_vcf-poslist.txt | uniq > ${dircalled}/each_vcf-poslist.temp; mv ${dircalled}/each_vcf-poslist.temp ${dircalled}/each_vcf-poslist.txt
-        pause
 
         # get the positions of those we already have annotation
-        awk '{print $1}' ${dir_annotation}/${chrom_id} > ${dircalled}/master
+        awk '{print $1}' ${dir_annotation}/${chrom_id} | grep -v "reference_pos" | sort > ${dircalled}/master
         # get only locations not already annonated, only those in "each" and not in master are collected
-        diff ${dircalled}/master ${dircalled}/each_vcf-poslist.txt | grep "^> " | awk '{print $2}' > ${dircalled}/each_vcf-poslist.temp; mv ${dircalled}/each_vcf-poslist.temp ${dircalled}/each_vcf-poslist.txt
-        pause
+        sort < ${dircalled}/each_vcf-poslist.txt > ${dircalled}/seach_vcf-poslist.txt
+        diff ${dircalled}/master ${dircalled}/seach_vcf-poslist.txt | grep "^> " | awk '{print $2}' > ${dircalled}/each_vcf-poslist.txt
+        rm ${dircalled}/seach_vcf-poslist.txt
     
-        # Get annotations for each position
-        printf "\nGetting annotation...\n\n"
-        date
-        annotate_table
-        TOP_CPUS=60
-        for l in `cat ${dircalled}/each_vcf-poslist.txt`; do
-            (chromosome=`echo ${l} | sed 's/\(.*\)-\(.*\)/\1/'`
-            position=`echo ${l} | sed 's/\(.*\)-\(.*\)/\2/'`
-            annotation=`./annotate.py $position`
-            printf "%s-%s\t%s\n" "$chromosome" "$position" "$annotation" >> ${dircalled}/each_annotation_in) &
-            let count+=1
-            [[ $((count%TOP_CPUS)) -eq 0 ]] && wait
-        done
-        wait
-        sleep 10
+        # if file exist and is > 0
+        if [[ -s "${dircalled}/each_vcf-poslist.txt" ]]; then
+            # Get annotations for each position
+            printf "\nGetting annotation...\n\n"
+            date
+            annotate_table
+            TOP_CPUS=60
+            for l in `cat ${dircalled}/each_vcf-poslist.txt`; do
+                (chromosome=`echo ${l} | sed 's/\(.*\)-\(.*\)/\1/'`
+                position=`echo ${l} | sed 's/\(.*\)-\(.*\)/\2/'`
+                annotation=`./annotate.py $position`
+                printf "%s-%s\t%s\n" "$chromosome" "$position" "$annotation" >> ${dircalled}/each_annotation_in) &
+                let count+=1
+                [[ $((count%TOP_CPUS)) -eq 0 ]] && wait
+            done
+            wait
+            sleep 10
 
-        # provide all annotated positions downstream and add header 
-        if [[ $newfile_made == "yes" ]]; then
-            echo "A new file was made"
-            printf "reference_pos\tannotation\n" > ${dir_annotation}/${chrom_id}
+            # provide all annotated positions downstream and add header 
+            if [[ $newfile_made == "yes" ]]; then
+                echo "A new file was made"
+                printf "reference_pos\tannotation\n" > ${dir_annotation}/${chrom_id}
+            fi
+            # add back newly found positions
+            cat ${dircalled}/each_annotation_in >> ${dir_annotation}/${chrom_id}
+            cat ${dir_annotation}/${chrom_id} > ${dircalled}/each_annotation_in
+        else
+            echo "no annotations to get"
+            cat ${dir_annotation}/${chrom_id} > ${dircalled}/each_annotation_in
         fi
-        # add back newly found positions
-        cat ${dircalled}/each_annotation_in >> ${dir_annotation}/${chrom_id}
-        cat ${dir_annotation}/${chrom_id} > ${dircalled}/each_annotation_in
-        pause
-
     else
         # Get annotations for each position
         sort < ${dircalled}/each_vcf-poslist.txt | uniq > ${dircalled}/all_vcf-poslist.temp; mv ${dircalled}/all_vcf-poslist.temp ${dircalled}/each_vcf-poslist.txt

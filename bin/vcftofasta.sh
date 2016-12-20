@@ -1689,7 +1689,6 @@ else
     # Give time for some RAxMLs to finish before morning on
     sleep 60
 fi
-pause
 
 rm RAxML_parsimonyTree*
 for i in RAxML*Tree*; do mv $i ../${i}.tre; done

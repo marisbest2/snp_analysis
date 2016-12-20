@@ -1693,158 +1693,159 @@ fi
 rm RAxML_parsimonyTree*
 for i in RAxML*Tree*; do mv $i ../${i}.tre; done
 
-# on server2 "5e-07" value was in newick the "| grep -v "e-0" " cleans it out
-tr ":" "\n" < tableinput.${d} | tr "," "\n" | sed 's/(//g' | sed 's/)//g' | grep -v "\.[0-9]*" | grep -v "e-0" | grep -v "root" > cleanedAlignment.txt
-# Place headers onto aligned file
-{ echo "reference_call"; cat cleanedAlignment.txt; } > cleanedAlignment.txt.temp; mv cleanedAlignment.txt{.temp,}
-{ echo "reference_pos"; cat cleanedAlignment.txt; } > cleanedAlignment.txt.temp; mv cleanedAlignment.txt{.temp,}
-
-cp ../${d}.table.txt ./
-
-########
-touch ${d}.organized_table.txt
-ls ${dircalled}/snpTableSorter.pl
-
-${dircalled}/snpTableSorter.pl ${d}.table.txt cleanedAlignment.txt ${d}.organized_table.txt
-########
-
-rm ${d}.table.txt
-mv ${d}.organized_table.txt ../
-cd ..
-
-# Add map qualities to sorted table
-
-#n Get just the position.  The chromosome must be removed
-awk ' NR == 1 {print $0}' ${d}.organized_table.txt | tr "\t" "\n" | sed "1d" | awk '{print NR, $0}' > $d.positions
-
-printf "reference_pos\tmap-quality\n" > quality.txt
-echo "`date` --> Organized table map quality gathering for $d"
-
 # do not organize table if > 8000 positions
 position_count=`wc -l $d.positions | awk '{print $1}'`
 if [ $((position_count)) -lt 8000 ]; then
-    if [ "$doing_allvcf" == "doing_allvcf" ]; then
-        # Done doing its job, reset, we don't want to run all thread in group tables
-        doing_allvcf="dadada"
-        # run all threads
-         echo "parallel running..."
-        cat $d.positions | parallel 'export positionnumber=$(echo {} | awk '"'"'{print $2}'"'"'); export front=$(echo {} | awk '"'"'{print $2}'"'"' | sed '"'"'s/\(.*\)-\([0-9]*\)/\1/'"'"'); export back=$(echo {} | awk '"'"'{print $2}'"'"' | sed '"'"'s/\(.*\)-\([0-9]*\)/\2/'"'"'); export avemap=$(awk -v f=$front -v b=$back '"'"'$6 != "." && $1 == f && $2 == b {print $8}'"'"' ./starting_files/*vcf | sed '"'"'s/.*MQ=\(.....\).*/\1/'"'"' | awk '"'"'{ sum += $1; n++ } END { if (n > 0) print sum / n; }'"'"' | sed '"'"'s/\..*//'"'"'); printf "$positionnumber\t$avemap\n" >> quality.txt' &> /dev/null
+
+    # on server2 "5e-07" value was in newick the "| grep -v "e-0" " cleans it out
+    tr ":" "\n" < tableinput.${d} | tr "," "\n" | sed 's/(//g' | sed 's/)//g' | grep -v "\.[0-9]*" | grep -v "e-0" | grep -v "root" > cleanedAlignment.txt
+    # Place headers onto aligned file
+    { echo "reference_call"; cat cleanedAlignment.txt; } > cleanedAlignment.txt.temp; mv cleanedAlignment.txt{.temp,}
+    { echo "reference_pos"; cat cleanedAlignment.txt; } > cleanedAlignment.txt.temp; mv cleanedAlignment.txt{.temp,}
+
+    cp ../${d}.table.txt ./
+
+    ########
+    touch ${d}.organized_table.txt
+    ls ${dircalled}/snpTableSorter.pl
+
+    ${dircalled}/snpTableSorter.pl ${d}.table.txt cleanedAlignment.txt ${d}.organized_table.txt
+    ########
+
+    rm ${d}.table.txt
+    mv ${d}.organized_table.txt ../
+    cd ..
+
+    # Add map qualities to sorted table
+
+    #n Get just the position.  The chromosome must be removed
+    awk ' NR == 1 {print $0}' ${d}.organized_table.txt | tr "\t" "\n" | sed "1d" | awk '{print NR, $0}' > $d.positions
+
+    printf "reference_pos\tmap-quality\n" > quality.txt
+    echo "`date` --> Organized table map quality gathering for $d"
+
+        if [ "$doing_allvcf" == "doing_allvcf" ]; then
+            # Done doing its job, reset, we don't want to run all thread in group tables
+            doing_allvcf="dadada"
+            # run all threads
+             echo "parallel running..."
+            cat $d.positions | parallel 'export positionnumber=$(echo {} | awk '"'"'{print $2}'"'"'); export front=$(echo {} | awk '"'"'{print $2}'"'"' | sed '"'"'s/\(.*\)-\([0-9]*\)/\1/'"'"'); export back=$(echo {} | awk '"'"'{print $2}'"'"' | sed '"'"'s/\(.*\)-\([0-9]*\)/\2/'"'"'); export avemap=$(awk -v f=$front -v b=$back '"'"'$6 != "." && $1 == f && $2 == b {print $8}'"'"' ./starting_files/*vcf | sed '"'"'s/.*MQ=\(.....\).*/\1/'"'"' | awk '"'"'{ sum += $1; n++ } END { if (n > 0) print sum / n; }'"'"' | sed '"'"'s/\..*//'"'"'); printf "$positionnumber\t$avemap\n" >> quality.txt' &> /dev/null
+        else
+            echo "parallel running..."
+            cat $d.positions | parallel --jobs 10 'export positionnumber=$(echo {} | awk '"'"'{print $2}'"'"'); export front=$(echo {} | awk '"'"'{print $2}'"'"' | sed '"'"'s/\(.*\)-\([0-9]*\)/\1/'"'"'); export back=$(echo {} | awk '"'"'{print $2}'"'"' | sed '"'"'s/\(.*\)-\([0-9]*\)/\2/'"'"'); export avemap=$(awk -v f=$front -v b=$back '"'"'$6 != "." && $1 == f && $2 == b {print $8}'"'"' ./starting_files/*vcf | sed '"'"'s/.*MQ=\(.....\).*/\1/'"'"' | awk '"'"'{ sum += $1; n++ } END { if (n > 0) print sum / n; }'"'"' | sed '"'"'s/\..*//'"'"'); printf "$positionnumber\t$avemap\n" >> quality.txt' &> /dev/null
+        sleep 60
+        fi
     else
-        echo "parallel running..."
-        cat $d.positions | parallel --jobs 10 'export positionnumber=$(echo {} | awk '"'"'{print $2}'"'"'); export front=$(echo {} | awk '"'"'{print $2}'"'"' | sed '"'"'s/\(.*\)-\([0-9]*\)/\1/'"'"'); export back=$(echo {} | awk '"'"'{print $2}'"'"' | sed '"'"'s/\(.*\)-\([0-9]*\)/\2/'"'"'); export avemap=$(awk -v f=$front -v b=$back '"'"'$6 != "." && $1 == f && $2 == b {print $8}'"'"' ./starting_files/*vcf | sed '"'"'s/.*MQ=\(.....\).*/\1/'"'"' | awk '"'"'{ sum += $1; n++ } END { if (n > 0) print sum / n; }'"'"' | sed '"'"'s/\..*//'"'"'); printf "$positionnumber\t$avemap\n" >> quality.txt' &> /dev/null
-    sleep 60
+        echo "Table not organized ${position_count} positions"
+        echo "Table not organized ${position_count} positions" > over_size_table_not_made
     fi
-else
-    echo "Table not organized ${position_count} positions"
-    echo "Table not organized ${position_count} positions" > over_size_table_not_made
-fi
 
-echo "parallel done running"
+    echo "parallel done running"
 
-function add_mapping_values_sorted () {
+    function add_mapping_values_sorted () {
 
-# Create "here-document" to prevent a dependent file.
-cat >./$d.mapvalues.py <<EOL
-#!/usr/bin/env python
+    # Create "here-document" to prevent a dependent file.
+    cat >./$d.mapvalues.py <<EOL
+    #!/usr/bin/env python
 
-import pandas as pd
-import numpy as np
-from sys import argv
+    import pandas as pd
+    import numpy as np
+    from sys import argv
 
-# infile arg used to make compatible for both sorted and organized tables
-script, infile, inquality = argv
+    # infile arg used to make compatible for both sorted and organized tables
+    script, infile, inquality = argv
 
-quality = pd.read_csv(inquality, sep='\t')
-mytable = pd.read_csv(infile, sep='\t')
+    quality = pd.read_csv(inquality, sep='\t')
+    mytable = pd.read_csv(infile, sep='\t')
 
-# set index to "reference_pos" so generic index does not transpose
-mytable = mytable.set_index('reference_pos')
-mytable = mytable.transpose()
+    # set index to "reference_pos" so generic index does not transpose
+    mytable = mytable.set_index('reference_pos')
+    mytable = mytable.transpose()
 
-# write to csv to import back with generic index again
-# seems like a hack that can be done better
-mytable.to_csv("$d.transposed_table.txt", sep="\t", index_label='reference_pos')
+    # write to csv to import back with generic index again
+    # seems like a hack that can be done better
+    mytable.to_csv("$d.transposed_table.txt", sep="\t", index_label='reference_pos')
 
-# can't merge on index but this newly imported transpose is formated correctly
-mytable = pd.read_csv('$d.transposed_table.txt', sep='\t')
-mytable = mytable.merge(quality, on='reference_pos', how='inner')
+    # can't merge on index but this newly imported transpose is formated correctly
+    mytable = pd.read_csv('$d.transposed_table.txt', sep='\t')
+    mytable = mytable.merge(quality, on='reference_pos', how='inner')
 
-# set index to "reference_pos" so generic index does not transpose 
-mytable = mytable.set_index('reference_pos')
-mytable = mytable.transpose()
-# since "reference_pos" was set as index it needs to be explicitly written into csv
-mytable.to_csv("$d.finished_table.txt", sep="\t", index_label='reference_pos')
+    # set index to "reference_pos" so generic index does not transpose 
+    mytable = mytable.set_index('reference_pos')
+    mytable = mytable.transpose()
+    # since "reference_pos" was set as index it needs to be explicitly written into csv
+    mytable.to_csv("$d.finished_table.txt", sep="\t", index_label='reference_pos')
 
-EOL
+    EOL
 
-chmod 755 ./$d.mapvalues.py
+    chmod 755 ./$d.mapvalues.py
 
-}
+    }
 
-add_mapping_values_sorted
-sleep 5
+    add_mapping_values_sorted
+    sleep 5
 
-./$d.mapvalues.py ${d}.table.txt quality.txt
-mv $d.finished_table.txt ${d}.table.txt
-
-./$d.mapvalues.py ${d}.organized_table.txt quality.txt
-mv $d.finished_table.txt ${d}.organized_table.txt
-rm quality.txt
-
-# When multiple tables are being done decrease cpus being used
-if [[ -z $gbk_file ]]; then
-       printf "\n\n\t There is not a gbk file to annotate tables \n\n"
-else
-    # Position with annotation made at line: 2090
-    # All positions in single file, "${dircalled}/each_annotation_in"
-    # Inner merge of this file to all tables
-    # Add annoations to tables
-
-    ./$d.mapvalues.py ${d}.table.txt ${dircalled}/each_annotation_in
-    # Rename output tables back to original names
+    ./$d.mapvalues.py ${d}.table.txt quality.txt
     mv $d.finished_table.txt ${d}.table.txt
 
-    ./$d.mapvalues.py $d.organized_table.txt ${dircalled}/each_annotation_in
-    # Rename output tables back to original names
-    mv $d.finished_table.txt $d.organized_table.txt
+    ./$d.mapvalues.py ${d}.organized_table.txt quality.txt
+    mv $d.finished_table.txt ${d}.organized_table.txt
+    rm quality.txt
 
-    rm $d.positions
-    rm $d.mapvalues.py
-    rm $d.transposed_table.txt
-fi
+    # When multiple tables are being done decrease cpus being used
+    if [[ -z $gbk_file ]]; then
+           printf "\n\n\t There is not a gbk file to annotate tables \n\n"
+    else
+        # Position with annotation made at line: 2090
+        # All positions in single file, "${dircalled}/each_annotation_in"
+        # Inner merge of this file to all tables
+        # Add annoations to tables
 
-wait
-sleep 2
-# rename table to be more descriptive.
-mv ${d}.table.txt ${d}.position_ordered_table.txt
+        ./$d.mapvalues.py ${d}.table.txt ${dircalled}/each_annotation_in
+        # Rename output tables back to original names
+        mv $d.finished_table.txt ${d}.table.txt
 
-# if no gbk for annotation tack a row to bottom of table so xlsxwriter has the proper row count for formating
-# row needs to be complete for all columns
-if [[ -z $gbk_file ]]; then
-    echo "No_gbk_available_for_annotation" >> ${d}.position_ordered_table.txt
-    max=$(awk 'max < NF { max = NF } END { print max }' ${d}.position_ordered_table.txt)
-    awk -v max=$max 'BEGIN{OFS="\t"}{ for(i=NF+1; i<=max; i++) $i = ""; print }' ${d}.position_ordered_table.txt > ${d}.position_ordered_table.temp
-    mv ${d}.position_ordered_table.temp ${d}.position_ordered_table.txt
-    echo "No_gbk_available_for_annotation" >> ${d}.organized_table.txt
-    max=$(awk 'max < NF { max = NF } END { print max }' ${d}.organized_table.txt)
-    awk -v max=$max 'BEGIN{OFS="\t"}{ for(i=NF+1; i<=max; i++) $i = ""; print }' ${d}.organized_table.txt > ${d}.organized_table.temp
-    mv ${d}.organized_table.temp ${d}.organized_table.txt
+        ./$d.mapvalues.py $d.organized_table.txt ${dircalled}/each_annotation_in
+        # Rename output tables back to original names
+        mv $d.finished_table.txt $d.organized_table.txt
 
-fi
+        rm $d.positions
+        rm $d.mapvalues.py
+        rm $d.transposed_table.txt
+    fi
 
-    # write tables to excel
+    wait
+    sleep 2
+    # rename table to be more descriptive.
+    mv ${d}.table.txt ${d}.position_ordered_table.txt
 
-pwd 
+    # if no gbk for annotation tack a row to bottom of table so xlsxwriter has the proper row count for formating
+    # row needs to be complete for all columns
+    if [[ -z $gbk_file ]]; then
+        echo "No_gbk_available_for_annotation" >> ${d}.position_ordered_table.txt
+        max=$(awk 'max < NF { max = NF } END { print max }' ${d}.position_ordered_table.txt)
+        awk -v max=$max 'BEGIN{OFS="\t"}{ for(i=NF+1; i<=max; i++) $i = ""; print }' ${d}.position_ordered_table.txt > ${d}.position_ordered_table.temp
+        mv ${d}.position_ordered_table.temp ${d}.position_ordered_table.txt
+        echo "No_gbk_available_for_annotation" >> ${d}.organized_table.txt
+        max=$(awk 'max < NF { max = NF } END { print max }' ${d}.organized_table.txt)
+        awk -v max=$max 'BEGIN{OFS="\t"}{ for(i=NF+1; i<=max; i++) $i = ""; print }' ${d}.organized_table.txt > ${d}.organized_table.temp
+        mv ${d}.organized_table.temp ${d}.organized_table.txt
 
-nexus_tree_convert.sh RAxML*tre
-for i in `cat ${root}/recentfiles`; do perl -i -pe "s/$i\$/\t${i}\[\&\!color=\#ff0000\]/" RAxML*.nex; done
-rm RAxML*tre
+    fi
+
+        # write tables to excel
+
+    pwd 
+
+    nexus_tree_convert.sh RAxML*tre
+    for i in `cat ${root}/recentfiles`; do perl -i -pe "s/$i\$/\t${i}\[\&\!color=\#ff0000\]/" RAxML*.nex; done
+    rm RAxML*tre
 
     ${root}/excelwriter.py ${d}.organized_table.txt
     rm ${d}.organized_table.txt
     ${root}/excelwriter.py ${d}.position_ordered_table.txt
     rm ${d}.position_ordered_table.txt
-    
+fi
 }
 
 #################################################################################

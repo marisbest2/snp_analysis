@@ -1666,7 +1666,7 @@ awk '{print $0}' *.fas >> RAxMLfastaGroup.txt
 #raxmlHPC-SSE3 -f a -s RAxMLfastaGroup.txt -p 12345 -x 12345 -# 100 -m GTRCAT -n ${d}
 
 #exit 1
-
+echo "pthreads: $pthreads"
 # If an all_vcf tree is being built, build with PTHREADs RAxML, else use non-PTHREAD SSE3
 if [ $pthreads == "yes" ]; then
     MAX_CPUS=`grep -c ^processor /proc/cpuinfo`
@@ -1689,6 +1689,8 @@ else
     # Give time for some RAxMLs to finish before morning on
     sleep 60
 fi
+pause
+
 rm RAxML_parsimonyTree*
 for i in RAxML*Tree*; do mv $i ../${i}.tre; done
 

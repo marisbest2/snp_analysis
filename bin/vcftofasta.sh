@@ -1741,38 +1741,38 @@ if [ $((position_count)) -lt 8000 ]; then
     function add_mapping_values_sorted () {
 
     # Create "here-document" to prevent a dependent file.
-    cat >./$d.mapvalues.py <<EOL
-    #!/usr/bin/env python
+cat >./$d.mapvalues.py <<EOL
+#!/usr/bin/env python
 
-    import pandas as pd
-    import numpy as np
-    from sys import argv
+import pandas as pd
+import numpy as np
+from sys import argv
 
-    # infile arg used to make compatible for both sorted and organized tables
-    script, infile, inquality = argv
+# infile arg used to make compatible for both sorted and organized tables
+script, infile, inquality = argv
 
-    quality = pd.read_csv(inquality, sep='\t')
-    mytable = pd.read_csv(infile, sep='\t')
+quality = pd.read_csv(inquality, sep='\t')
+mytable = pd.read_csv(infile, sep='\t')
 
-    # set index to "reference_pos" so generic index does not transpose
-    mytable = mytable.set_index('reference_pos')
-    mytable = mytable.transpose()
+# set index to "reference_pos" so generic index does not transpose
+mytable = mytable.set_index('reference_pos')
+mytable = mytable.transpose()
 
-    # write to csv to import back with generic index again
-    # seems like a hack that can be done better
-    mytable.to_csv("$d.transposed_table.txt", sep="\t", index_label='reference_pos')
+# write to csv to import back with generic index again
+# seems like a hack that can be done better
+mytable.to_csv("$d.transposed_table.txt", sep="\t", index_label='reference_pos')
 
-    # can't merge on index but this newly imported transpose is formated correctly
-    mytable = pd.read_csv('$d.transposed_table.txt', sep='\t')
-    mytable = mytable.merge(quality, on='reference_pos', how='inner')
+# can't merge on index but this newly imported transpose is formated correctly
+mytable = pd.read_csv('$d.transposed_table.txt', sep='\t')
+mytable = mytable.merge(quality, on='reference_pos', how='inner')
 
-    # set index to "reference_pos" so generic index does not transpose 
-    mytable = mytable.set_index('reference_pos')
-    mytable = mytable.transpose()
-    # since "reference_pos" was set as index it needs to be explicitly written into csv
-    mytable.to_csv("$d.finished_table.txt", sep="\t", index_label='reference_pos')
+# set index to "reference_pos" so generic index does not transpose 
+mytable = mytable.set_index('reference_pos')
+mytable = mytable.transpose()
+# since "reference_pos" was set as index it needs to be explicitly written into csv
+mytable.to_csv("$d.finished_table.txt", sep="\t", index_label='reference_pos')
 
-    EOL
+EOL
 
     chmod 755 ./$d.mapvalues.py
 

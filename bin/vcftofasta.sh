@@ -1694,9 +1694,9 @@ rm RAxML_parsimonyTree*
 for i in RAxML*Tree*; do mv $i ../${i}.tre; done
 
 # do not organize table if > 8000 positions
-position_count=`wc -l $d.positions | awk '{print $1}'`
+position_count=`grep -v ">" root.fas | head -1 | wc -m`
+echo "position_count: $position_count"
 if [ $((position_count)) -lt 8000 ]; then
-
     # on server2 "5e-07" value was in newick the "| grep -v "e-0" " cleans it out
     tr ":" "\n" < tableinput.${d} | tr "," "\n" | sed 's/(//g' | sed 's/)//g' | grep -v "\.[0-9]*" | grep -v "e-0" | grep -v "root" > cleanedAlignment.txt
     # Place headers onto aligned file
@@ -1843,7 +1843,7 @@ EOL
     rm ${d}.position_ordered_table.txt
 else
     echo "Table not organized ${position_count} positions"
-    echo "Table not organized ${position_count} positions" > over_size_table_not_made
+    echo "Table not organized ${position_count} positions" > ../../Oversized_organized_table_not_made
 fi
 }
 

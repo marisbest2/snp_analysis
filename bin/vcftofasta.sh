@@ -2149,10 +2149,13 @@ if [ $((chromCount)) -eq 1 ]; then
             findings=$(awk ' $0 !~ /^#/ && $6 > Q && $8 ~ /^AC=2;/ {print $2}' $i | grep "$neg_grp_pos")
             if [[ -z $findings ]]; then
                 #echo "$i does not have $position"
-                mv $i ./Group-${grp_number}
+                cp $i ./Group-${grp_number}
+                # Also move to all_vcfs
+                mkdir -p all_vcfs #Make all_vcfs folder if one does not exist.
+                mv $i ./all_vcfs/
+                findings=""
+                echo "${i%.vcf} in negative search Group-${grp_number}" >> section3
             fi
-            findings=""
-            echo "${i%.vcf} in negative search Group-${grp_number}" >> section3
         done
     fi
 fi

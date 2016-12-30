@@ -2154,7 +2154,7 @@ if [ $((chromCount)) -eq 1 ]; then
                 mkdir -p all_vcfs #Make all_vcfs folder if one does not exist.
                 mv $i ./all_vcfs/
                 findings=""
-                echo "${i%.vcf} in negative search Group-${grp_number}" >> section3
+                echo "${i%.vcf} in_negative_search_Group-${grp_number}" >> section3
             fi
         done
     fi

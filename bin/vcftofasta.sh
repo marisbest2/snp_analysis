@@ -1843,7 +1843,7 @@ EOL
     rm ${d}.position_ordered_table.txt
 else
     echo "Table not organized ${position_count} positions"
-    echo "Table not organized ${position_count} positions" > ../../Oversized_organized_table_not_made
+    echo "Table not organized ${position_count} positions" > ../Oversized_organized_table_not_made
 fi
 }
 

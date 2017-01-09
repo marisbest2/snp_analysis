@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#  bovis_processzips.sh
+#  processzips.sh
 
 #  Reads must be included as _R1 and _R2
 #  See loopfiles.sh and email_loopfiles for multiple samples.
@@ -558,6 +558,12 @@ java -Xmx4g -jar ${gatk} -R $ref -T UnifiedGenotyper -out_mode EMIT_ALL_SITES -I
 # This removes all positions same as the reference.  These positions are found by removing rows were column (field) 8 begins with AN=2.  This decreases the size of the VCF considerably.  The final VCF contains all SNP, indel or zero mapped/coverage positions
 awk ' $0 ~ /#/ || $8 !~ /^AN=2;/ {print $0}' ${n}.allsites.vcf > $n.ready-mem.vcf
 java -Xmx4g -jar ${igvtools} index $n.ready-mem.vcf
+
+pause
+# Run Pilone
+java -Xmx16G -jar /usr/local/bin/pilon/pilon.jar --genome $ref --bam ${n}.ready-mem.bam --output ./pilon/${n}-pilon --vcf --vcfqe --tracks --iupac
+awk ' $5 != "." || $7 != "PASS" {print $0}' ./pilon/${n}-pilon.vcf > ${n}-pilon-calls.vcf
+pause
 
 if [ $gff_file ]; then
     echo "Annotating $n.SNPsZeroCoverage.vcf"

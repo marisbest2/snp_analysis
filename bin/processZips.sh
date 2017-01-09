@@ -559,11 +559,10 @@ java -Xmx4g -jar ${gatk} -R $ref -T UnifiedGenotyper -out_mode EMIT_ALL_SITES -I
 awk ' $0 ~ /#/ || $8 !~ /^AN=2;/ {print $0}' ${n}.allsites.vcf > $n.ready-mem.vcf
 java -Xmx4g -jar ${igvtools} index $n.ready-mem.vcf
 
-pause
-# Run Pilone
+# Run Pilon
+mkdir pilon
 java -Xmx16G -jar /usr/local/bin/pilon/pilon.jar --genome $ref --bam ${n}.ready-mem.bam --output ./pilon/${n}-pilon --vcf --vcfqe --tracks --iupac
 awk ' $5 != "." || $7 != "PASS" {print $0}' ./pilon/${n}-pilon.vcf > ${n}-pilon-calls.vcf
-pause
 
 if [ $gff_file ]; then
     echo "Annotating $n.SNPsZeroCoverage.vcf"
@@ -1277,7 +1276,6 @@ sort -k1,2 /scratch/report/pre_stat_table.txt >> /scratch/report/stat_table.txt
 
 column -t /scratch/report/stat_table.txt > /scratch/report/stat_table.temp; mv /scratch/report/stat_table.temp /scratch/report/stat_table.txt
 enscript /scratch/report/stat_table.txt -B -j -r -f "Courier7" -o - | ps2pdf - /scratch/report/stat_table.pdf
-pause
 
 if [[ $email -eq 1 ]]; then
 	email_list="tod.p.stuber@aphis.usda.gov Jessica.A.Hicks@aphis.usda.gov suelee.robbe-austerman@aphis.usda.gov patrick.m.camp@aphis.usda.gov David.T.Farrell@aphis.usda.gov Christine.R.Quance@aphis.usda.gov Robin.L.Swanson@aphis.usda.gov"
@@ -1298,12 +1296,8 @@ cat /scratch/report/email_processZips2.txt | mutt -a /scratch/report/stat_table.
 date >> /scratch/report/mlstCheck_all.txt
 cat /scratch/report/mlstCheck.txt >> /scratch/report/mlstCheck_all.txt
 
-rm ./excelwriterstats.py
+#rm ./excelwriterstats.py
 
-    # if just an -e flag is give with no argument default to email all.
-    if [[ -z $email ]]; then
-        email="all"
-    fi
 
 fi
 

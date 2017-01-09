@@ -1129,7 +1129,6 @@ echo "hflag: $hflag"
 echo "debug: $debug"
 echo "email: $email"
 echo "sample_type: $sample_type"
-pause
 
 if [[ $sample_type ]]; then
     count=`ls | grep -c "_R1"`
@@ -1148,7 +1147,6 @@ for i in *.fastq.gz; do
     mkdir -p $n
     mv $i $n/
 done
-pause
 
 if [[ $email ]] && [[ $sample_type ]]; then
     printf "\n\nSAMPLE_TYPE CANNOT BE SPECIFIED WHEN LOOPING SAMPLES BY CALLING EMAIL\n"
@@ -1156,14 +1154,11 @@ if [[ $email ]] && [[ $sample_type ]]; then
     help
     exit 1
 fi
-pause
 
 if [[ $sample_type ]]; then
     cd ${root}/$n
     run_sample $sample_type | tee tee_processZips_out.txt
 fi
-
-pause
 
 # If email then loop samples
 # Or if single and no sample_type given
@@ -1180,17 +1175,15 @@ for f in ./*/; do
 	cp *R1*.fastq.gz ./temp
     cd ./temp
 	gunzip *.fastq.gz
-    pause
 
     if [[ $debug ]]; then
     # do not put into a subprocess, iterate one at a time
         oligo_identifier | tee tee_oligo_identifier_out1.txt
     else
-        oligo_identifier | tee tee_oligo_identifier_out1.txt &
+        `oligo_identifier | tee tee_oligo_identifier_out1.txt` &
     fi
     wait
 done
-pause
 
 ###
 

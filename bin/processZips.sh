@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 #  bovis_processzips.sh
 
@@ -1180,11 +1180,10 @@ for f in ./*/; do
     # do not put into a subprocess, iterate one at a time
         oligo_identifier | tee tee_oligo_identifier_out1.txt
     else
-        `oligo_identifier | tee tee_oligo_identifier_out1.txt` &
+        $(oligo_identifier | tee tee_oligo_identifier_out1.txt) &
     fi
-    wait
 done
-
+wait
 ###
 
 printf "ref_type\tsample\tR1_zip\tR2_zip\ttotal_read_prs\tup_reads\t%%dup_reads\tave_read_length\tref\tave_cov_X\tper_cov\tunmapped_contigs\tquality_snps\n" > /scratch/report/stat_table.txt

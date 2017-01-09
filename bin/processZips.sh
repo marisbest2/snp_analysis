@@ -21,26 +21,26 @@
 ###################
 function help () {
 
-printf "###Help\n\n"
+printf "\n\n###Help\n"
 printf "See inside script for list of dependencies\n\n"
-printf "Usage: \n
+printf "Usage: \n"
 printf "\tworking directory containing zipped paired FASTQ files\n"
-printf "\tDo not provide a type if more than 1 sample is in working directory\n"
-printf "\tOptions:\n
+printf "\tDo not provide a sample_type if more than 1 sample is in working directory\n"
+printf "\tOptions:\n"
 printf "\t\t-h help\n"
 printf "\t\t-d debug\n"
 printf "\t\t-e email\n"
 printf "\t\t\tcalling email will loop multiple samples\n"
-printf "\t\t\tcall with all (default), tod, jess, suelee\n"
-printf "\t\t-t type\n"
-printf "\t\t\ttype options"
+printf "\t\t\tcall with all, tod, jess, suelee\n"
+printf "\t\t-t sample_type\n"
+printf "\t\t\tsample_type options"
 printf "\t\t\tTBBOV, H37Rv\n"
 printf "\t\t\tab1, mel, suisall, suis1, suis2, suis3, suis4, suis5, canis, ceti1, ceti2, ovis\n"
 printf "\t\t\tpara, past, h5n2 secd, taylorella\n\n"
 printf "example:\n"
-printf "\t$$ processZips.sh -t TBBOV # working directory with one sample\n"
-printf "\t$$ processZips.sh -e tod # loop and send email to tod.p.stuber@usda.gov\n"
-printf "\t$$ processZips.sh -e # loop and send email to all\n\n"
+printf "\t~$ processZips.sh -t TBBOV \t\t# working directory with one sample\n"
+printf "\t~$ processZips.sh -e tod \t\t# loop and send email to tod.p.stuber@usda.gov\n"
+printf "\t~$ processZips.sh -e all \t\t# loop and send email to all\n\n"
 
 exit 1
 }
@@ -64,7 +64,7 @@ cd alignment/
 ls ../zips/*.fastq* | while read file; do ln -s $file; done
 pause
 
-if [ $type == ab1 ]; then
+if [ $sample_type == ab1 ]; then
     cp /home/shared/brucella/abortus1/script_dependents/NC_00693c.fasta ./
     hqs="/home/shared/brucella/abortus1/script_dependents/NC_00693cHighestQualitySNPs.vcf"
     bioinfo="/bioinfo11/TStuber/Results/brucella/abortus1/newFiles"
@@ -79,7 +79,7 @@ if [ $type == ab1 ]; then
 
     ###################################################################
 
-elif [ $type == ab3 ]; then
+elif [ $sample_type == ab3 ]; then
     cp /home/shared/brucella/abortus3/script_dependents/CP007682-7683c.fasta ./
     hqs="/home/shared/brucella/abortus3/script_dependents/CP007682-7683cHighestQualitySNPs.vcf"
     bioinfo="/bioinfo11/TStuber/Results/brucella/abortus3/newFiles"
@@ -94,7 +94,7 @@ elif [ $type == ab3 ]; then
 
     ###################################################################
     
-elif [ $type == mel ]; then
+elif [ $sample_type == mel ]; then
     cp /home/shared/brucella/melitensis/script_dependents/NC_00331c.fasta ./
     hqs="/home/shared/brucella/melitensis/script_dependents/B-REF-BM1-RESTRICTED-CDC-Rev1-highqualitysnps.vcf"
     bioinfo="/bioinfo11/TStuber/Results/brucella/melitensis/newFiles"
@@ -109,7 +109,7 @@ elif [ $type == mel ]; then
 
     ###################################################################
 
-elif [ $type == suisall ]; then
+elif [ $sample_type == suisall ]; then
     cp /home/shared/brucella/suis5/script_dependents/NZ_CP00771c.fasta ./
     hqs="/home/shared/brucella/suis5/script_dependents/B-513-highqualitysnps.vcf"
     #bioinfo="/bioinfo11/TStuber/Results/brucella/suisall/newFiles"
@@ -123,7 +123,7 @@ elif [ $type == suisall ]; then
 
     ###################################################################
 
-elif [ $type == suis1 ]; then
+elif [ $sample_type == suis1 ]; then
     cp /home/shared/brucella/suis1/script_dependents/NC_01725c.fasta ./
     hqs="/home/shared/brucella/suis1/script_dependents/NC_01725cHighestQualitySNPs.vcf"
     bioinfo="/bioinfo11/TStuber/Results/brucella/suis1/newFiles"
@@ -138,7 +138,7 @@ elif [ $type == suis1 ]; then
 
     ###################################################################
 
-elif [ $type == suis2 ]; then
+elif [ $sample_type == suis2 ]; then
     cp /home/shared/brucella/suis2/script_dependents/Bsuisbv2-94-11.fasta ./
     hqs="/home/shared/brucella/suis2/script_dependents/suis2HighestQualitySNPs.vcf"
     bioinfo="/bioinfo11/TStuber/Results/brucella/suis2/newFiles"
@@ -153,7 +153,7 @@ elif [ $type == suis2 ]; then
 
     ###################################################################
 
-elif [ $type == suis3 ]; then
+elif [ $sample_type == suis3 ]; then
     cp /home/shared/brucella/suis3/script_dependents/B-REF-BS3-686.fasta ./
     hqs="/home/shared/brucella/suis3/script_dependents/B15-0007-highqualitysnps.vcf"
     bioinfo="/bioinfo11/TStuber/Results/brucella/suis3/newFiles"
@@ -168,7 +168,7 @@ elif [ $type == suis3 ]; then
 
     ###################################################################
 
-elif [ $type == suis4 ]; then
+elif [ $sample_type == suis4 ]; then
     cp /home/shared/brucella/suis4/script_dependents/B-REF-BS4-40.fasta ./
     hqs="/home/shared/brucella/suis4/script_dependents/suis4HighestQualitySNPs.vcf"
     bioinfo="/bioinfo11/TStuber/Results/brucella/suis4/newFiles"
@@ -183,7 +183,7 @@ elif [ $type == suis4 ]; then
 
     ###################################################################
 
-elif [ $type == suis5 ]; then
+elif [ $sample_type == suis5 ]; then
     cp /home/shared/brucella/suis5/script_dependents/NZ_CP00771c.fasta ./
     hqs="/home/shared/brucella/suis5/script_dependents/B-513-highqualitysnps.vcf"
     bioinfo="/bioinfo11/TStuber/Results/brucella/suis5/newFiles"
@@ -197,7 +197,7 @@ elif [ $type == suis5 ]; then
 
     ###################################################################
 
-elif [ $type == canis ]; then
+elif [ $sample_type == canis ]; then
     cp /home/shared/brucella/canis/script_dependents/BcanisATCC23365.fasta ./
     hqs="/home/shared/brucella/canis/script_dependents/canisHighestQualitySNPs.vcf"
     bioinfo="/bioinfo11/TStuber/Results/brucella/canis/newFiles"
@@ -212,7 +212,7 @@ elif [ $type == canis ]; then
 
     ###################################################################
 
-elif [ $type == ceti1 ]; then
+elif [ $sample_type == ceti1 ]; then
     cp /home/shared/brucella/ceti1/script_dependents/Bceti1Cudo.fasta ./
     hqs="/home/shared/brucella/ceti1/script_dependents/ceti1HighestQualitySNPs.vcf"
     bioinfo="/bioinfo11/TStuber/Results/brucella/ceti1/newFiles"
@@ -227,7 +227,7 @@ elif [ $type == ceti1 ]; then
 
     ###################################################################
 
-elif [ $type == ceti2 ]; then
+elif [ $sample_type == ceti2 ]; then
     cp /home/shared/brucella/ceti2/script_dependents/Bceti2-TE10759.fasta ./
     hqs="/home/shared/brucella/ceti2/script_dependents/ceti2HighestQualitySNPs.vcf"
     bioinfo="/bioinfo11/TStuber/Results/brucella/ceti2/newFiles"
@@ -242,7 +242,7 @@ elif [ $type == ceti2 ]; then
 
     ###################################################################
 
-elif [ $type == ovis ]; then
+elif [ $sample_type == ovis ]; then
     cp /home/shared/brucella/ovis/script_dependents/BovisATCC25840.fasta ./
     hqs="/home/shared/brucella/ovis/script_dependents/BovisATCC25840HighestQualitySNPs.vcf"
     bioinfo="/bioinfo11/TStuber/Results/brucella/ovis/newFiles"
@@ -257,17 +257,17 @@ elif [ $type == ovis ]; then
 
     ###################################################################
 
-elif [ $type == taylorella ]; then
+elif [ $sample_type == taylorella ]; then
     cp /home/shared/taylorella/NC018108.fasta ./
     hqs="/home/shared/taylorella/TE-004-highqualitysnps.vcf"
     bioinfo="/bioinfo11/TStuber/Results/gen-bact/taylorella/newFiles"
 
-elif [ $type == tay1 ]; then
+elif [ $sample_type == tay1 ]; then
     cp /home/shared/taylorella/09-0932.fasta ./
     hqs="/home/shared/taylorella/TE-004-highqualitysnps.vcf"
     bioinfo="/bioinfo11/TStuber/Results/gen-bact/taylorella/newFiles"
 
-elif [ $type == tay5 ]; then
+elif [ $sample_type == tay5 ]; then
     cp /home/shared/taylorella/92-0972-DFS5.fasta ./
     hqs="/home/shared/taylorella/15-0094-taylorella-highqualitysnps.vcf"
     bioinfo="/bioinfo11/TStuber/Results/gen-bact/taylorella/newFiles"
@@ -275,7 +275,7 @@ elif [ $type == tay5 ]; then
     ###################################################################
 
     # Lineage Bov-Afri, AF2122
-elif [ $type == TBBOV ]; then
+elif [ $sample_type == TBBOV ]; then
     cp /home/shared/mycobacterium/tbc/snppipeline/tbbov/NC_002945.fasta ./
     hqs="/home/shared/mycobacterium/tbc/snppipeline/tbbov/HighestQualitySNPs.vcf"
     gff_file="/home/shared/mycobacterium/tbc/snppipeline/tbbov/NC_002945.gff"
@@ -289,7 +289,7 @@ elif [ $type == TBBOV ]; then
 
     ###################################################################
     # H37Rv general
-elif [ $type == H37Rv ]; then
+elif [ $sample_type == H37Rv ]; then
     cp /home/shared/mycobacterium/tbc/snppipeline/tb4b/NC000962.fasta ./
     hqs="/home/shared/mycobacterium/tbc/snppipeline/tb4b/15-3162-highqualitysnps.vcf"
     bioinfo="/bioinfo11/TStuber/Results/mycobacterium/tbc/h37/newfiles"
@@ -303,25 +303,25 @@ elif [ $type == H37Rv ]; then
     ###################################################################
     ###################################################################
 
-elif [ $type == para ]; then
+elif [ $sample_type == para ]; then
     cp /home/shared/mycobacterium/mott/paratb/NC_002944.fasta ./
     hqs="/home/shared/mycobacterium/mott/paratb/HQ-NC002944.vcf"
     bioinfo="/bioinfo11/TStuber/Results/mycobacterium/mac/para_cattle-bison/newFiles"
     #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
 
-elif [ $type == past ]; then
+elif [ $sample_type == past ]; then
     cp /home/shared/pasteurella/NZ_CM001581.fasta ./
     hqs="/home/shared/pasteurella/BTYP-9814-pasteurella-highqualitysnps.vcf"
     #bioinfo="/bioinfo11/TStuber/Results/gen-bact/Pasteurella/newFiles"
     #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
 
-elif [ $type == h5n2 ]; then
+elif [ $sample_type == h5n2 ]; then
     cp /home/shared/virus/ai/h5n2/TY-BC-FAV10-2014.fasta ./
     hqs="/home/shared/virus/ai/h5n2/14111-1-highqualitysnps.vcf"
     bioinfo="/bioinfo11/MKillian/Analysis/results/influenza/h5n2/snp_analysis/newfiles/"
     #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
 
-elif [ $type == h5nx ]; then
+elif [ $sample_type == h5nx ]; then
     cp /home/shared/virus/ai/h5nx/BC-turkey-PB2-HA-MP.fasta ./
     hqs="/home/shared/virus/ai/h5nx/11602-1-highqualitysnps.vcf"
     bioinfo=""
@@ -329,7 +329,7 @@ elif [ $type == h5nx ]; then
 
     ###################################################################
 
-elif [ $type == secd ]; then
+elif [ $sample_type == secd ]; then
     cp /home/shared/virus/secd/scriptDependents/KC210145.fasta ./
     hqs="/home/shared/virus/secd/scriptDependents/HighestQualitySNPs.vcf"
     #bioinfo=""
@@ -429,7 +429,7 @@ bwa mem -M -t 16 -R @RG"\t"ID:"$n""\t"PL:ILLUMINA"\t"PU:"$n"_RG1_UNIT1"\t"LB:"$n
 echo "***Making Bam file"
 samtools view -bh -F4 -T $ref $n.sam > $n.raw.bam
 
-if [ $type == secd ]; then
+if [ $sample_type == secd ]; then
         echo "secd, not assembling unmapped reads"
 else
 ####### unmapped reads #######
@@ -514,7 +514,7 @@ java -jar ${gatk} -T DepthOfCoverage -R $ref -I $n.preready-mem.bam -o $n.covera
 
 #########################
 
-if [ $type == secd ]; then
+if [ $sample_type == secd ]; then
 	echo "secd, not using haplotypecaller"
 else
 # http://www.broadinstitute.org/gatk/guide/tagged?tag=unifiedgenotyper
@@ -723,7 +723,7 @@ quality_snps=`egrep -v "#" $n.SNPsZeroCoverage.vcf | egrep "AC=2" | awk '$6 > 30
 #  Show Mean Coverage at Terminal and coverageReport
 echo "Mean Coverage"
 
-echo "Sample identified and ran as:  $type" >> /scratch/report/dailyReport.txt
+echo "Sample identified and ran as:  $sample_type" >> /scratch/report/dailyReport.txt
 
 echo -e "$n \t $readcount \t ${aveCoverage} \t ${percGenomeCoverage}% "
 echo -e "$n \t $readcount \t ${aveCoverage} \t ${percGenomeCoverage}% " >> /scratch/report/coverageReport.txt
@@ -747,8 +747,8 @@ cp $0 ./
 echo "***Sending files to the Network"
 cp -r ${startingdir} ${bioinfo}
 
-printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\n" $type $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoveragenoX $percGenomeCoverage $unmapped_contig_count $quality_snps >> /scratch/report/pre_stat_table.txt
-printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\n" $type $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoverage $percGenomeCoverage $unmapped_contig_count $quality_snps >> /scratch/report/stat_table_cumulative.txt
+printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\n" $sample_type $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoveragenoX $percGenomeCoverage $unmapped_contig_count $quality_snps >> /scratch/report/pre_stat_table.txt
+printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\n" $sample_type $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoverage $percGenomeCoverage $unmapped_contig_count $quality_snps >> /scratch/report/stat_table_cumulative.txt
 
 #Make dailyStats.txt for each stats.txt made for each isolate.
 echo "" >> /scratch/report/dailyStats.txt
@@ -756,7 +756,7 @@ echo "" >> /scratch/report/dailyStats.txt
 echo "" >> /scratch/report/dailyStats.txt
 echo "ADD_MARKER" >> /scratch/report/dailyStats.txt
 echo "" >> /scratch/report/dailyStats.txt
-echo "<------- $n $type ------->" >> /scratch/report/dailyStats.txt
+echo "<------- $n $sample_type ------->" >> /scratch/report/dailyStats.txt
 cat qualityvalues/$n.stats.txt >> /scratch/report/dailyStats.txt
 cat qualityvalues/$n.stats.txt >> /home/shared/stats
 
@@ -898,62 +898,62 @@ if [[ $check > 0 ]]; then
 	elif [ $i == 011111111111 ]
         then
 		echo "Brucella abortus bv 1, 2 or 4" > tee_bruc_oligo_identifier_out2.txt
-        type="ab1"
+        sample_type="ab1"
 
 	elif [ $i == 101111111111 ]
 		then
 		echo "Brucella abortus bv 3" > tee_bruc_oligo_identifier_out2.txt
-        type="ab3"
+        sample_type="ab3"
 
 	elif [ $i == 110111111111 ]
     	then
         echo "Brucella abortus bv 5, 6 or 9" > tee_bruc_oligo_identifier_out2.txt
-        type="ab1"
+        sample_type="ab1"
 
 	elif [ $i == 111011111111 ]
         then
         echo "Brucella melitensis" > tee_bruc_oligo_identifier_out2.txt
-        type="mel"
+        sample_type="mel"
 
 	elif [ $i == 111101111111 ]
         then
 		echo "Brucella suis bv1" > tee_bruc_oligo_identifier_out2.txt
-        type="suis1"
+        sample_type="suis1"
 
 	elif [ $i == 111110111111 ]
         then
 		echo "Brucella suis bv2" > tee_bruc_oligo_identifier_out2.txt
-        type="suis2"
+        sample_type="suis2"
 
 	elif [ $i == 111111011111 ]
         then
 		echo "Brucella suis bv3" > tee_bruc_oligo_identifier_out2.txt
-        type="suis3"
+        sample_type="suis3"
 
 	elif [ $i == 111111101111 ] || [ $i == 111111100111 ]
     	then
         echo "Brucella ceti 1" > tee_bruc_oligo_identifier_out2.txt
-        type="ceti1"
+        sample_type="ceti1"
 
 	elif [ $i == 111111110111 ]
     	then
         echo "Brucella ceti 2" > tee_bruc_oligo_identifier_out2.txt
-        type="ceti2"
+        sample_type="ceti2"
 
 	elif [ $i == 111111111011 ]
     	then
         echo "Brucella suis bv4" > tee_bruc_oligo_identifier_out2.txt
-        type="suis4"
+        sample_type="suis4"
 
 	elif [ $i == 111111111001 ]
     	then
         echo "Brucella canis" > tee_bruc_oligo_identifier_out2.txt
-        type="canis"
+        sample_type="canis"
 
 	elif [ $i == 111111111110 ]
     	then
         echo "Brucella ovis" > tee_bruc_oligo_identifier_out2.txt
-        type="ovis"
+        sample_type="ovis"
 
 	else
 		echo "*** Odd Isolate, Unexpected findings, See /home/shared/brucella/bruc_oligo_identifier_output.txt ***"
@@ -973,28 +973,28 @@ if [[ $check > 0 ]]; then
 
         if [ $i == 11101111 ] || [ $i == 11101101 ]
         then
-        type="H37Rv"
+        sample_type="H37Rv"
         echo "TB1" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
 	
         elif [ $i == 01100111 ]
         then
-        type="H37Rv"
+        sample_type="H37Rv"
         echo "TB2" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt 
 
         elif [ $i == 01101011 ] || [ $i == 11101011 ]
         then
-        type="H37Rv"
+        sample_type="H37Rv"
         echo "TB3" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
 
         elif [ $i == 01101111 ]
         then
-        type="H37Rv"
+        sample_type="H37Rv"
         echo "TB4a" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
@@ -1002,41 +1002,41 @@ if [[ $check > 0 ]]; then
 
         elif [ $i == 01101101 ] || [ $i == 11101101 ] || [ $i == 01101111 ]
         then
-        type="H37Rv"
+        sample_type="H37Rv"
         echo "TB4b" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
         "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
 
         elif [ $i == 11111111 ]
         then
-        type="H37Rv"
+        sample_type="H37Rv"
         echo "TB5" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
 
         elif [ $i == 11001111 ]
         then
-        type="H37Rv"
+        sample_type="H37Rv"
         echo "TB6" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
 
         elif [ $i == 10101110 ]
         then
-        type="H37Rv"
+        sample_type="H37Rv"
         echo "TB7 are as TBBOV" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
 
         elif [ $i == 11001110 ] || [ $i == 11011110 ] || [ $i == 11001100 ]
         then
-        type="TBBOV"
+        sample_type="TBBOV"
         echo "TBBOV" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
         echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
 
         else
-        type="No match found"
+        sample_type="No match found"
         echo "***oligo_identifier cannot place $n with TB reference, see line $LINENO of script***"
 		echo "Oligo counts:  ${tbcounts}, Binary:  $tbbinary"
 		echo "${n} Unable to find a reference, oligo_identifier.sh stats: Oligo counts: ${bruccounts} ${tbcounts}, Binary: ${brucbinary} ${tbbinary}" >> /scratch/report/dailyReport.txt
@@ -1054,7 +1054,7 @@ tagname=`grep $n /bioinfo11/TStuber/Results/mycobacterium/Untitled.txt`
 i=$parabinary
 
     if [ $i == 1 ]; then
-        type="para"
+        sample_type="para"
         echo "M. paratuberculosis found"
         echo "M. paratuberculosis" >> tee_tb_oligo_identifier_out2.txt
         echo "$parabinary" >> tee_tb_oligo_identifier_out2.txt
@@ -1072,12 +1072,12 @@ if [[ $allbinary == 0  ]]; then
 	echo "PLEASE GIVE TOD SPECIAL INSTRUCTIONS FOR ${n}.  This sample was NOT identified as Brucella, TB complex or avium complex.  If you know something about this isolate please send me an email.  CC all on email.  Thanks!" | mutt -s "${n} NEEDS SPECIAL ATTENTION!!!" -- "tod.p.stuber@usda.gov suelee.robbe-austerman@aphis.usda.gov" #Doris.M.Bravo@aphis.usda.gov john.b.fevold@aphis.usda.gov Patrick.M.Camp@aphis.usda.gov David.T.Farrell@aphis.usda.gov" 
 fi
 
-echo "Sample ${n}, ${tagname}, Oligo counts: Bruc ${bruccounts} TB ${tbcounts} MAC ${paracounts}, Binary: Bruc ${brucbinary} TB ${tbbinary} MAC ${parabinary}, ID:  ${type}"
+echo "Sample ${n}, ${tagname}, Oligo counts: Bruc ${bruccounts} TB ${tbcounts} MAC ${paracounts}, Binary: Bruc ${brucbinary} TB ${tbbinary} MAC ${parabinary}, ID:  ${sample_type}"
 
 #Push to logfile
-echo "Sample ${n}, ${tagname}, Oligo counts: Bruc ${bruccounts} TB ${tbcounts} MAC ${paracounts}, Binary: Bruc ${brucbinary} TB ${tbbinary} MAC ${parabinary}, ID:  ${type}" >> /scratch/report/oligo_identifier_log.txt
+echo "Sample ${n}, ${tagname}, Oligo counts: Bruc ${bruccounts} TB ${tbcounts} MAC ${paracounts}, Binary: Bruc ${brucbinary} TB ${tbbinary} MAC ${parabinary}, ID:  ${sample_type}" >> /scratch/report/oligo_identifier_log.txt
 
-run_sample $type | tee tee_processZips_out.txt
+run_sample $sample_type | tee tee_processZips_out.txt
 
 }
 # END OF FUCTIONS
@@ -1106,9 +1106,9 @@ alias pause='read -p "$LINENO Enter"'
 # Set flags
 
 email=
-type=
+sample_type=
 debug=
-while getopts ':hdt:e:' OPTION; do
+while getopts ':hde:t:' OPTION; do
     case $OPTION in
         h) hflag=1
         ;;
@@ -1116,7 +1116,7 @@ while getopts ':hdt:e:' OPTION; do
         ;;
         e) email=$OPTARG
         ;;
-        t) type=$OPTARG
+        t) sample_type=$OPTARG
         ;;
         ?) printf "\n\nIncorrect argument given"; help
         ;; 
@@ -1127,10 +1127,10 @@ shift $(($OPTIND - 1))
 echo "hflag: $hflag"
 echo "debug: $debug"
 echo "email: $email"
-echo "type: $type"
+echo "sample_type: $sample_type"
 pause
 
-if [[ $type ]]; then
+if [[ $sample_type ]]; then
     count=`ls | grep -c "_R1"`
     if [[ $count -gt 1 ]]; then
         debug=1
@@ -1149,24 +1149,24 @@ for i in *.fastq.gz; do
 done
 pause
 
-if [[ $email ]] && [[ $type ]]; then
-    printf "\n\nTYPE CANNOT BE SPECIFIED WHEN LOOPING SAMPLES BY CALLING EMAIL\n"
-    printf "TYPE MUST BE DETERMINED BY OLIGO_IDENTIFIER FUCTION\n"
+if [[ $email ]] && [[ $sample_type ]]; then
+    printf "\n\nSAMPLE_TYPE CANNOT BE SPECIFIED WHEN LOOPING SAMPLES BY CALLING EMAIL\n"
+    printf "SAMPLE_TYPE MUST BE DETERMINED BY OLIGO_IDENTIFIER FUCTION\n"
     help
     exit 1
 fi
 pause
 
-if [[ $type ]]; then
+if [[ $sample_type ]]; then
     cd ${root}/$n
-    run_sample $type | tee tee_processZips_out.txt
+    run_sample $sample_type | tee tee_processZips_out.txt
 fi
 
 pause
 
 # If email then loop samples
-# Or if single and no type given
-if [[ $email ]] || [[ -z $type ]]; then
+# Or if single and no sample_type given
+if [[ $email ]] || [[ -z $sample_type ]]; then
 
 currentdir=`pwd`
 

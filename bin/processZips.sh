@@ -1108,7 +1108,7 @@ alias pause='read -p "$LINENO Enter"'
 email=
 type=
 debug=
-while getopts ':hde:t:' OPTION; do
+while getopts ':hdt:e:' OPTION; do
     case $OPTION in
         h) hflag=1
         ;;

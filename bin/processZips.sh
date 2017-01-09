@@ -1077,6 +1077,7 @@ echo "Sample ${n}, ${tagname}, Oligo counts: Bruc ${bruccounts} TB ${tbcounts} M
 #Push to logfile
 echo "Sample ${n}, ${tagname}, Oligo counts: Bruc ${bruccounts} TB ${tbcounts} MAC ${paracounts}, Binary: Bruc ${brucbinary} TB ${tbbinary} MAC ${parabinary}, ID:  ${sample_type}" >> /scratch/report/oligo_identifier_log.txt
 
+cd ..
 run_sample $sample_type | tee tee_processZips_out.txt
 
 }

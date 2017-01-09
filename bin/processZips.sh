@@ -1085,7 +1085,7 @@ alias pause='read -p "$LINENO Enter"'
 email=
 type=
 debug=
-while getopts ':he:t:' OPTION; do
+while getopts ':hde:t:' OPTION; do
     case $OPTION in
         h) hflag=1
         ;;
@@ -1109,7 +1109,7 @@ pause
 
 if [[ $type ]]; then
     count=`ls | grep -c "_R1"`
-    if [[ $count -gt 1 ]];
+    if [[ $count -gt 1 ]]; then
         debug=1
         printf "\n\nEXPECTING ONLY A SINGLE SAMPLE\n\n"
         help

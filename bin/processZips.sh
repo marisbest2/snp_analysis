@@ -1171,26 +1171,6 @@ if [[ $email ]] || [[ -z $sample_type ]]; then
 
 currentdir=`pwd`
 
-for f in ./*/; do
-	echo "The cd is $currentdir"
-	cd $currentdir
-	echo "$f started"
-	cd ./$f
-	mkdir ./temp
-	cp *R1*.fastq.gz ./temp
-    cd ./temp
-	gunzip *.fastq.gz
-
-    if [[ $debug ]]; then
-    # do not put into a subprocess, iterate one at a time
-        oligo_identifier | tee tee_oligo_identifier_out1.txt
-    else
-        $(oligo_identifier | tee tee_oligo_identifier_out1.txt) &
-    fi
-done
-wait
-###
-
 printf "ref_type\tsample\tR1_zip\tR2_zip\ttotal_read_prs\tup_reads\t%%dup_reads\tave_read_length\tref\tave_cov_X\tper_cov\tunmapped_contigs\tquality_snps\n" > /scratch/report/stat_table.txt
 printf "" > /scratch/report/pre_stat_table.txt
 printf "\n" >> /scratch/report/stat_table_cumulative.txt
@@ -1218,6 +1198,26 @@ printf "%s\t%s\n" "TB Number" "Octal Code" > "/bioinfo11/TStuber/Results/mycobac
 echo "Isolate Total_Bases AveDep %>Q15" | awk '{ printf("%-12s %-12s %-10s %-10s\n", $1, $2, $3, $4) }' >> /scratch/report/dailyReport.txt
 echo "" >> /scratch/report/dailyReport.txt
 echo ""  > /scratch/report/dailyStats.txt
+
+for f in ./*/; do
+	echo "The cd is $currentdir"
+	cd $currentdir
+	echo "$f started"
+	cd ./$f
+	mkdir ./temp
+	cp *R1*.fastq.gz ./temp
+    cd ./temp
+	gunzip *.fastq.gz
+
+    if [[ $debug ]]; then
+    # do not put into a subprocess, iterate one at a time
+        oligo_identifier | tee tee_oligo_identifier_out1.txt
+    else
+        $(oligo_identifier | tee tee_oligo_identifier_out1.txt) &
+    fi
+done
+wait
+###
 
 echo "" >> /scratch/report/dailyTime
 echo "End Time: `date`" >> /scratch/report/dailyTime

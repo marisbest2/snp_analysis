@@ -21,7 +21,26 @@
 ###################
 function help () {
 
-printf "\n\n\nHELP FUNCTION: NEED TO ADD DETAILS\n\n"
+printf "###Help\n\n"
+printf "See inside script for list of dependencies\n\n"
+printf "Usage: \n
+printf "\tworking directory containing zipped paired FASTQ files\n"
+printf "\tDo not provide a type if more than 1 sample is in working directory\n"
+printf "\tOptions:\n
+printf "\t\t-h help\n"
+printf "\t\t-d debug\n"
+printf "\t\t-e email\n"
+printf "\t\t\tcalling email will loop multiple samples\n"
+printf "\t\t\tcall with all (default), tod, jess, suelee\n"
+printf "\t\t-t type\n"
+printf "\t\t\ttype options"
+printf "\t\t\tTBBOV, H37Rv\n"
+printf "\t\t\tab1, mel, suisall, suis1, suis2, suis3, suis4, suis5, canis, ceti1, ceti2, ovis\n"
+printf "\t\t\tpara, past, h5n2 secd, taylorella\n\n"
+printf "example:\n"
+printf "\t$$ processZips.sh -t TBBOV # working directory with one sample\n"
+printf "\t$$ processZips.sh -e tod # loop and send email to tod.p.stuber@usda.gov\n"
+printf "\t$$ processZips.sh -e # loop and send email to all\n\n"
 
 exit 1
 }
@@ -1272,7 +1291,7 @@ elif [[ $email == "jess" ]]; then
 elif [[ $email == "suelee" ]]; then
     email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov suelee.robbe-austerman@aphis.usda.gov"
 else
-    email_list="tod.p.stuber@usda.gov"
+    echo "Email was not sent: email argument: $email"
 fi
 
 cat /scratch/report/email_processZips2.txt | mutt -a /scratch/report/stat_table.xlsx /scratch/report/stat_table.pdf -s "WGS results" -- $email_list

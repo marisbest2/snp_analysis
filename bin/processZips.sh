@@ -21,7 +21,7 @@
 ###################
 function help () {
 
-printf "\n\n\n"
+printf "\n\n\nHELP FUNCTION: NEED TO ADD DETAILS\n\n"
 
 exit 1
 }
@@ -1101,6 +1101,12 @@ while getopts ':he:t:' OPTION; do
 done
 shift $(($OPTIND - 1))
 
+echo "hflag: $hflag"
+echo "debug: $debug"
+echo "email: $email"
+echo "type: $type"
+pause
+
 if [[ $type ]]; then
     count=`ls | grep -c "_R1"`
     if [[ $count -gt 1 ]];
@@ -1118,6 +1124,7 @@ for i in *.fastq.gz; do
     mkdir -p $n
     mv $i $n/
 done
+pause
 
 if [[ $email ]] && [[ $type ]]; then
     printf "\n\nTYPE CANNOT BE SPECIFIED WHEN LOOPING SAMPLES BY CALLING EMAIL\n"
@@ -1125,11 +1132,14 @@ if [[ $email ]] && [[ $type ]]; then
     help
     exit 1
 fi
+pause
 
 if [[ $type ]]; then
     cd $n
     run_sample $type | tee tee_processZips_out.txt
 fi
+
+pause
 
 # If email then loop samples
 # Or if single and no type given
@@ -1146,6 +1156,8 @@ for f in ./*/; do
 	cp *R1*.fastq.gz ./temp
     cd ./temp
 	gunzip *.fastq.gz
+    pause
+
     if [[ $debug ]]; then
     # do not put into a subprocess, iterate one at a time
         oligo_identifier | tee tee_oligo_identifier_out1.txt
@@ -1154,6 +1166,7 @@ for f in ./*/; do
     fi
     wait
 done
+pause
 
 ###
 
@@ -1242,6 +1255,7 @@ sort -k1,2 /scratch/report/pre_stat_table.txt >> /scratch/report/stat_table.txt
 
 column -t /scratch/report/stat_table.txt > /scratch/report/stat_table.temp; mv /scratch/report/stat_table.temp /scratch/report/stat_table.txt
 enscript /scratch/report/stat_table.txt -B -j -r -f "Courier7" -o - | ps2pdf - /scratch/report/stat_table.pdf
+pause
 
 if [[ $email -eq 1 ]]; then
 	email_list="tod.p.stuber@aphis.usda.gov Jessica.A.Hicks@aphis.usda.gov suelee.robbe-austerman@aphis.usda.gov patrick.m.camp@aphis.usda.gov David.T.Farrell@aphis.usda.gov Christine.R.Quance@aphis.usda.gov Robin.L.Swanson@aphis.usda.gov"

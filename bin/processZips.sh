@@ -31,6 +31,20 @@ exit 1
 ###################
 function run_sample() {
 
+echo "current directory"
+pwd
+startingdir=`pwd`
+
+# Move zip files to their own directory
+mkdir ./zips
+mv *.fastq* ./zips
+mkdir ./alignment
+cd alignment/
+
+# Make alias links in BWA-GATK directory to zip files
+ls ../zips/*.fastq* | while read file; do ln -s $file; done
+pause
+
 if [ $type == ab1 ]; then
     cp /home/shared/brucella/abortus1/script_dependents/NC_00693c.fasta ./
     hqs="/home/shared/brucella/abortus1/script_dependents/NC_00693cHighestQualitySNPs.vcf"
@@ -306,19 +320,7 @@ else
     echo "Incorrect argument!  Must use one of the following arguments: ab1, mel, suisall, suis1, suis2, suis3, suis4, suis5, canis, ceti1, ceti2, ovis, TBBOV, H37Rv, para, past, h5n2 secd, taylorella"
     exit 1
 fi
-
-echo "current directory"
-pwd
-startingdir=`pwd`
-
-# Move zip files to their own directory
-mkdir ./zips
-mv *.fastq* ./zips
-mkdir ./alignment
-cd alignment/
-
-# Make alias links in BWA-GATK directory to zip files
-ls ../zips/*.fastq* | while read file; do ln -s $file; done
+pause
 
 echo "*** Trimming"
 
@@ -1078,6 +1080,8 @@ igvtools='/usr/local/bin/IGVTools/igvtools.jar'
 BRUC_MLST=`which Bruc_MLST.sh`
 SPOLIGOSPACERFINDER=`which spoligoSpacerFinder.sh`
 
+root=`pwd`
+
 alias pause='read -p "$LINENO Enter"'
 
 # Set flags
@@ -1135,7 +1139,7 @@ fi
 pause
 
 if [[ $type ]]; then
-    cd $n
+    cd ${root}/$n
     run_sample $type | tee tee_processZips_out.txt
 fi
 

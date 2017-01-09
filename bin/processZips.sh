@@ -1,10 +1,7 @@
 #!/bin/sh
 
 #  bovis_processzips.sh
-#  Working directory should contain paired-end fastq reads
-#  Sample must be labeled with TB/Bruc number.
-#  TB numbers must be labeled ##-####
-#  Bruc numbers must be labeled B##-####
+
 #  Reads must be included as _R1 and _R2
 #  See loopfiles.sh and email_loopfiles for multiple samples.
 
@@ -19,18 +16,296 @@
 #   Reference in fasta format, /Volumes/Data_HD/Mycobacterium/Go_To_File/NC_002945.fasta
 #################################################################################
 
-echo "**************************************************************************"
-echo "**************************** START ${PWD##*/} ****************************"
-echo "**************************************************************************"
+###################
+# HELP
+###################
+function help () {
 
-picard='/usr/local/bin/picard-tools-1.141/picard.jar'
-gatk='/usr/local/bin/GenomeAnalysisTK/GenomeAnalysisTK.jar'
-igvtools='/usr/local/bin/IGVTools/igvtools.jar'
+printf "\n\n\n"
 
-BRUC_MLST=`which Bruc_MLST.sh`
-SPOLIGOSPACERFINDER=`which spoligoSpacerFinder.sh`
+exit 1
+}
 
-alias pause='read -p "$LINENO Enter"'
+###################
+# RUN_SAMPLE
+###################
+function run_sample() {
+
+if [ $type == ab1 ]; then
+    cp /home/shared/brucella/abortus1/script_dependents/NC_00693c.fasta ./
+    hqs="/home/shared/brucella/abortus1/script_dependents/NC_00693cHighestQualitySNPs.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/brucella/abortus1/newFiles"
+    sharedSAN="/home/shared/brucella/abortus1/newFiles"
+
+    # Run BrucMLST.sh
+    echo "Starting Bruc_MLST.sh"
+    cd ../zips
+    ${BRUC_MLST} &
+    cd ../alignment/
+    echo "Moving forward from Bruc_MLST.sh"
+
+    ###################################################################
+
+elif [ $type == ab3 ]; then
+    cp /home/shared/brucella/abortus3/script_dependents/CP007682-7683c.fasta ./
+    hqs="/home/shared/brucella/abortus3/script_dependents/CP007682-7683cHighestQualitySNPs.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/brucella/abortus3/newFiles"
+    sharedSAN="/home/shared/brucella/abortus3/newFiles"
+
+    # Run BrucMLST.sh
+    echo "Starting Bruc_MLST.sh"
+    cd ../zips
+    ${BRUC_MLST} &
+    cd ../alignment/
+    echo "Moving forward from Bruc_MLST.sh"
+
+    ###################################################################
+    
+elif [ $type == mel ]; then
+    cp /home/shared/brucella/melitensis/script_dependents/NC_00331c.fasta ./
+    hqs="/home/shared/brucella/melitensis/script_dependents/B-REF-BM1-RESTRICTED-CDC-Rev1-highqualitysnps.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/brucella/melitensis/newFiles"
+    sharedSAN="/home/shared/brucella/melitensis/newFiles"
+
+    # Run BrucMLST.sh
+    echo "Starting Bruc_MLST.sh"
+    cd ../zips
+    ${BRUC_MLST} &
+    cd ../alignment/
+    echo "Moving forward from Bruc_MLST.sh"
+
+    ###################################################################
+
+elif [ $type == suisall ]; then
+    cp /home/shared/brucella/suis5/script_dependents/NZ_CP00771c.fasta ./
+    hqs="/home/shared/brucella/suis5/script_dependents/B-513-highqualitysnps.vcf"
+    #bioinfo="/bioinfo11/TStuber/Results/brucella/suisall/newFiles"
+
+    # Run BrucMLST.sh
+    echo "Starting Bruc_MLST.sh"
+    cd ../zips
+    ${BRUC_MLST} &
+    cd ../alignment/
+    echo "Moving forward from Bruc_MLST.sh"
+
+    ###################################################################
+
+elif [ $type == suis1 ]; then
+    cp /home/shared/brucella/suis1/script_dependents/NC_01725c.fasta ./
+    hqs="/home/shared/brucella/suis1/script_dependents/NC_01725cHighestQualitySNPs.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/brucella/suis1/newFiles"
+    sharedSAN="/home/shared/brucella/suis1/newFiles"
+
+    # Run BrucMLST.sh
+    echo "Starting Bruc_MLST.sh"
+    cd ../zips
+    ${BRUC_MLST} &
+    cd ../alignment/
+    echo "Moving forward from Bruc_MLST.sh"
+
+    ###################################################################
+
+elif [ $type == suis2 ]; then
+    cp /home/shared/brucella/suis2/script_dependents/Bsuisbv2-94-11.fasta ./
+    hqs="/home/shared/brucella/suis2/script_dependents/suis2HighestQualitySNPs.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/brucella/suis2/newFiles"
+    sharedSAN="/home/shared/brucella/suis2/newFiles"
+
+    # Run BrucMLST.sh
+    echo "Starting Bruc_MLST.sh"
+    cd ../zips
+    ${BRUC_MLST} &
+    cd ../alignment/
+    echo "Moving forward from Bruc_MLST.sh"
+
+    ###################################################################
+
+elif [ $type == suis3 ]; then
+    cp /home/shared/brucella/suis3/script_dependents/B-REF-BS3-686.fasta ./
+    hqs="/home/shared/brucella/suis3/script_dependents/B15-0007-highqualitysnps.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/brucella/suis3/newFiles"
+    sharedSAN="/home/shared/brucella/suis3/newFiles"
+
+    # Run BrucMLST.sh
+    echo "Starting Bruc_MLST.sh"
+    cd ../zips
+    ${BRUC_MLST} &
+    cd ../alignment/
+    echo "Moving forward from Bruc_MLST.sh"
+
+    ###################################################################
+
+elif [ $type == suis4 ]; then
+    cp /home/shared/brucella/suis4/script_dependents/B-REF-BS4-40.fasta ./
+    hqs="/home/shared/brucella/suis4/script_dependents/suis4HighestQualitySNPs.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/brucella/suis4/newFiles"
+    sharedSAN="/home/shared/brucella/suis4/newFiles"
+
+    # Run BrucMLST.sh
+    echo "Starting Bruc_MLST.sh"
+    cd ../zips
+    ${BRUC_MLST} &
+    cd ../alignment/
+    echo "Moving forward from Bruc_MLST.sh"
+
+    ###################################################################
+
+elif [ $type == suis5 ]; then
+    cp /home/shared/brucella/suis5/script_dependents/NZ_CP00771c.fasta ./
+    hqs="/home/shared/brucella/suis5/script_dependents/B-513-highqualitysnps.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/brucella/suis5/newFiles"
+
+    # Run BrucMLST.sh
+    echo "Starting Bruc_MLST.sh"
+    cd ../zips
+    ${BRUC_MLST} &
+    cd ../alignment/
+    echo "Moving forward from Bruc_MLST.sh"
+
+    ###################################################################
+
+elif [ $type == canis ]; then
+    cp /home/shared/brucella/canis/script_dependents/BcanisATCC23365.fasta ./
+    hqs="/home/shared/brucella/canis/script_dependents/canisHighestQualitySNPs.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/brucella/canis/newFiles"
+    sharedSAN="/home/shared/brucella/canis/newFiles"
+
+    # Run BrucMLST.sh
+    echo "Starting Bruc_MLST.sh"
+    cd ../zips
+    ${BRUC_MLST} &
+    cd ../alignment/
+    echo "Moving forward from Bruc_MLST.sh"
+
+    ###################################################################
+
+elif [ $type == ceti1 ]; then
+    cp /home/shared/brucella/ceti1/script_dependents/Bceti1Cudo.fasta ./
+    hqs="/home/shared/brucella/ceti1/script_dependents/ceti1HighestQualitySNPs.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/brucella/ceti1/newFiles"
+    sharedSAN="/home/shared/brucella/ceti1/newFiles"
+
+    # Run BrucMLST.sh
+    echo "Starting Bruc_MLST.sh"
+    cd ../zips
+    ${BRUC_MLST} &
+    cd ../alignment/
+    echo "Moving forward from Bruc_MLST.sh"
+
+    ###################################################################
+
+elif [ $type == ceti2 ]; then
+    cp /home/shared/brucella/ceti2/script_dependents/Bceti2-TE10759.fasta ./
+    hqs="/home/shared/brucella/ceti2/script_dependents/ceti2HighestQualitySNPs.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/brucella/ceti2/newFiles"
+    sharedSAN="/home/shared/brucella/ceti2/newFiles"
+
+    # Run BrucMLST.sh
+    echo "Starting Bruc_MLST.sh"
+    cd ../zips
+    ${BRUC_MLST} &
+    cd ../alignment/
+    echo "Moving forward from Bruc_MLST.sh"
+
+    ###################################################################
+
+elif [ $type == ovis ]; then
+    cp /home/shared/brucella/ovis/script_dependents/BovisATCC25840.fasta ./
+    hqs="/home/shared/brucella/ovis/script_dependents/BovisATCC25840HighestQualitySNPs.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/brucella/ovis/newFiles"
+    sharedSAN="/home/shared/brucella/ovis/newFiles"
+
+    # Run BrucMLST.sh
+    echo "Starting Bruc_MLST.sh"
+    cd ../zips
+    ${BRUC_MLST} &
+    cd ../alignment/
+    echo "Moving forward from Bruc_MLST.sh"
+
+    ###################################################################
+
+elif [ $type == taylorella ]; then
+    cp /home/shared/taylorella/NC018108.fasta ./
+    hqs="/home/shared/taylorella/TE-004-highqualitysnps.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/gen-bact/taylorella/newFiles"
+
+elif [ $type == tay1 ]; then
+    cp /home/shared/taylorella/09-0932.fasta ./
+    hqs="/home/shared/taylorella/TE-004-highqualitysnps.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/gen-bact/taylorella/newFiles"
+
+elif [ $type == tay5 ]; then
+    cp /home/shared/taylorella/92-0972-DFS5.fasta ./
+    hqs="/home/shared/taylorella/15-0094-taylorella-highqualitysnps.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/gen-bact/taylorella/newFiles"
+
+    ###################################################################
+
+    # Lineage Bov-Afri, AF2122
+elif [ $type == TBBOV ]; then
+    cp /home/shared/mycobacterium/tbc/snppipeline/tbbov/NC_002945.fasta ./
+    hqs="/home/shared/mycobacterium/tbc/snppipeline/tbbov/HighestQualitySNPs.vcf"
+    gff_file="/home/shared/mycobacterium/tbc/snppipeline/tbbov/NC_002945.gff"
+    bioinfo="/bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/newFiles"
+    #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
+
+    # Run spoligoSpacerFinder.sh
+    echo "Starting spoligoSpacerFinder.sh"
+    ${SPOLIGOSPACERFINDER} &
+    echo "Moving forward from spoligoSpacerFinder.sh"
+
+    ###################################################################
+    # H37Rv general
+elif [ $type == H37Rv ]; then
+    cp /home/shared/mycobacterium/tbc/snppipeline/tb4b/NC000962.fasta ./
+    hqs="/home/shared/mycobacterium/tbc/snppipeline/tb4b/15-3162-highqualitysnps.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/mycobacterium/tbc/h37/newfiles"
+    gff_file="/home/shared/mycobacterium/tbc/snppipeline/tb4b/NC_000962.gff"
+
+    # Run spoligoSpacerFinder.sh
+    echo "Starting spoligoSpacerFinder.sh"
+    ${SPOLIGOSPACERFINDER} &
+    echo "Moving forward from spoligoSpacerFinder.sh"
+
+    ###################################################################
+    ###################################################################
+
+elif [ $type == para ]; then
+    cp /home/shared/mycobacterium/mott/paratb/NC_002944.fasta ./
+    hqs="/home/shared/mycobacterium/mott/paratb/HQ-NC002944.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/mycobacterium/mac/para_cattle-bison/newFiles"
+    #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
+
+elif [ $type == past ]; then
+    cp /home/shared/pasteurella/NZ_CM001581.fasta ./
+    hqs="/home/shared/pasteurella/BTYP-9814-pasteurella-highqualitysnps.vcf"
+    #bioinfo="/bioinfo11/TStuber/Results/gen-bact/Pasteurella/newFiles"
+    #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
+
+elif [ $type == h5n2 ]; then
+    cp /home/shared/virus/ai/h5n2/TY-BC-FAV10-2014.fasta ./
+    hqs="/home/shared/virus/ai/h5n2/14111-1-highqualitysnps.vcf"
+    bioinfo="/bioinfo11/MKillian/Analysis/results/influenza/h5n2/snp_analysis/newfiles/"
+    #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
+
+elif [ $type == h5nx ]; then
+    cp /home/shared/virus/ai/h5nx/BC-turkey-PB2-HA-MP.fasta ./
+    hqs="/home/shared/virus/ai/h5nx/11602-1-highqualitysnps.vcf"
+    bioinfo=""
+    #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
+
+    ###################################################################
+
+elif [ $type == secd ]; then
+    cp /home/shared/virus/secd/scriptDependents/KC210145.fasta ./
+    hqs="/home/shared/virus/secd/scriptDependents/HighestQualitySNPs.vcf"
+    #bioinfo=""
+    #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
+
+else
+    echo "Incorrect argument!  Must use one of the following arguments: ab1, mel, suisall, suis1, suis2, suis3, suis4, suis5, canis, ceti1, ceti2, ovis, TBBOV, H37Rv, para, past, h5n2 secd, taylorella"
+    exit 1
+fi
 
 echo "current directory"
 pwd
@@ -39,19 +314,13 @@ startingdir=`pwd`
 # Move zip files to their own directory
 mkdir ./zips
 mv *.fastq* ./zips
-mkdir ./bwamem-gatk
-cd bwamem-gatk/
-
+mkdir ./alignment
+cd alignment/
 
 # Make alias links in BWA-GATK directory to zip files
 ls ../zips/*.fastq* | while read file; do ln -s $file; done
 
 echo "*** Trimming"
-#######################
-#                     #
-#      Trimming       #
-#                     #
-#######################
 
 forReads=`ls | grep _R1`
 echo "Forward Reads to be trimmed: $forReads"
@@ -90,282 +359,6 @@ echo "Forward Reads to be used after trimmed: $forReads"
 
 revReads=`ls | grep _R2`
 echo "Reverse Reads to be used after trimmed:: $revReads"
-
-if [ $1 == ab1 ]; then
-    cp /home/shared/brucella/abortus1/script_dependents/NC_00693c.fasta ./
-    hqs="/home/shared/brucella/abortus1/script_dependents/NC_00693cHighestQualitySNPs.vcf"
-    bioinfo="/bioinfo11/TStuber/Results/brucella/abortus1/newFiles"
-    sharedSAN="/home/shared/brucella/abortus1/newFiles"
-
-    # Run BrucMLST.sh
-    echo "Starting Bruc_MLST.sh"
-    cd ../zips
-    ${BRUC_MLST} &
-    cd ../bwamem-gatk/
-    echo "Moving forward from Bruc_MLST.sh"
-
-    ###################################################################
-
-elif [ $1 == ab3 ]; then
-    cp /home/shared/brucella/abortus3/script_dependents/CP007682-7683c.fasta ./
-    hqs="/home/shared/brucella/abortus3/script_dependents/CP007682-7683cHighestQualitySNPs.vcf"
-    bioinfo="/bioinfo11/TStuber/Results/brucella/abortus3/newFiles"
-    sharedSAN="/home/shared/brucella/abortus3/newFiles"
-
-    # Run BrucMLST.sh
-    echo "Starting Bruc_MLST.sh"
-    cd ../zips
-    ${BRUC_MLST} &
-    cd ../bwamem-gatk/
-    echo "Moving forward from Bruc_MLST.sh"
-
-    ###################################################################
-    
-elif [ $1 == mel ]; then
-    cp /home/shared/brucella/melitensis/script_dependents/NC_00331c.fasta ./
-    hqs="/home/shared/brucella/melitensis/script_dependents/B-REF-BM1-RESTRICTED-CDC-Rev1-highqualitysnps.vcf"
-    bioinfo="/bioinfo11/TStuber/Results/brucella/melitensis/newFiles"
-    sharedSAN="/home/shared/brucella/melitensis/newFiles"
-
-    # Run BrucMLST.sh
-    echo "Starting Bruc_MLST.sh"
-    cd ../zips
-    ${BRUC_MLST} &
-    cd ../bwamem-gatk/
-    echo "Moving forward from Bruc_MLST.sh"
-
-    ###################################################################
-
-elif [ $1 == suisall ]; then
-    cp /home/shared/brucella/suis5/script_dependents/NZ_CP00771c.fasta ./
-    hqs="/home/shared/brucella/suis5/script_dependents/B-513-highqualitysnps.vcf"
-    #bioinfo="/bioinfo11/TStuber/Results/brucella/suisall/newFiles"
-
-    # Run BrucMLST.sh
-    echo "Starting Bruc_MLST.sh"
-    cd ../zips
-    ${BRUC_MLST} &
-    cd ../bwamem-gatk/
-    echo "Moving forward from Bruc_MLST.sh"
-
-    ###################################################################
-
-elif [ $1 == suis1 ]; then
-    cp /home/shared/brucella/suis1/script_dependents/NC_01725c.fasta ./
-    hqs="/home/shared/brucella/suis1/script_dependents/NC_01725cHighestQualitySNPs.vcf"
-    bioinfo="/bioinfo11/TStuber/Results/brucella/suis1/newFiles"
-    sharedSAN="/home/shared/brucella/suis1/newFiles"
-
-    # Run BrucMLST.sh
-    echo "Starting Bruc_MLST.sh"
-    cd ../zips
-    ${BRUC_MLST} &
-    cd ../bwamem-gatk/
-    echo "Moving forward from Bruc_MLST.sh"
-
-    ###################################################################
-
-elif [ $1 == suis2 ]; then
-    cp /home/shared/brucella/suis2/script_dependents/Bsuisbv2-94-11.fasta ./
-    hqs="/home/shared/brucella/suis2/script_dependents/suis2HighestQualitySNPs.vcf"
-    bioinfo="/bioinfo11/TStuber/Results/brucella/suis2/newFiles"
-    sharedSAN="/home/shared/brucella/suis2/newFiles"
-
-    # Run BrucMLST.sh
-    echo "Starting Bruc_MLST.sh"
-    cd ../zips
-    ${BRUC_MLST} &
-    cd ../bwamem-gatk/
-    echo "Moving forward from Bruc_MLST.sh"
-
-    ###################################################################
-
-elif [ $1 == suis3 ]; then
-    cp /home/shared/brucella/suis3/script_dependents/B-REF-BS3-686.fasta ./
-    hqs="/home/shared/brucella/suis3/script_dependents/B15-0007-highqualitysnps.vcf"
-    bioinfo="/bioinfo11/TStuber/Results/brucella/suis3/newFiles"
-    sharedSAN="/home/shared/brucella/suis3/newFiles"
-
-    # Run BrucMLST.sh
-    echo "Starting Bruc_MLST.sh"
-    cd ../zips
-    ${BRUC_MLST} &
-    cd ../bwamem-gatk/
-    echo "Moving forward from Bruc_MLST.sh"
-
-    ###################################################################
-
-elif [ $1 == suis4 ]; then
-    cp /home/shared/brucella/suis4/script_dependents/B-REF-BS4-40.fasta ./
-    hqs="/home/shared/brucella/suis4/script_dependents/suis4HighestQualitySNPs.vcf"
-    bioinfo="/bioinfo11/TStuber/Results/brucella/suis4/newFiles"
-    sharedSAN="/home/shared/brucella/suis4/newFiles"
-
-    # Run BrucMLST.sh
-    echo "Starting Bruc_MLST.sh"
-    cd ../zips
-    ${BRUC_MLST} &
-    cd ../bwamem-gatk/
-    echo "Moving forward from Bruc_MLST.sh"
-
-    ###################################################################
-
-elif [ $1 == suis5 ]; then
-    cp /home/shared/brucella/suis5/script_dependents/NZ_CP00771c.fasta ./
-    hqs="/home/shared/brucella/suis5/script_dependents/B-513-highqualitysnps.vcf"
-    bioinfo="/bioinfo11/TStuber/Results/brucella/suis5/newFiles"
-
-    # Run BrucMLST.sh
-    echo "Starting Bruc_MLST.sh"
-    cd ../zips
-    ${BRUC_MLST} &
-    cd ../bwamem-gatk/
-    echo "Moving forward from Bruc_MLST.sh"
-
-    ###################################################################
-
-elif [ $1 == canis ]; then
-    cp /home/shared/brucella/canis/script_dependents/BcanisATCC23365.fasta ./
-    hqs="/home/shared/brucella/canis/script_dependents/canisHighestQualitySNPs.vcf"
-    bioinfo="/bioinfo11/TStuber/Results/brucella/canis/newFiles"
-    sharedSAN="/home/shared/brucella/canis/newFiles"
-
-    # Run BrucMLST.sh
-    echo "Starting Bruc_MLST.sh"
-    cd ../zips
-    ${BRUC_MLST} &
-    cd ../bwamem-gatk/
-    echo "Moving forward from Bruc_MLST.sh"
-
-    ###################################################################
-
-elif [ $1 == ceti1 ]; then
-    cp /home/shared/brucella/ceti1/script_dependents/Bceti1Cudo.fasta ./
-    hqs="/home/shared/brucella/ceti1/script_dependents/ceti1HighestQualitySNPs.vcf"
-    bioinfo="/bioinfo11/TStuber/Results/brucella/ceti1/newFiles"
-    sharedSAN="/home/shared/brucella/ceti1/newFiles"
-
-    # Run BrucMLST.sh
-    echo "Starting Bruc_MLST.sh"
-    cd ../zips
-    ${BRUC_MLST} &
-    cd ../bwamem-gatk/
-    echo "Moving forward from Bruc_MLST.sh"
-
-    ###################################################################
-
-elif [ $1 == ceti2 ]; then
-    cp /home/shared/brucella/ceti2/script_dependents/Bceti2-TE10759.fasta ./
-    hqs="/home/shared/brucella/ceti2/script_dependents/ceti2HighestQualitySNPs.vcf"
-    bioinfo="/bioinfo11/TStuber/Results/brucella/ceti2/newFiles"
-    sharedSAN="/home/shared/brucella/ceti2/newFiles"
-
-    # Run BrucMLST.sh
-    echo "Starting Bruc_MLST.sh"
-    cd ../zips
-    ${BRUC_MLST} &
-    cd ../bwamem-gatk/
-    echo "Moving forward from Bruc_MLST.sh"
-
-    ###################################################################
-
-elif [ $1 == ovis ]; then
-    cp /home/shared/brucella/ovis/script_dependents/BovisATCC25840.fasta ./
-    hqs="/home/shared/brucella/ovis/script_dependents/BovisATCC25840HighestQualitySNPs.vcf"
-    bioinfo="/bioinfo11/TStuber/Results/brucella/ovis/newFiles"
-    sharedSAN="/home/shared/brucella/ovis/newFiles"
-
-    # Run BrucMLST.sh
-    echo "Starting Bruc_MLST.sh"
-    cd ../zips
-    ${BRUC_MLST} &
-    cd ../bwamem-gatk/
-    echo "Moving forward from Bruc_MLST.sh"
-
-    ###################################################################
-
-elif [ $1 == taylorella ]; then
-    cp /home/shared/taylorella/NC018108.fasta ./
-    hqs="/home/shared/taylorella/TE-004-highqualitysnps.vcf"
-    bioinfo="/bioinfo11/TStuber/Results/gen-bact/taylorella/newFiles"
-
-elif [ $1 == tay1 ]; then
-    cp /home/shared/taylorella/09-0932.fasta ./
-    hqs="/home/shared/taylorella/TE-004-highqualitysnps.vcf"
-    bioinfo="/bioinfo11/TStuber/Results/gen-bact/taylorella/newFiles"
-
-elif [ $1 == tay5 ]; then
-    cp /home/shared/taylorella/92-0972-DFS5.fasta ./
-    hqs="/home/shared/taylorella/15-0094-taylorella-highqualitysnps.vcf"
-    bioinfo="/bioinfo11/TStuber/Results/gen-bact/taylorella/newFiles"
-
-    ###################################################################
-
-    # Lineage Bov-Afri, AF2122
-elif [ $1 == TBBOV ]; then
-    cp /home/shared/mycobacterium/tbc/snppipeline/tbbov/NC_002945.fasta ./
-    hqs="/home/shared/mycobacterium/tbc/snppipeline/tbbov/HighestQualitySNPs.vcf"
-    gff_file="/home/shared/mycobacterium/tbc/snppipeline/tbbov/NC_002945.gff"
-    bioinfo="/bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/newFiles"
-    #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
-
-    # Run spoligoSpacerFinder.sh
-    echo "Starting spoligoSpacerFinder.sh"
-    ${SPOLIGOSPACERFINDER} &
-    echo "Moving forward from spoligoSpacerFinder.sh"
-
-    ###################################################################
-    # H37Rv general
-elif [ $1 == H37Rv ]; then
-    cp /home/shared/mycobacterium/tbc/snppipeline/tb4b/NC000962.fasta ./
-    hqs="/home/shared/mycobacterium/tbc/snppipeline/tb4b/15-3162-highqualitysnps.vcf"
-    bioinfo="/bioinfo11/TStuber/Results/mycobacterium/tbc/h37/newfiles"
-    gff_file="/home/shared/mycobacterium/tbc/snppipeline/tb4b/NC_000962.gff"
-
-    # Run spoligoSpacerFinder.sh
-    echo "Starting spoligoSpacerFinder.sh"
-    ${SPOLIGOSPACERFINDER} &
-    echo "Moving forward from spoligoSpacerFinder.sh"
-
-    ###################################################################
-    ###################################################################
-
-elif [ $1 == para ]; then
-    cp /home/shared/mycobacterium/mott/paratb/NC_002944.fasta ./
-    hqs="/home/shared/mycobacterium/mott/paratb/HQ-NC002944.vcf"
-    bioinfo="/bioinfo11/TStuber/Results/mycobacterium/mac/para_cattle-bison/newFiles"
-    #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
-
-elif [ $1 == past ]; then
-    cp /home/shared/pasteurella/NZ_CM001581.fasta ./
-    hqs="/home/shared/pasteurella/BTYP-9814-pasteurella-highqualitysnps.vcf"
-    #bioinfo="/bioinfo11/TStuber/Results/gen-bact/Pasteurella/newFiles"
-    #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
-
-elif [ $1 == h5n2 ]; then
-    cp /home/shared/virus/ai/h5n2/TY-BC-FAV10-2014.fasta ./
-    hqs="/home/shared/virus/ai/h5n2/14111-1-highqualitysnps.vcf"
-    bioinfo="/bioinfo11/MKillian/Analysis/results/influenza/h5n2/snp_analysis/newfiles/"
-    #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
-
-elif [ $1 == h5nx ]; then
-    cp /home/shared/virus/ai/h5nx/BC-turkey-PB2-HA-MP.fasta ./
-    hqs="/home/shared/virus/ai/h5nx/11602-1-highqualitysnps.vcf"
-    bioinfo=""
-    #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
-
-    ###################################################################
-
-elif [ $1 == secd ]; then
-    cp /home/shared/virus/secd/scriptDependents/KC210145.fasta ./
-    hqs="/home/shared/virus/secd/scriptDependents/HighestQualitySNPs.vcf"
-    #bioinfo=""
-    #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
-
-else
-    echo "Incorrect argument!  Must use one of the following arguments: ab1, mel, suisall, suis1, suis2, suis3, suis4, suis5, canis, ceti1, ceti2, ovis, TBBOV, H37Rv, para, past, h5n2 secd, taylorella"
-    exit 1
-fi
 
 # Grab reads and reference and place them in variables
 ref=`ls | grep .fasta`
@@ -415,7 +408,7 @@ bwa mem -M -t 16 -R @RG"\t"ID:"$n""\t"PL:ILLUMINA"\t"PU:"$n"_RG1_UNIT1"\t"LB:"$n
 echo "***Making Bam file"
 samtools view -bh -F4 -T $ref $n.sam > $n.raw.bam
 
-if [ $1 == secd ]; then
+if [ $type == secd ]; then
         echo "secd, not assembling unmapped reads"
 else
 ####### unmapped reads #######
@@ -500,7 +493,7 @@ java -jar ${gatk} -T DepthOfCoverage -R $ref -I $n.preready-mem.bam -o $n.covera
 
 #########################
 
-if [ $1 == secd ]; then
+if [ $type == secd ]; then
 	echo "secd, not using haplotypecaller"
 else
 # http://www.broadinstitute.org/gatk/guide/tagged?tag=unifiedgenotyper
@@ -709,7 +702,7 @@ quality_snps=`egrep -v "#" $n.SNPsZeroCoverage.vcf | egrep "AC=2" | awk '$6 > 30
 #  Show Mean Coverage at Terminal and coverageReport
 echo "Mean Coverage"
 
-echo "Sample identified and ran as:  $1" >> /scratch/report/dailyReport.txt
+echo "Sample identified and ran as:  $type" >> /scratch/report/dailyReport.txt
 
 echo -e "$n \t $readcount \t ${aveCoverage} \t ${percGenomeCoverage}% "
 echo -e "$n \t $readcount \t ${aveCoverage} \t ${percGenomeCoverage}% " >> /scratch/report/coverageReport.txt
@@ -733,8 +726,8 @@ cp $0 ./
 echo "***Sending files to the Network"
 cp -r ${startingdir} ${bioinfo}
 
-printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\n" $1 $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoveragenoX $percGenomeCoverage $unmapped_contig_count $quality_snps >> /scratch/report/pre_stat_table.txt
-printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\n" $1 $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoverage $percGenomeCoverage $unmapped_contig_count $quality_snps >> /scratch/report/stat_table_cumulative.txt
+printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\n" $type $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoveragenoX $percGenomeCoverage $unmapped_contig_count $quality_snps >> /scratch/report/pre_stat_table.txt
+printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\n" $type $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoverage $percGenomeCoverage $unmapped_contig_count $quality_snps >> /scratch/report/stat_table_cumulative.txt
 
 #Make dailyStats.txt for each stats.txt made for each isolate.
 echo "" >> /scratch/report/dailyStats.txt
@@ -742,7 +735,7 @@ echo "" >> /scratch/report/dailyStats.txt
 echo "" >> /scratch/report/dailyStats.txt
 echo "ADD_MARKER" >> /scratch/report/dailyStats.txt
 echo "" >> /scratch/report/dailyStats.txt
-echo "<------- $n $1 ------->" >> /scratch/report/dailyStats.txt
+echo "<------- $n $type ------->" >> /scratch/report/dailyStats.txt
 cat qualityvalues/$n.stats.txt >> /scratch/report/dailyStats.txt
 cat qualityvalues/$n.stats.txt >> /home/shared/stats
 
@@ -751,3 +744,541 @@ echo "**************************** END $n ****************************"
 #
 #  Created by Stuber, Tod P - APHIS on 11/08/12.
 #
+
+}
+
+###################
+# OLIGO_IDENTIFIER
+###################
+function oligo_identifier () {
+
+onemismatch () {
+patt=($1)
+for ((i=0; i<${#patt[0]}; i++)); do
+    patt+=( "${patt[0]:0:i}.${patt[0]:i+1}" )
+done
+regex=$(IFS='|'; echo "${patt[*]}")
+
+}
+
+#################################################################################
+
+echo "**********************ID FILES START**********************"
+
+# updated oligos, 2014-12-11
+pab1="AATTGTCGGATAGCCTGGCGATAACGACGC"
+pab3="CACACGCGGGCCGGAACTGCCGCAAATGAC"
+pab5="GCTGAAGCGGCAGACCGGCAGAACGAATAT"
+pmel="TGTCGCGCGTCAAGCGGCGTGAAATCTCTG"
+psuis1="TGCGTTGCCGTGAAGCTTAATTCGGCTGAT"
+psuis2="GGCAATCATGCGCAGGGCTTTGCATTCGTC"
+psuis3="CAAGGCAGATGCACATAATCCGGCGACCCG"
+pceti1="GTGAATATAGGGTGAATTGATCTTCAGCCG"
+pceti2="TTACAAGCAGGCCTATGAGCGCGGCGTGAA"
+pcanis4="CTGCTACATAAAGCACCCGGCGACCGAGTT"
+pcanis="ATCGTTTTGCGGCATATCGCTGACCACAGC"
+povis="CACTCAATCTTCTCTACGGGCGTGGTATCC"
+
+# updated oligos, 2015-02-02
+
+primertb157="CTCTTCGTATACCGTTCCGTCGTCACCATGGTCCT"
+primertb7="TCACGCAGCCAACGATATTCGTGTACCGCGACGGT"
+primertbbov="CTGGGCGACCCGGCCGACCTGCACACCGCGCATCA"
+primertb5="CCGTGGTGGCGTATCGGGCCCCTGGATCGCGCCCT"
+primertb2="ATGTCTGCGTAAAGAAGTTCCATGTCCGGGAAGTA"
+primertb3="GAAGACCTTGATGCCGATCTGGGTGTCGATCTTGA"
+primertb4="CGGTGTTGAAGGGTCCCCCGTTCCAGAAGCCGGTG"
+primertb6="ACGGTGATTCGGGTGGTCGACACCGATGGTTCAGA"
+
+# paraTB specific
+ppara="CCTTTCTTGAAGGGTGTTCG|CGAACACCCTTCAAGAAAGG"
+
+forReads=`ls | grep _R1`
+echo "Forward Reads:  $forReads"
+
+n=`echo $forReads | sed 's/_.*//' | sed 's/\..*//'`
+echo "working on: $n"
+
+ab1=`grep -c $pab1 $forReads`
+ab3=`grep -c $pab3 $forReads`
+ab5=`grep -c $pab5 $forReads`
+mel=`grep -c $pmel $forReads`
+suis1=`grep -c $psuis1 $forReads`
+suis2=`grep -c $psuis2 $forReads`
+suis3=`grep -c $psuis3 $forReads`
+ceti1=`grep -c $pceti1 $forReads`
+ceti2=`grep -c $pceti2 $forReads`
+canis4=`grep -c $pcanis4 $forReads`
+canis=`grep -c $pcanis $forReads`
+ovis=`grep -c $povis $forReads`
+para=`egrep -ic $ppara $forReads`
+
+onemismatch $primertb157
+tb157=`egrep -c $regex $forReads`
+echo "tb157 $tb157"
+
+onemismatch $primertb7
+tb7=`egrep -c $regex $forReads`
+echo "tb7 $tb7"
+
+onemismatch $primertbbov
+tbbov=`egrep -c $regex $forReads`
+echo "tbbov $tbbov"
+
+onemismatch $primertb5
+tb5=`egrep -c $regex $forReads`
+echo "tb5 $tb5"
+
+onemismatch $primertb2
+tb2=`egrep -c $regex $forReads`
+echo "tb2 $tb2"
+
+onemismatch $primertb3
+tb3=`egrep -c $regex $forReads`
+echo "tb3 $tb3"
+
+onemismatch $primertb4
+tb4=`egrep -c $regex $forReads`
+echo "tb4 $tb4"
+
+onemismatch $primertb6
+tb6=`egrep -c $regex $forReads`
+echo "tb6 $tb6"
+
+bruccounts=`echo "$ab1 $ab3 $ab5 $mel $suis1 $suis2 $suis3 $ceti1 $ceti2 $canis4 $canis $ovis"`
+tbcounts=`echo "$tb157 $tb7 $tbbov $tb5 $tb2 $tb3 $tb4 $tb6"`
+paracounts=`echo "$para"`
+echo $bruccounts
+echo $tbcounts
+echo $paracounts
+
+brucbinary=`echo $bruccounts | awk '{for(i=1;i<=NF;i++) if ($i >= 1) print 1; else print 0}' | tr -cd "[:print:]"`
+tbbinary=`echo $tbcounts | awk '{for(i=1;i<=NF;i++) if ($i >= 1) print 1; else print 0}' | tr -cd "[:print:]"`
+parabinary=`echo $paracounts | awk '{for(i=1;i<=NF;i++) if ($i >= 10) print 1; else print 0}' | tr -cd "[:print:]"`
+
+echo $brucbinary
+echo $tbbinary
+echo $parabinary
+
+#count every occurance of 1 in binary.
+check=`echo $brucbinary | grep -o "1" | wc -l`
+echo "Brucella check= $check"
+
+if [[ $check > 0 ]]; then
+	echo "Brucella species found"
+	tagname=`grep $n /bioinfo11/TStuber/Results/brucella/bruc_tags.txt`
+	i=$brucbinary
+
+	if [ $i == 111111111111 ]
+        then
+		echo "*** Odd Isolate, Unexpected findings ***" > tee_bruc_oligo_identifier_out2.txt
+	    exit 1
+
+	elif [ $i == 011111111111 ]
+        then
+		echo "Brucella abortus bv 1, 2 or 4" > tee_bruc_oligo_identifier_out2.txt
+        type="ab1"
+
+	elif [ $i == 101111111111 ]
+		then
+		echo "Brucella abortus bv 3" > tee_bruc_oligo_identifier_out2.txt
+        type="ab3"
+
+	elif [ $i == 110111111111 ]
+    	then
+        echo "Brucella abortus bv 5, 6 or 9" > tee_bruc_oligo_identifier_out2.txt
+        type="ab1"
+
+	elif [ $i == 111011111111 ]
+        then
+        echo "Brucella melitensis" > tee_bruc_oligo_identifier_out2.txt
+        type="mel"
+
+	elif [ $i == 111101111111 ]
+        then
+		echo "Brucella suis bv1" > tee_bruc_oligo_identifier_out2.txt
+        type="suis1"
+
+	elif [ $i == 111110111111 ]
+        then
+		echo "Brucella suis bv2" > tee_bruc_oligo_identifier_out2.txt
+        type="suis2"
+
+	elif [ $i == 111111011111 ]
+        then
+		echo "Brucella suis bv3" > tee_bruc_oligo_identifier_out2.txt
+        type="suis3"
+
+	elif [ $i == 111111101111 ] || [ $i == 111111100111 ]
+    	then
+        echo "Brucella ceti 1" > tee_bruc_oligo_identifier_out2.txt
+        type="ceti1"
+
+	elif [ $i == 111111110111 ]
+    	then
+        echo "Brucella ceti 2" > tee_bruc_oligo_identifier_out2.txt
+        type="ceti2"
+
+	elif [ $i == 111111111011 ]
+    	then
+        echo "Brucella suis bv4" > tee_bruc_oligo_identifier_out2.txt
+        type="suis4"
+
+	elif [ $i == 111111111001 ]
+    	then
+        echo "Brucella canis" > tee_bruc_oligo_identifier_out2.txt
+        type="canis"
+
+	elif [ $i == 111111111110 ]
+    	then
+        echo "Brucella ovis" > tee_bruc_oligo_identifier_out2.txt
+        type="ovis"
+
+	else
+		echo "*** Odd Isolate, Unexpected findings, See /home/shared/brucella/bruc_oligo_identifier_output.txt ***"
+    	echo "***bruc_oligo_identifier cannot find a pattern for $n, see line $LINENO of script***"
+		echo "${n} Unable to find a reference, oligo_identifier.sh stats: Oligo counts: ${bruccounts} ${tbcounts}, Binary: ${brucbinary} ${tbbinary}" >> /scratch/report/dailyReport.txt
+	fi
+fi
+
+#count every occurance of 1 in binary.
+check=`echo $tbbinary | grep -o "1" | wc -l`
+echo "TB complex check= $check"
+
+if [[ $check > 0 ]]; then
+        echo "TB complex species found"
+        tagname=`grep $n /bioinfo11/TStuber/Results/mycobacterium/Untitled.txt`
+	i=$tbbinary
+
+        if [ $i == 11101111 ] || [ $i == 11101101 ]
+        then
+        type="H37Rv"
+        echo "TB1" >> tee_tb_oligo_identifier_out2.txt
+        echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
+        echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
+	
+        elif [ $i == 01100111 ]
+        then
+        type="H37Rv"
+        echo "TB2" >> tee_tb_oligo_identifier_out2.txt
+        echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
+        echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt 
+
+        elif [ $i == 01101011 ] || [ $i == 11101011 ]
+        then
+        type="H37Rv"
+        echo "TB3" >> tee_tb_oligo_identifier_out2.txt
+        echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
+        echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
+
+        elif [ $i == 01101111 ]
+        then
+        type="H37Rv"
+        echo "TB4a" >> tee_tb_oligo_identifier_out2.txt
+        echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
+        echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
+
+
+        elif [ $i == 01101101 ] || [ $i == 11101101 ] || [ $i == 01101111 ]
+        then
+        type="H37Rv"
+        echo "TB4b" >> tee_tb_oligo_identifier_out2.txt
+        echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
+        "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
+
+        elif [ $i == 11111111 ]
+        then
+        type="H37Rv"
+        echo "TB5" >> tee_tb_oligo_identifier_out2.txt
+        echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
+        echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
+
+        elif [ $i == 11001111 ]
+        then
+        type="H37Rv"
+        echo "TB6" >> tee_tb_oligo_identifier_out2.txt
+        echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
+        echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
+
+        elif [ $i == 10101110 ]
+        then
+        type="H37Rv"
+        echo "TB7 are as TBBOV" >> tee_tb_oligo_identifier_out2.txt
+        echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
+        echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
+
+        elif [ $i == 11001110 ] || [ $i == 11011110 ] || [ $i == 11001100 ]
+        then
+        type="TBBOV"
+        echo "TBBOV" >> tee_tb_oligo_identifier_out2.txt
+        echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
+        echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
+
+        else
+        type="No match found"
+        echo "***oligo_identifier cannot place $n with TB reference, see line $LINENO of script***"
+		echo "Oligo counts:  ${tbcounts}, Binary:  $tbbinary"
+		echo "${n} Unable to find a reference, oligo_identifier.sh stats: Oligo counts: ${bruccounts} ${tbcounts}, Binary: ${brucbinary} ${tbbinary}" >> /scratch/report/dailyReport.txt
+        exit 1
+	fi
+fi
+
+#count every occurance of 1 in binary.
+check=`echo $parabinary | grep -o "1" | wc -l`
+echo "M. paratb check= $check"
+
+if [[ $check > 0 ]]; then
+echo "MAC species found"
+tagname=`grep $n /bioinfo11/TStuber/Results/mycobacterium/Untitled.txt`
+i=$parabinary
+
+    if [ $i == 1 ]; then
+        type="para"
+        echo "M. paratuberculosis found"
+        echo "M. paratuberculosis" >> tee_tb_oligo_identifier_out2.txt
+        echo "$parabinary" >> tee_tb_oligo_identifier_out2.txt
+        echo "$paracounts" >> tee_tb_oligo_identifier_out2.txt
+    else
+        echo "oligo_identifier.sh could not find a match for $n"
+        echo "oligo_identifier.sh could not find a match for $n" >> /scratch/report/dailyReport.txt
+        echo "${n} Unable to find a reference, oligo_identifier.sh stats: Oligo counts: ${bruccounts} ${tbcounts} ${paracounts}, Binary: ${brucbinary} ${tbbinary} ${parabinary}" >> /scratch/report/dailyReport.txt
+    fi
+fi
+
+allbinary=`echo ${brucbinary} ${tbbinary} ${parabinary} | grep -c "1"`
+if [[ $allbinary == 0  ]]; then 
+	echo "${n} NEEDS SPECIAL ATTENTION!!!" >> /scratch/report/dailyReport.txt
+	echo "PLEASE GIVE TOD SPECIAL INSTRUCTIONS FOR ${n}.  This sample was NOT identified as Brucella, TB complex or avium complex.  If you know something about this isolate please send me an email.  CC all on email.  Thanks!" | mutt -s "${n} NEEDS SPECIAL ATTENTION!!!" -- "tod.p.stuber@usda.gov suelee.robbe-austerman@aphis.usda.gov" #Doris.M.Bravo@aphis.usda.gov john.b.fevold@aphis.usda.gov Patrick.M.Camp@aphis.usda.gov David.T.Farrell@aphis.usda.gov" 
+fi
+
+echo "Sample ${n}, ${tagname}, Oligo counts: Bruc ${bruccounts} TB ${tbcounts} MAC ${paracounts}, Binary: Bruc ${brucbinary} TB ${tbbinary} MAC ${parabinary}, ID:  ${type}"
+
+#Push to logfile
+echo "Sample ${n}, ${tagname}, Oligo counts: Bruc ${bruccounts} TB ${tbcounts} MAC ${paracounts}, Binary: Bruc ${brucbinary} TB ${tbbinary} MAC ${parabinary}, ID:  ${type}" >> /scratch/report/oligo_identifier_log.txt
+
+run_sample $type | tee tee_processZips_out.txt
+
+}
+# END OF FUCTIONS
+
+#################################################################################
+######                                                                     ######
+######                            # START #                                ######
+######                                                                     ######
+#################################################################################
+
+echo "**************************************************************************"
+echo "**************************** START ${PWD##*/} ****************************"
+echo "**************************************************************************"
+
+picard='/usr/local/bin/picard-tools-1.141/picard.jar'
+gatk='/usr/local/bin/GenomeAnalysisTK/GenomeAnalysisTK.jar'
+igvtools='/usr/local/bin/IGVTools/igvtools.jar'
+
+BRUC_MLST=`which Bruc_MLST.sh`
+SPOLIGOSPACERFINDER=`which spoligoSpacerFinder.sh`
+
+alias pause='read -p "$LINENO Enter"'
+
+# Set flags
+
+email=
+type=
+debug=
+while getopts ':he:t:' OPTION; do
+    case $OPTION in
+        h) hflag=1
+        ;;
+        d) debug=1
+        ;;
+        e) email=$OPTARG
+        ;;
+        t) type=$OPTARG
+        ;;
+        ?) printf "\n\nIncorrect argument given"; help
+        ;; 
+    esac
+done
+shift $(($OPTIND - 1))
+
+if [[ $type ]]; then
+    count=`ls | grep -c "_R1"`
+    if [[ $count -gt 1 ]];
+        debug=1
+        printf "\n\nEXPECTING ONLY A SINGLE SAMPLE\n\n"
+        help
+        exit 1
+    fi
+fi
+
+##############################
+for i in *.fastq.gz; do
+    n=`echo $i | sed 's/_.*//' | sed 's/\..*//'`
+    echo "n is : $n"
+    mkdir -p $n
+    mv $i $n/
+done
+
+if [[ $email ]] && [[ $type ]]; then
+    printf "\n\nTYPE CANNOT BE SPECIFIED WHEN LOOPING SAMPLES BY CALLING EMAIL\n"
+    printf "TYPE MUST BE DETERMINED BY OLIGO_IDENTIFIER FUCTION\n"
+    help
+    exit 1
+fi
+
+if [[ $type ]]; then
+    cd $n
+    run_sample $type | tee tee_processZips_out.txt
+fi
+
+# If email then loop samples
+# Or if single and no type given
+if [[ $email ]] || [[ -z $type ]]; then
+
+currentdir=`pwd`
+
+for f in ./*/; do
+	echo "The cd is $currentdir"
+	cd $currentdir
+	echo "$f started"
+	cd ./$f
+	mkdir ./temp
+	cp *R1*.fastq.gz ./temp
+    cd ./temp
+	gunzip *.fastq.gz
+    if [[ $debug ]]; then
+    # do not put into a subprocess, iterate one at a time
+        oligo_identifier | tee tee_oligo_identifier_out1.txt
+    else
+        oligo_identifier | tee tee_oligo_identifier_out1.txt &
+    fi
+    wait
+done
+
+###
+
+printf "ref_type\tsample\tR1_zip\tR2_zip\ttotal_read_prs\tup_reads\t%%dup_reads\tave_read_length\tref\tave_cov_X\tper_cov\tunmapped_contigs\tquality_snps\n" > /scratch/report/stat_table.txt
+printf "" > /scratch/report/pre_stat_table.txt
+printf "\n" >> /scratch/report/stat_table_cumulative.txt
+date >> /scratch/report/stat_table_cumulative.txt
+
+echo "Start Time: `date`" > /scratch/report/dailyTime
+starttime=`date +%s`
+
+echo "Please wait.  Searching for TB complex, Brucella and paratuberculosis oligos and then starting appropriate processZips.sh argument"
+
+#`loopFiles.sh` &&
+date >> /scratch/report/coverageReport.txt
+echo "" > /scratch/report/dailyReport.txt
+
+# Reset spoligo and bruc mlst check file
+echo "" > /scratch/report/spoligoCheck.txt
+echo "" > /scratch/report/mlstCheck.txt
+echo "WG Spoligo Check" >> /scratch/report/spoligoCheck.txt
+echo "Brucella MLST Check" >> /scratch/report/mlstCheck.txt
+
+#Reset file
+dateFile=`date "+%Y%m%d"`
+printf "%s\t%s\n" "TB Number" "Octal Code" > "/bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/newFiles/${dateFile}_FileMakerSpoligoImport.txt"
+
+echo "Isolate Total_Bases AveDep %>Q15" | awk '{ printf("%-12s %-12s %-10s %-10s\n", $1, $2, $3, $4) }' >> /scratch/report/dailyReport.txt
+echo "" >> /scratch/report/dailyReport.txt
+echo ""  > /scratch/report/dailyStats.txt
+
+echo "" >> /scratch/report/dailyTime
+echo "End Time: `date`" >> /scratch/report/dailyTime
+endtime=`date +%s`
+runtime=$((endtime-starttime))
+printf 'Runtime: %dh:%dm:%ds\n' $(($runtime/3600)) $(($runtime%3600/60)) $(($runtime%60)) >> /scratch/report/dailyTime
+
+echo "e-mailing files"
+
+cat /scratch/report/dailyTime > /scratch/report/email_processZips.txt
+echo "" >> /scratch/report/email_processZips.txt
+echo "ADD_MARKER" >> /scratch/report/email_processZips.txt
+echo "" >> /scratch/report/dailyReport.txt
+cat /scratch/report/dailyReport.txt >> /scratch/report/email_processZips.txt
+
+cat /scratch/report/spoligoCheck.txt >> /scratch/report/email_processZips.txt
+cat /scratch/report/mlstCheck.txt >> /scratch/report/email_processZips.txt
+
+echo "ADD_MARKER" >> /scratch/report/email_processZips.txt
+
+cat /scratch/report/dailyStats.txt >> /scratch/report/email_processZips.txt
+echo "" >> /scratch/report/email_processZips.txt
+
+grep -v '*' /scratch/report/email_processZips.txt | grep -v "Stats for BAM file" | sed 's/ADD_MARKER/******************************************/g' > /scratch/report/email_processZips2.txt
+
+# Create "here-document"
+cat >./excelwriterstats.py <<'EOL'
+#!/usr/bin/env python
+
+import sys
+import csv
+import xlsxwriter
+
+filename = sys.argv[1].replace(".txt",".xlsx")
+wb = xlsxwriter.Workbook(filename)
+ws = wb.add_worksheet("Sheet1")
+with open(sys.argv[1],'r') as csvfile:
+    table = csv.reader(csvfile, delimiter='\t')
+    i = 0
+    for row in table:
+        ws.write_row(i, 0, row)
+        i += 1
+
+col = len(row)
+print (filename, ":", i, "x", col)
+
+wb.close()
+
+EOL
+
+chmod 755 ./excelwriterstats.py
+
+sort -k1,2 /scratch/report/pre_stat_table.txt >> /scratch/report/stat_table.txt
+
+./excelwriterstats.py /scratch/report/stat_table.txt
+
+column -t /scratch/report/stat_table.txt > /scratch/report/stat_table.temp; mv /scratch/report/stat_table.temp /scratch/report/stat_table.txt
+enscript /scratch/report/stat_table.txt -B -j -r -f "Courier7" -o - | ps2pdf - /scratch/report/stat_table.pdf
+
+if [[ $email -eq 1 ]]; then
+	email_list="tod.p.stuber@aphis.usda.gov Jessica.A.Hicks@aphis.usda.gov suelee.robbe-austerman@aphis.usda.gov patrick.m.camp@aphis.usda.gov David.T.Farrell@aphis.usda.gov Christine.R.Quance@aphis.usda.gov Robin.L.Swanson@aphis.usda.gov"
+elif [[ $email == "all" ]]; then
+    email_list="tod.p.stuber@aphis.usda.gov Jessica.A.Hicks@aphis.usda.gov suelee.robbe-austerman@aphis.usda.gov patrick.m.camp@aphis.usda.gov David.T.Farrell@aphis.usda.gov Christine.R.Quance@aphis.usda.gov Robin.L.Swanson@aphis.usda.gov"
+elif [[ $email == "tod" ]]; then
+    email_list="tod.p.stuber@usda.gov"
+elif [[ $email == "jess" ]]; then
+    email_list="Jessica.A.Hicks@aphis.usda.gov"
+elif [[ $email == "suelee" ]]; then
+    email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov suelee.robbe-austerman@aphis.usda.gov"
+else
+    email_list="tod.p.stuber@usda.gov"
+fi
+
+cat /scratch/report/email_processZips2.txt | mutt -a /scratch/report/stat_table.xlsx /scratch/report/stat_table.pdf -s "WGS results" -- $email_list
+
+date >> /scratch/report/mlstCheck_all.txt
+cat /scratch/report/mlstCheck.txt >> /scratch/report/mlstCheck_all.txt
+
+rm ./excelwriterstats.py
+
+    # if just an -e flag is give with no argument default to email all.
+    if [[ -z $email ]]; then
+        email="all"
+    fi
+
+fi
+
+##############################
+
+
+
+
+
+
+
+
+
+

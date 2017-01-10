@@ -1089,6 +1089,9 @@ echo "Sample ${n}, ${tagname}, Oligo counts: Bruc ${bruccounts} TB ${tbcounts} M
 #Push to logfile
 echo "Sample ${n}, ${tagname}, Oligo counts: Bruc ${bruccounts} TB ${tbcounts} MAC ${paracounts}, Binary: Bruc ${brucbinary} TB ${tbbinary} MAC ${parabinary}, ID:  ${sample_type}" >> /scratch/report/oligo_identifier_log.txt
 
+pwd
+pause
+
 cd ..
 run_sample $sample_type | tee tee_processZips_out.txt
 
@@ -1219,9 +1222,9 @@ for f in ./*/; do
 
     if [[ $debug ]]; then
     # do not put into a subprocess, iterate one at a time
-        oligo_identifier | tee tee_oligo_identifier_out1.txt
+        oligo_identifier
     else
-        $(oligo_identifier | tee tee_oligo_identifier_out1.txt) &
+        oligo_identifier &
     fi
 done
 wait

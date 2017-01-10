@@ -1244,7 +1244,7 @@ echo "" >> /scratch/report/email_processZips.txt
 grep -v '*' /scratch/report/email_processZips.txt | grep -v "Stats for BAM file" | sed 's/ADD_MARKER/******************************************/g' > /scratch/report/email_processZips2.txt
 
 # Create "here-document"
-cat >./excelwriterstats.py <<'EOL'
+cat >${root}/excelwriterstats.py <<'EOL'
 #!/usr/bin/env python
 
 import sys
@@ -1268,11 +1268,11 @@ wb.close()
 
 EOL
 
-chmod 755 ./excelwriterstats.py
+chmod 755 ${root}/excelwriterstats.py
 
 sort -k1,2 /scratch/report/pre_stat_table.txt >> /scratch/report/stat_table.txt
 
-./excelwriterstats.py /scratch/report/stat_table.txt
+${root}/excelwriterstats.py /scratch/report/stat_table.txt
 
 column -t /scratch/report/stat_table.txt > /scratch/report/stat_table.temp; mv /scratch/report/stat_table.temp /scratch/report/stat_table.txt
 enscript /scratch/report/stat_table.txt -B -j -r -f "Courier7" -o - | ps2pdf - /scratch/report/stat_table.pdf
@@ -1296,7 +1296,7 @@ cat /scratch/report/email_processZips2.txt | mutt -a /scratch/report/stat_table.
 date >> /scratch/report/mlstCheck_all.txt
 cat /scratch/report/mlstCheck.txt >> /scratch/report/mlstCheck_all.txt
 
-#rm ./excelwriterstats.py
+rm ${root}/excelwriterstats.py
 
 
 fi

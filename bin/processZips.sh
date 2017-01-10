@@ -7,11 +7,18 @@
 
 #################################################################################
 #  Dependencies ---
-#   bwa, http://bio-bwa.sourceforge.net/bwa.shtml
-#   samtools, http://samtools.sourceforge.net/samtools.shtml
-#   picard, http://picard.sourceforge.net/command-line-overview.shtml
-#   gatk, http://www.broadinstitute.org/gatk/
-#   bamtools
+#    bwa mem
+#    samtools
+#    abyss
+#    gatk
+#    pilon
+#    igvtools
+#    gff if available for annotation
+#    bamtools
+#    python 3, modules: sys, csv, xlsxwriter
+#    Bruc_MLST.sh
+#    spoligoSpacerFinder.sh
+#    trimming sequence: /usr/local/bin/bbmap/resources/nextera.fa.gz
 #   File containing high quality SNPs, Volumes/Mycobacterium/Go_To_File/HighestQualitySNPs.vcf
 #   Reference in fasta format, /Volumes/Data_HD/Mycobacterium/Go_To_File/NC_002945.fasta
 #################################################################################
@@ -21,7 +28,7 @@
 ###################
 function help () {
 
-printf "\n\n###Help\n"
+printf "\n\n*** Help ***\n"
 printf "See inside script for list of dependencies\n\n"
 printf "Usage: \n"
 printf "\tworking directory containing zipped paired FASTQ files\n"
@@ -31,12 +38,12 @@ printf "\t\t-h help\n"
 printf "\t\t-d debug\n"
 printf "\t\t-e email\n"
 printf "\t\t\tcalling email will loop multiple samples\n"
-printf "\t\t\tcall with all, tod, jess, suelee\n"
+printf "\t\t\tcall with all, tod, jess, suelee, or off\n"
 printf "\t\t-t sample_type\n"
-printf "\t\t\tsample_type options"
-printf "\t\t\tTBBOV, H37Rv\n"
-printf "\t\t\tab1, mel, suisall, suis1, suis2, suis3, suis4, suis5, canis, ceti1, ceti2, ovis\n"
-printf "\t\t\tpara, past, h5n2 secd, taylorella\n\n"
+printf "\t\t\tsample_type options:\n"
+printf "\t\t\t\tTBBOV, H37Rv\n"
+printf "\t\t\t\tab1, mel, suisall, suis1, suis2, suis3, suis4, suis5, canis, ceti1, ceti2, ovis\n"
+printf "\t\t\t\tpara, past, h5n2 secd, taylorella\n\n"
 printf "example:\n"
 printf "\t~$ processZips.sh -t TBBOV \t\t# working directory with one sample\n"
 printf "\t~$ processZips.sh -e tod \t\t# loop and send email to tod.p.stuber@usda.gov\n"
@@ -740,8 +747,8 @@ mv $n.FilteredReads.xls qualityvalues/
 rm $n.Quality_by_cycle.insert_size_metrics
 rm $n.AlignmentMetrics
 cat ../*out1* ../*out2* > ../${n}-identification.txt
-rm ../*identifier_out1*
-rm ../*identifier_out2*
+#rm ../*identifier_out1*
+#rm ../*identifier_out2*
 mv ${startingdir}/fastq ${startingdir}/spoligo
 rm ${startingdir}/spoligo/*fastq
 rm -r ${startingdir}/temp
@@ -1139,7 +1146,8 @@ if [[ $sample_type ]]; then
     count=`ls | grep -c "_R1"`
     if [[ $count -gt 1 ]]; then
         debug=1
-        printf "\n\nEXPECTING ONLY A SINGLE SAMPLE\n\n"
+        printf "\n\nEXPECTING ONLY A SINGLE SAMPLE\n"
+        printf "ONLY A SINGLE SAMPLE IS ALLOWED WHEN USING -t OPTION\n\n"
         help
         exit 1
     fi
@@ -1287,6 +1295,9 @@ elif [[ $email == "jess" ]]; then
     email_list="Jessica.A.Hicks@aphis.usda.gov"
 elif [[ $email == "suelee" ]]; then
     email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov suelee.robbe-austerman@aphis.usda.gov"
+elif [[ $email == "off" ]]; then
+    email_list="off"
+    printf "\n\n\tNo email sent\n\n"
 else
     echo "Email was not sent: email argument: $email"
 fi

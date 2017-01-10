@@ -357,6 +357,7 @@ else
 fi
 
 cat $summary >> ${n}_mlst.txt
+mv ${n}_mlst.txt ../alignment
 rm $summary
 #
 #  Created by Stuber, Tod P - APHIS on 2014-09-02.

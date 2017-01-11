@@ -20,8 +20,8 @@ spoligoSpacerFinder.sh
 
 files:
 processZips.sh
-/scratch/report/coverageReport.txt
-/scratch/report/dailyReport.txt
+/scratch/report/coverageReport.txt # cummulative report
+/scratch/report/dailyReport.txt # Top summary of email
 /scratch/report/pre_stat_table.txt
 /scratch/report/stat_table_cumulative.txt
 /scratch/report/dailyStats.txt
@@ -46,3 +46,5 @@ scratch/report/email_processZips2.txt # email body
 /scratch/report/stat_table.temp
 /scratch/report/stat_table.pdf # email attachment
 /scratch/report/stat_table.xlsx # email attachment
+
+/scratch/report/mlstCheck_all.txt

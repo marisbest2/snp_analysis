@@ -747,9 +747,6 @@ mv $n.stats.txt qualityvalues/
 mv $n.FilteredReads.xls qualityvalues/
 rm $n.Quality_by_cycle.insert_size_metrics
 rm $n.AlignmentMetrics
-cat ../*out1* ../*out2* > ../${n}-identification.txt
-#rm ../*identifier_out1*
-#rm ../*identifier_out2*
 mv ${startingdir}/fastq ${startingdir}/spoligo
 rm ${startingdir}/spoligo/*fastq
 rm -r ${startingdir}/temp
@@ -1094,16 +1091,14 @@ echo "Sample ${n}, ${tagname}, Oligo counts: Bruc ${bruccounts} TB ${tbcounts} M
 #Push to logfile
 echo "Sample ${n}, ${tagname}, Oligo counts: Bruc ${bruccounts} TB ${tbcounts} MAC ${paracounts}, Binary: Bruc ${brucbinary} TB ${tbbinary} MAC ${parabinary}, ID:  ${sample_type}" >> $log_oligo
 
-pwd
-read -p "$LINENO Enter"
-mv *_out*txt ../
+mv $log_oligo  ../
 cd ..
 
 #cannot excute alias inside function
 #pause
-read -p "$LINENO Enter"
+#read -p "$LINENO Enter"
 
-run_sample $sample_type | tee tee_processZips_out.txt
+run_sample $sample_type | tee log_processZips_${sample_name}.txt
 
 }
 

@@ -786,6 +786,16 @@ echo "**************************** END $n ****************************"
 ###################
 function oligo_identifier () {
 
+directory="$1"
+sample_name="$1"
+echo "arg: $1"
+echo "directory: $directory"
+echo "sample_name: $sample_name"
+
+log_oligo="${directory}/log_oligo.txt"
+echo "test" > $log_oligo
+read -p "$LINENO Enter"
+
 onemismatch () {
 patt=($1)
 for ((i=0; i<${#patt[0]}; i++)); do
@@ -1218,11 +1228,11 @@ echo "Isolate Total_Bases AveDep %>Q15" | awk '{ printf("%-12s %-12s %-10s %-10s
 echo "" >> /scratch/report/dailyReport.txt
 echo ""  > /scratch/report/dailyStats.txt
 
-for f in ./*/; do
+for sample_directory in ./*/; do
 	echo "The cd is $currentdir"
 	cd $currentdir
-	echo "$f started"
-	cd ./$f
+	echo "$sample_directory started"
+	cd ./$sample_directory
 	mkdir ./temp
 	cp *R1*.fastq.gz ./temp
     cd ./temp
@@ -1230,9 +1240,9 @@ for f in ./*/; do
 
     if [[ $debug ]]; then
     # do not put into a subprocess, iterate one at a time
-        oligo_identifier
+        oligo_identifier $sample_directory
     else
-        oligo_identifier &
+        oligo_identifier $sample_directory &
     fi
 done
 wait

@@ -786,13 +786,9 @@ echo "**************************** END $n ****************************"
 ###################
 function oligo_identifier () {
 
-echo "arg: $1"
 sample_name=`echo $1 | sed 's:[./]::g'`
-echo "sample_name: $sample_name"
 oligo_path=`pwd`
 log_oligo="${oligo_path}/log_oligo_${sample_name}.txt"
-echo "test" > $log_oligo
-read -p "$LINENO Enter"
 
 onemismatch () {
 patt=($1)
@@ -913,67 +909,67 @@ if [[ $check > 0 ]]; then
 
 	if [ $i == 111111111111 ]
         then
-		echo "*** Odd Isolate, Unexpected findings ***" > tee_bruc_oligo_identifier_out2.txt
+		echo "*** Odd Isolate, Unexpected findings ***" >> $log_oligo
 	    exit 1
 
 	elif [ $i == 011111111111 ]
         then
-		echo "Brucella abortus bv 1, 2 or 4" > tee_bruc_oligo_identifier_out2.txt
+		echo "Brucella abortus bv 1, 2 or 4" >> $log_oligo
         sample_type="ab1"
 
 	elif [ $i == 101111111111 ]
 		then
-		echo "Brucella abortus bv 3" > tee_bruc_oligo_identifier_out2.txt
+		echo "Brucella abortus bv 3" >> $log_oligo
         sample_type="ab3"
 
 	elif [ $i == 110111111111 ]
     	then
-        echo "Brucella abortus bv 5, 6 or 9" > tee_bruc_oligo_identifier_out2.txt
+        echo "Brucella abortus bv 5, 6 or 9" >> $log_oligo
         sample_type="ab1"
 
 	elif [ $i == 111011111111 ]
         then
-        echo "Brucella melitensis" > tee_bruc_oligo_identifier_out2.txt
+        echo "Brucella melitensis" >> $log_oligo
         sample_type="mel"
 
 	elif [ $i == 111101111111 ]
         then
-		echo "Brucella suis bv1" > tee_bruc_oligo_identifier_out2.txt
+		echo "Brucella suis bv1" >> $log_oligo
         sample_type="suis1"
 
 	elif [ $i == 111110111111 ]
         then
-		echo "Brucella suis bv2" > tee_bruc_oligo_identifier_out2.txt
+		echo "Brucella suis bv2" >> $log_oligo
         sample_type="suis2"
 
 	elif [ $i == 111111011111 ]
         then
-		echo "Brucella suis bv3" > tee_bruc_oligo_identifier_out2.txt
+		echo "Brucella suis bv3" >> $log_oligo
         sample_type="suis3"
 
 	elif [ $i == 111111101111 ] || [ $i == 111111100111 ]
     	then
-        echo "Brucella ceti 1" > tee_bruc_oligo_identifier_out2.txt
+        echo "Brucella ceti 1" >> $log_oligo
         sample_type="ceti1"
 
 	elif [ $i == 111111110111 ]
     	then
-        echo "Brucella ceti 2" > tee_bruc_oligo_identifier_out2.txt
+        echo "Brucella ceti 2" >> $log_oligo
         sample_type="ceti2"
 
 	elif [ $i == 111111111011 ]
     	then
-        echo "Brucella suis bv4" > tee_bruc_oligo_identifier_out2.txt
+        echo "Brucella suis bv4" >> $log_oligo
         sample_type="suis4"
 
 	elif [ $i == 111111111001 ]
     	then
-        echo "Brucella canis" > tee_bruc_oligo_identifier_out2.txt
+        echo "Brucella canis" >> $log_oligo
         sample_type="canis"
 
 	elif [ $i == 111111111110 ]
     	then
-        echo "Brucella ovis" > tee_bruc_oligo_identifier_out2.txt
+        echo "Brucella ovis" >> $log_oligo
         sample_type="ovis"
 
 	else
@@ -995,66 +991,66 @@ if [[ $check > 0 ]]; then
         if [ $i == 11101111 ] || [ $i == 11101101 ]
         then
         sample_type="H37Rv"
-        echo "TB1" >> tee_tb_oligo_identifier_out2.txt
-        echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
-        echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
+        echo "TB1" >> $log_oligo
+        echo "$tbbinary" >> $log_oligo
+        echo "$tbcounts" >> $log_oligo
 	
         elif [ $i == 01100111 ]
         then
         sample_type="H37Rv"
-        echo "TB2" >> tee_tb_oligo_identifier_out2.txt
-        echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
-        echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt 
+        echo "TB2" >> $log_oligo
+        echo "$tbbinary" >> $log_oligo
+        echo "$tbcounts" >> $log_oligo 
 
         elif [ $i == 01101011 ] || [ $i == 11101011 ]
         then
         sample_type="H37Rv"
-        echo "TB3" >> tee_tb_oligo_identifier_out2.txt
-        echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
-        echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
+        echo "TB3" >> $log_oligo
+        echo "$tbbinary" >> $log_oligo
+        echo "$tbcounts" >> $log_oligo
 
         elif [ $i == 01101111 ]
         then
         sample_type="H37Rv"
-        echo "TB4a" >> tee_tb_oligo_identifier_out2.txt
-        echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
-        echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
+        echo "TB4a" >> $log_oligo
+        echo "$tbbinary" >> $log_oligo
+        echo "$tbcounts" >> $log_oligo
 
 
         elif [ $i == 01101101 ] || [ $i == 11101101 ] || [ $i == 01101111 ]
         then
         sample_type="H37Rv"
-        echo "TB4b" >> tee_tb_oligo_identifier_out2.txt
-        echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
-        "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
+        echo "TB4b" >> $log_oligo
+        echo "$tbbinary" >> $log_oligo
+        "$tbcounts" >> $log_oligo
 
         elif [ $i == 11111111 ]
         then
         sample_type="H37Rv"
-        echo "TB5" >> tee_tb_oligo_identifier_out2.txt
-        echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
-        echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
+        echo "TB5" >> $log_oligo
+        echo "$tbbinary" >> $log_oligo
+        echo "$tbcounts" >> $log_oligo
 
         elif [ $i == 11001111 ]
         then
         sample_type="H37Rv"
-        echo "TB6" >> tee_tb_oligo_identifier_out2.txt
-        echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
-        echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
+        echo "TB6" >> $log_oligo
+        echo "$tbbinary" >> $log_oligo
+        echo "$tbcounts" >> $log_oligo
 
         elif [ $i == 10101110 ]
         then
         sample_type="H37Rv"
-        echo "TB7 are as TBBOV" >> tee_tb_oligo_identifier_out2.txt
-        echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
-        echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
+        echo "TB7 are as TBBOV" >> $log_oligo
+        echo "$tbbinary" >> $log_oligo
+        echo "$tbcounts" >> $log_oligo
 
         elif [ $i == 11001110 ] || [ $i == 11011110 ] || [ $i == 11001100 ]
         then
         sample_type="TBBOV"
-        echo "TBBOV" >> tee_tb_oligo_identifier_out2.txt
-        echo "$tbbinary" >> tee_tb_oligo_identifier_out2.txt
-        echo "$tbcounts" >> tee_tb_oligo_identifier_out2.txt
+        echo "TBBOV" >> $log_oligo
+        echo "$tbbinary" >> $log_oligo
+        echo "$tbcounts" >> $log_oligo
 
         else
         sample_type="No match found"
@@ -1077,9 +1073,9 @@ i=$parabinary
     if [ $i == 1 ]; then
         sample_type="para"
         echo "M. paratuberculosis found"
-        echo "M. paratuberculosis" >> tee_tb_oligo_identifier_out2.txt
-        echo "$parabinary" >> tee_tb_oligo_identifier_out2.txt
-        echo "$paracounts" >> tee_tb_oligo_identifier_out2.txt
+        echo "M. paratuberculosis" >> $log_oligo
+        echo "$parabinary" >> $log_oligo
+        echo "$paracounts" >> $log_oligo
     else
         echo "oligo_identifier.sh could not find a match for $n"
         echo "oligo_identifier.sh could not find a match for $n" >> /scratch/report/dailyReport.txt
@@ -1096,8 +1092,10 @@ fi
 echo "Sample ${n}, ${tagname}, Oligo counts: Bruc ${bruccounts} TB ${tbcounts} MAC ${paracounts}, Binary: Bruc ${brucbinary} TB ${tbbinary} MAC ${parabinary}, ID:  ${sample_type}"
 
 #Push to logfile
-echo "Sample ${n}, ${tagname}, Oligo counts: Bruc ${bruccounts} TB ${tbcounts} MAC ${paracounts}, Binary: Bruc ${brucbinary} TB ${tbbinary} MAC ${parabinary}, ID:  ${sample_type}" >> /scratch/report/oligo_identifier_log.txt
+echo "Sample ${n}, ${tagname}, Oligo counts: Bruc ${bruccounts} TB ${tbcounts} MAC ${paracounts}, Binary: Bruc ${brucbinary} TB ${tbbinary} MAC ${parabinary}, ID:  ${sample_type}" >> $log_oligo
 
+pwd
+read -p "$LINENO Enter"
 mv *_out*txt ../
 cd ..
 

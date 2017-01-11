@@ -786,13 +786,11 @@ echo "**************************** END $n ****************************"
 ###################
 function oligo_identifier () {
 
-directory="$1"
-sample_name="$1"
 echo "arg: $1"
-echo "directory: $directory"
+sample_name=`echo $1 | sed 's:[./]::g'`
 echo "sample_name: $sample_name"
-
-log_oligo="${directory}/log_oligo.txt"
+oligo_path=`pwd`
+log_oligo="${oligo_path}/log_oligo_${sample_name}.txt"
 echo "test" > $log_oligo
 read -p "$LINENO Enter"
 

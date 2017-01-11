@@ -57,6 +57,7 @@ exit 1
 ###################
 function run_sample() {
 
+alias pause='read -p "$LINENO Enter"'
 echo "current directory"
 pwd
 startingdir=`pwd`
@@ -1089,13 +1090,17 @@ echo "Sample ${n}, ${tagname}, Oligo counts: Bruc ${bruccounts} TB ${tbcounts} M
 #Push to logfile
 echo "Sample ${n}, ${tagname}, Oligo counts: Bruc ${bruccounts} TB ${tbcounts} MAC ${paracounts}, Binary: Bruc ${brucbinary} TB ${tbbinary} MAC ${parabinary}, ID:  ${sample_type}" >> /scratch/report/oligo_identifier_log.txt
 
-pwd
-pause
-
+mv *_out*txt ../
 cd ..
+
+#cannot excute alias inside function
+#pause
+read -p "$LINENO Enter"
+
 run_sample $sample_type | tee tee_processZips_out.txt
 
 }
+
 # END OF FUCTIONS
 
 #################################################################################
@@ -1117,6 +1122,7 @@ SPOLIGOSPACERFINDER=`which spoligoSpacerFinder.sh`
 
 root=`pwd`
 
+shopt -s expand_aliases
 alias pause='read -p "$LINENO Enter"'
 
 # Set flags
@@ -1140,10 +1146,12 @@ while getopts ':hde:t:' OPTION; do
 done
 shift $(($OPTIND - 1))
 
+printf "\nARE YOU RUNNING AS ROOT?\n\n"
 echo "hflag: $hflag"
 echo "debug: $debug"
 echo "email: $email"
-echo "sample_type: $sample_type"
+printf "sample_type: $sample_type\n\n"
+read -p "*** Check Arguments and Press Enter to Continue ***"
 
 if [[ $sample_type ]]; then
     count=`ls | grep -c "_R1"`

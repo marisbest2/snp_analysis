@@ -736,11 +736,11 @@ quality_snps=`egrep -v "#" $n.SNPsZeroCoverage.vcf | egrep "AC=2" | awk '$6 > 30
 #  Show Mean Coverage at Terminal and coverageReport
 echo "Mean Coverage"
 
-echo "Sample identified and ran as:  $sample_type" >> /scratch/report/dailyReport.txt
+echo "Sample identified and ran as:  $sample_type" >> $email_summary_top
 
 echo -e "$n \t $readcount \t ${aveCoverage} \t ${percGenomeCoverage}% "
 echo -e "$n \t $readcount \t ${aveCoverage} \t ${percGenomeCoverage}% " >> /scratch/report/coverageReport.txt
-echo -e "$n \t $readcount \t ${aveCoverage} \t ${percGenomeCoverage}% " >> /scratch/report/dailyReport.txt
+echo -e "$n \t $readcount \t ${aveCoverage} \t ${percGenomeCoverage}% " >> $email_summary_top
 
 mv $n.Metrics_summary.xls qualityvalues/
 mv $n.stats.txt qualityvalues/
@@ -761,13 +761,13 @@ printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\n" $sample_type $n 
 printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\n" $sample_type $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoverage $percGenomeCoverage $unmapped_contig_count $quality_snps >> /scratch/report/stat_table_cumulative.txt
 
 #Make dailyStats.txt for each stats.txt made for each isolate.
-echo "" >> /scratch/report/dailyStats.txt
-echo "" >> /scratch/report/dailyStats.txt
-echo "" >> /scratch/report/dailyStats.txt
-echo "ADD_MARKER" >> /scratch/report/dailyStats.txt
-echo "" >> /scratch/report/dailyStats.txt
-echo "<------- $n $sample_type ------->" >> /scratch/report/dailyStats.txt
-cat qualityvalues/$n.stats.txt >> /scratch/report/dailyStats.txt
+echo "" >> $email_summary_bottom
+echo "" >> $email_summary_bottom
+echo "" >> $email_summary_bottom
+echo "ADD_MARKER" >> $email_summary_bottom
+echo "" >> $email_summary_bottom
+echo "<------- $n $sample_type ------->" >> $email_summary_bottom
+cat qualityvalues/$n.stats.txt >> $email_summary_bottom
 cat qualityvalues/$n.stats.txt >> /home/shared/stats
 
 echo "**************************** END $n ****************************"
@@ -972,7 +972,7 @@ if [[ $check > 0 ]]; then
 	else
 		echo "*** Odd Isolate, Unexpected findings, See /home/shared/brucella/bruc_oligo_identifier_output.txt ***"
     	echo "***bruc_oligo_identifier cannot find a pattern for $n, see line $LINENO of script***"
-		echo "${n} Unable to find a reference, oligo_identifier.sh stats: Oligo counts: ${bruccounts} ${tbcounts}, Binary: ${brucbinary} ${tbbinary}" >> /scratch/report/dailyReport.txt
+		echo "${n} Unable to find a reference, oligo_identifier.sh stats: Oligo counts: ${bruccounts} ${tbcounts}, Binary: ${brucbinary} ${tbbinary}" >> $email_summary_top
 	fi
 fi
 
@@ -1053,7 +1053,7 @@ if [[ $check > 0 ]]; then
         sample_type="No match found"
         echo "***oligo_identifier cannot place $n with TB reference, see line $LINENO of script***"
 		echo "Oligo counts:  ${tbcounts}, Binary:  $tbbinary"
-		echo "${n} Unable to find a reference, oligo_identifier.sh stats: Oligo counts: ${bruccounts} ${tbcounts}, Binary: ${brucbinary} ${tbbinary}" >> /scratch/report/dailyReport.txt
+		echo "${n} Unable to find a reference, oligo_identifier.sh stats: Oligo counts: ${bruccounts} ${tbcounts}, Binary: ${brucbinary} ${tbbinary}" >> $email_summary_top
         exit 1
 	fi
 fi
@@ -1075,14 +1075,14 @@ i=$parabinary
         echo "$paracounts" >> $log_oligo
     else
         echo "oligo_identifier.sh could not find a match for $n"
-        echo "oligo_identifier.sh could not find a match for $n" >> /scratch/report/dailyReport.txt
-        echo "${n} Unable to find a reference, oligo_identifier.sh stats: Oligo counts: ${bruccounts} ${tbcounts} ${paracounts}, Binary: ${brucbinary} ${tbbinary} ${parabinary}" >> /scratch/report/dailyReport.txt
+        echo "oligo_identifier.sh could not find a match for $n" >> $email_summary_top
+        echo "${n} Unable to find a reference, oligo_identifier.sh stats: Oligo counts: ${bruccounts} ${tbcounts} ${paracounts}, Binary: ${brucbinary} ${tbbinary} ${parabinary}" >> $email_summary_top
     fi
 fi
 
 allbinary=`echo ${brucbinary} ${tbbinary} ${parabinary} | grep -c "1"`
 if [[ $allbinary == 0  ]]; then 
-	echo "${n} NEEDS SPECIAL ATTENTION!!!" >> /scratch/report/dailyReport.txt
+	echo "${n} NEEDS SPECIAL ATTENTION!!!" >> $email_summary_top
 	echo "PLEASE GIVE TOD SPECIAL INSTRUCTIONS FOR ${n}.  This sample was NOT identified as Brucella, TB complex or avium complex.  If you know something about this isolate please send me an email.  CC all on email.  Thanks!" | mutt -s "${n} NEEDS SPECIAL ATTENTION!!!" -- "tod.p.stuber@usda.gov suelee.robbe-austerman@aphis.usda.gov" #Doris.M.Bravo@aphis.usda.gov john.b.fevold@aphis.usda.gov Patrick.M.Camp@aphis.usda.gov David.T.Farrell@aphis.usda.gov" 
 fi
 
@@ -1120,6 +1120,10 @@ igvtools='/usr/local/bin/IGVTools/igvtools.jar'
 
 BRUC_MLST=`which Bruc_MLST.sh`
 SPOLIGOSPACERFINDER=`which spoligoSpacerFinder.sh`
+
+email_summary_top="/scratch/report/dailyReport.txt"
+# Detail daily stats shown in email (bottom portion of email)
+email_summary_bottom="/scratch/report/dailyStats.txt"
 
 root=`pwd`
 
@@ -1160,6 +1164,7 @@ if [[ $sample_type ]]; then
         debug=1
         printf "\n\nEXPECTING ONLY A SINGLE SAMPLE\n"
         printf "ONLY A SINGLE SAMPLE IS ALLOWED WHEN USING -t OPTION\n\n"
+        printf "\nExited at $LINENO\n"
         help
         exit 1
     fi
@@ -1176,6 +1181,7 @@ done
 if [[ $email ]] && [[ $sample_type ]]; then
     printf "\n\nSAMPLE_TYPE CANNOT BE SPECIFIED WHEN LOOPING SAMPLES BY CALLING EMAIL\n"
     printf "SAMPLE_TYPE MUST BE DETERMINED BY OLIGO_IDENTIFIER FUCTION\n"
+    printf "\nExited at $LINENO\n"
     help
     exit 1
 fi
@@ -1203,7 +1209,6 @@ echo "Please wait.  Searching for TB complex, Brucella and paratuberculosis olig
 
 #`loopFiles.sh` &&
 date >> /scratch/report/coverageReport.txt
-echo "" > /scratch/report/dailyReport.txt
 
 # Reset spoligo and bruc mlst check file
 echo "" > /scratch/report/spoligoCheck.txt
@@ -1215,9 +1220,10 @@ echo "Brucella MLST Check" >> /scratch/report/mlstCheck.txt
 dateFile=`date "+%Y%m%d"`
 printf "%s\t%s\n" "TB Number" "Octal Code" > "/bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/newFiles/${dateFile}_FileMakerSpoligoImport.txt"
 
-echo "Isolate Total_Bases AveDep %>Q15" | awk '{ printf("%-12s %-12s %-10s %-10s\n", $1, $2, $3, $4) }' >> /scratch/report/dailyReport.txt
-echo "" >> /scratch/report/dailyReport.txt
-echo ""  > /scratch/report/dailyStats.txt
+echo "Isolate Total_Bases AveDep %>Q15" | awk '{ printf("%-12s %-12s %-10s %-10s\n", $1, $2, $3, $4) }' >> $email_summary_top
+printf "\n\n" >> $email_summary_top
+
+echo ""  > $email_summary_bottom
 
 for sample_directory in ./*/; do
 	echo "The cd is $currentdir"
@@ -1250,15 +1256,14 @@ echo "e-mailing files"
 cat /scratch/report/dailyTime > /scratch/report/email_processZips.txt
 echo "" >> /scratch/report/email_processZips.txt
 echo "ADD_MARKER" >> /scratch/report/email_processZips.txt
-echo "" >> /scratch/report/dailyReport.txt
-cat /scratch/report/dailyReport.txt >> /scratch/report/email_processZips.txt
+cat $email_summary_top >> /scratch/report/email_processZips.txt
 
 cat /scratch/report/spoligoCheck.txt >> /scratch/report/email_processZips.txt
 cat /scratch/report/mlstCheck.txt >> /scratch/report/email_processZips.txt
 
 echo "ADD_MARKER" >> /scratch/report/email_processZips.txt
 
-cat /scratch/report/dailyStats.txt >> /scratch/report/email_processZips.txt
+cat $email_summary_bottom >> /scratch/report/email_processZips.txt
 echo "" >> /scratch/report/email_processZips.txt
 
 grep -v '*' /scratch/report/email_processZips.txt | grep -v "Stats for BAM file" | sed 's/ADD_MARKER/******************************************/g' > /scratch/report/email_processZips2.txt

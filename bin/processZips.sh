@@ -1220,7 +1220,7 @@ echo "Brucella MLST Check" >> /scratch/report/mlstCheck.txt
 dateFile=`date "+%Y%m%d"`
 printf "%s\t%s\n" "TB Number" "Octal Code" > "/bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/newFiles/${dateFile}_FileMakerSpoligoImport.txt"
 
-echo "Isolate Total_Bases AveDep %>Q15" | awk '{ printf("%-12s %-12s %-10s %-10s\n", $1, $2, $3, $4) }' >> $email_summary_top
+echo "Isolate Total_Bases AveDep %>Q15" | awk '{ printf("%-12s %-12s %-10s %-10s\n", $1, $2, $3, $4) }' > $email_summary_top
 printf "\n\n" >> $email_summary_top
 
 echo ""  > $email_summary_bottom

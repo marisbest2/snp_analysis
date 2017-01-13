@@ -569,7 +569,7 @@ java -Xmx4g -jar ${IGVTOOLS} index $n.ready-mem.vcf
 
 # Run Pilon
 mkdir pilon
-java -Xmx16G -jar /usr/local/bin/pilon/pilon.jar --genome $ref --bam ${n}.ready-mem.bam --output ./pilon/${n}-pilon --vcf --vcfqe --tracks --iupac
+java -Xmx16G -jar ${PILON} --genome $ref --bam ${n}.ready-mem.bam --output ./pilon/${n}-pilon --vcf --vcfqe --tracks --iupac
 awk ' $5 != "." || $7 != "PASS" {print $0}' ./pilon/${n}-pilon.vcf > ${n}-pilon-calls.vcf
 
 if [ $gff_file ]; then
@@ -1169,6 +1169,14 @@ if [[ -z $IGVTOOLS ]]; then
     echo "Add igvtools.jar to PATH"
     echo "See line: $LINENO"
     exit 1
+fi
+
+PILON=`which pilon.jar`
+if [[ -z $PILON ]]; then
+    echo "pilon.jar is not in PATH"
+    echo "Add pilon.jar to PATH"
+    echo "See line: $LINENO"
+exit 1
 fi
 
 BBDUK=`which bbduk.sh`

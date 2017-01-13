@@ -363,7 +363,7 @@ echo "Reverse Reads to be trimmed:: $revReads"
 strain=$(echo $revReads | sed 's/_.*//' | sed 's/\..*//')
 echo -e "Quality trimming sample "$strain""
 
-    bbduk.sh -Xmx80g \
+    ${BBDUK} -Xmx80g \
     in1="$forReads" \
     in2="$revReads" \
     ref="/usr/local/bin/bbmap/resources/nextera.fa.gz" \
@@ -406,16 +406,16 @@ n=`echo $revReads | sed 's/_.*//' | sed 's/\..*//'`
 echo "***Reference naming convention:  $r"
 echo "***Isolate naming convention:  $n"
 
-samtools faidx $ref
-java -Xmx4g -jar ${picard} CreateSequenceDictionary REFERENCE=${ref} OUTPUT=${r}.dict
+${SAMTOOLS} faidx $ref
+java -Xmx4g -jar ${PICARD} CreateSequenceDictionary REFERENCE=${ref} OUTPUT=${r}.dict
 
 if [ -s ${ref}.fai ] && [ -s ${r}.dict ]; then
     echo "Index and dict are present, continue script"
     else
     sleep 5
     echo "Either index or dict for reference is missing, try making again"
-    samtools faidx $ref
-    java -Xmx4g -jar ${picard} CreateSequenceDictionary REFERENCE=${ref} OUTPUT=${r}.dict
+    ${SAMTOOLS} faidx $ref
+    java -Xmx4g -jar ${PICARD} CreateSequenceDictionary REFERENCE=${ref} OUTPUT=${r}.dict
         if [ -s ${ref}.fai ] && [ -s ${r}.dict ]; then
         read -p "--> Script has been paused.  Must fix.  No reference index and/or dict file present. Press Enter to continue.  Line $LINENO"
         fi
@@ -423,33 +423,33 @@ fi
 
 # See echo comments
 echo "***bwa index $r"
-bwa index $ref
+${BWA} index $ref
 
 # -t sets the number of threads/cores
 # -r ST	 Specify the read group in a format like ‘@RG\tID:foo\tSM:bar’ Needed for GATK
 #adding -B 8 will require reads to have few mismatches to align to reference.  -B 1 will allow more mismatch per read.
 echo "***Making Sam file"
-bwa mem -M -t 16 -R @RG"\t"ID:"$n""\t"PL:ILLUMINA"\t"PU:"$n"_RG1_UNIT1"\t"LB:"$n"_LIB1"\t"SM:"$n" $ref $forReads $revReads > $n.sam
+${BWA} mem -M -t 16 -R @RG"\t"ID:"$n""\t"PL:ILLUMINA"\t"PU:"$n"_RG1_UNIT1"\t"LB:"$n"_LIB1"\t"SM:"$n" $ref $forReads $revReads > $n.sam
 
 # -b	 Output in the BAM format.
 # -h	 Include the header in the output.
 #-F INT	 Skip alignments with bits present in INT [0]
 echo "***Making Bam file"
-samtools view -bh -F4 -T $ref $n.sam > $n.raw.bam
+${SAMTOOLS} view -bh -F4 -T $ref $n.sam > $n.raw.bam
 
 if [ $sample_type == secd ]; then
         echo "secd, not assembling unmapped reads"
 else
 ####### unmapped reads #######
 #Bam with mapped and unmapped reads
-samtools view -bh -T $ref $n.sam > $n.all.bam
+${SAMTOOLS} view -bh -T $ref $n.sam > $n.all.bam
 #Strip off the unmapped reads
-samtools view -h -f4 $n.all.bam > $n.unmappedReads.sam
+${SAMTOOLS} view -h -f4 $n.all.bam > $n.unmappedReads.sam
 #Create fastqs of unmapped reads to assemble
-java -Xmx4g -jar ${picard} SamToFastq INPUT=$n.unmappedReads.sam FASTQ=${n}-unmapped_R1.fastq SECOND_END_FASTQ=${n}-unmapped_R2.fastq
+java -Xmx4g -jar ${PICARD} SamToFastq INPUT=$n.unmappedReads.sam FASTQ=${n}-unmapped_R1.fastq SECOND_END_FASTQ=${n}-unmapped_R2.fastq
 rm $n.all.bam
 rm $n.unmappedReads.sam
-abyss-pe name=${n}_abyss k=64 in="${n}-unmapped_R1.fastq ${n}-unmapped_R2.fastq"
+${ABYSS} name=${n}_abyss k=64 in="${n}-unmapped_R1.fastq ${n}-unmapped_R2.fastq"
 
 mkdir ../unmappedReads
 mv ${n}-unmapped_R1.fastq ../unmappedReads
@@ -463,62 +463,62 @@ rm *abyss*
 fi
 
 echo "***Sorting Bam"
-samtools sort $n.raw.bam -o $n.sorted.bam
+${SAMTOOLS} sort $n.raw.bam -o $n.sorted.bam
 echo "***Indexing Bam"
-samtools index $n.sorted.bam
+${SAMTOOLS} index $n.sorted.bam
 # Remove duplicate molecules
 
 echo "***Marking Duplicates"
-java -Xmx4g -jar  ${picard} MarkDuplicates INPUT=$n.sorted.bam OUTPUT=$n.dup.bam METRICS_FILE=$n.FilteredReads.xls ASSUME_SORTED=true REMOVE_DUPLICATES=true
+java -Xmx4g -jar  ${PICARD} MarkDuplicates INPUT=$n.sorted.bam OUTPUT=$n.dup.bam METRICS_FILE=$n.FilteredReads.xls ASSUME_SORTED=true REMOVE_DUPLICATES=true
 
 echo "***Index $n.dup.bam"
-samtools index $n.dup.bam
+${SAMTOOLS} index $n.dup.bam
 
 # Creates file that is used in the next step
 # locally realign reads such that the number of mismatching bases is minimized across all the reads
 # http://www.broadinstitute.org/gatk/gatkdocs/org_broadinstitute_sting_gatk_walkers_indels_RealignerTargetCreator.html
 echo "***Realigner Target Creator"
-java -Xmx4g -jar ${gatk} -T RealignerTargetCreator -I $n.dup.bam -R $ref -o $n.forIndelRealigner.intervals
+java -Xmx4g -jar ${GATK} -T RealignerTargetCreator -I $n.dup.bam -R $ref -o $n.forIndelRealigner.intervals
 
 if [ ! -e $n.forIndelRealigner.intervals ]; then
-	java -Xmx4g -jar ${gatk} -T RealignerTargetCreator --fix_misencoded_quality_scores -I $n.dup.bam -R $ref -o $n.forIndelRealigner.intervals
+	java -Xmx4g -jar ${GATK} -T RealignerTargetCreator --fix_misencoded_quality_scores -I $n.dup.bam -R $ref -o $n.forIndelRealigner.intervals
 fi
 
 # Uses the RealignerTargetCreator output file to improve BAM alignment
 # http://www.broadinstitute.org/gatk/guide/tagged?tag=indelrealigner
 echo "***Target Intervals"
-java -Xmx4g -jar ${gatk} -T IndelRealigner -I $n.dup.bam -R $ref -targetIntervals $n.forIndelRealigner.intervals -o $n.realignedBam.bam
+java -Xmx4g -jar ${GATK} -T IndelRealigner -I $n.dup.bam -R $ref -targetIntervals $n.forIndelRealigner.intervals -o $n.realignedBam.bam
 
 if [ ! -e $n.realignedBam.bam ]; then
 	echo "$n RealignedBam.bam failed to make.  Possible cause: Error in quality scores.  Try --fix_misencoded_quality_scores"
 	echo "$n RealignedBam.bam failed to make.  Possible cause: Error in quality scores.  Try --fix_misencoded_quality_scores" > $n.errorReport
 	#cat $n.errorReport | mutt -s "$n Alignment failure" -- tod.p.stuber@usda.gov
-	java -Xmx4g -jar ${gatk} -T IndelRealigner --fix_misencoded_quality_scores -I $n.dup.bam -R $ref -targetIntervals $n.forIndelRealigner.intervals -o $n.realignedBam.bam
+	java -Xmx4g -jar ${GATK} -T IndelRealigner --fix_misencoded_quality_scores -I $n.dup.bam -R $ref -targetIntervals $n.forIndelRealigner.intervals -o $n.realignedBam.bam
 fi
 
 # Uses a .vcf file which contains SNP calls of known high value to recalibrates base quality scores
 # http://www.broadinstitute.org/gatk/guide/tagged?tag=baserecalibrator
 echo "***Base Recalibrator"
-java -Xmx4g -jar ${gatk} -T BaseRecalibrator -I $n.realignedBam.bam -R $ref -knownSites ${hqs} -o $n.recal_data.grp
+java -Xmx4g -jar ${GATK} -T BaseRecalibrator -I $n.realignedBam.bam -R $ref -knownSites ${hqs} -o $n.recal_data.grp
 
 if [ ! -e $n.recal_data.grp ]; then
-	java -Xmx4g -jar ${gatk} -T BaseRecalibrator --fix_misencoded_quality_scores -I $n.realignedBam.bam -R $ref -knownSites ${hqs} -o $n.recal_data.grp
+	java -Xmx4g -jar ${GATK} -T BaseRecalibrator --fix_misencoded_quality_scores -I $n.realignedBam.bam -R $ref -knownSites ${hqs} -o $n.recal_data.grp
 fi
 
 # Make the finished "ready" .bam file
 echo "***Print Reads"
-java -Xmx4g -jar ${gatk} -T PrintReads -R $ref -I $n.realignedBam.bam -BQSR $n.recal_data.grp -o $n.preready-mem.bam
+java -Xmx4g -jar ${GATK} -T PrintReads -R $ref -I $n.realignedBam.bam -BQSR $n.recal_data.grp -o $n.preready-mem.bam
 
 if [ ! -e $n.preready-mem.bam ]; then
-	java -Xmx4g -jar ${gatk} -T PrintReads --fix_misencoded_quality_scores -R $ref -I $n.realignedBam.bam -BQSR $n.recal_data.grp -o $n.preready-mem.bam
+	java -Xmx4g -jar ${GATK} -T PrintReads --fix_misencoded_quality_scores -R $ref -I $n.realignedBam.bam -BQSR $n.recal_data.grp -o $n.preready-mem.bam
 fi
 
-java -jar ${gatk} -T ClipReads -R $ref -I $n.preready-mem.bam -o $n.ready-mem.bam -filterNoBases -dcov 10
-samtools index $n.ready-mem.bam
+java -jar ${GATK} -T ClipReads -R $ref -I $n.preready-mem.bam -o $n.ready-mem.bam -filterNoBases -dcov 10
+${SAMTOOLS} index $n.ready-mem.bam
 
 #Collect Depth of coverage info
 echo "***Collect Depth of Coverage"
-java -jar ${gatk} -T DepthOfCoverage -R $ref -I $n.preready-mem.bam -o $n.coverage -omitIntervals --omitLocusTable --omitPerSampleStats -nt 8
+java -jar ${GATK} -T DepthOfCoverage -R $ref -I $n.preready-mem.bam -o $n.coverage -omitIntervals --omitLocusTable --omitPerSampleStats -nt 8
 
 #########################
 
@@ -530,8 +530,8 @@ else
 # ploidy 2 is default
 echo "***HaplotypeCaller, aka calling SNPs"
 #-allowNonUniqueKmersInRef
-java -Xmx4g -jar ${gatk} -R $ref -T HaplotypeCaller -I $n.ready-mem.bam -o $n.hapreadyAll.vcf -bamout $n.bamout.bam -dontUseSoftClippedBases -allowNonUniqueKmersInRef
-java -Xmx4g -jar ${igvtools} index $n.hapreadyAll.vcf
+java -Xmx4g -jar ${GATK} -R $ref -T HaplotypeCaller -I $n.ready-mem.bam -o $n.hapreadyAll.vcf -bamout $n.bamout.bam -dontUseSoftClippedBases -allowNonUniqueKmersInRef
+java -Xmx4g -jar ${} index $n.hapreadyAll.vcf
 
 echo "******Awk VCF leaving just SNPs******"
 awk '/#/ || $4 ~ /^[ATGC]$/ && $5 ~ /^[ATGC]$/ {print $0}' $n.hapreadyAll.vcf > $n.hapreadyOnlySNPs.vcf
@@ -555,17 +555,17 @@ refsize=`wc -m $ref | awk '{print $1}'`
 sed 's/%/ /' $n.keepTheseZeroCovPositions | awk 'BEGIN{OFS="\t"}{print $1, $2, ".", ".", ".", ".", ".", ".", "GT", "./."}' > $n.vcfFormated
 cat $n.body $n.vcfFormated | awk 'BEGIN{OFS="\t"}{if ($4 == ".") print $1, $2, $3, "N", $5, $6, $7, $8, $9, $10; else print $0}' > $n.SNPsMapzeroNoHeader.vcf
 cat $n.header $n.SNPsMapzeroNoHeader.vcf > $n.unsortSNPsZeroCoverage.vcf
-java -Xmx4g -jar ${igvtools} sort $n.unsortSNPsZeroCoverage.vcf $n.SNPsZeroCoverage.vcf
-java -Xmx4g -jar ${igvtools} index $n.SNPsZeroCoverage.vcf
+java -Xmx4g -jar ${IGVTOOLS} sort $n.unsortSNPsZeroCoverage.vcf $n.SNPsZeroCoverage.vcf
+java -Xmx4g -jar ${IGVTOOLS} index $n.SNPsZeroCoverage.vcf
 
 fi
 
 # Emit all sites to VCF, not just the SNPs and indels.  This allows making a UnifiedGenotyper VCF similar to what was used before using the Haplotypecaller.
-java -Xmx4g -jar ${gatk} -R $ref -T UnifiedGenotyper -out_mode EMIT_ALL_SITES -I ${n}.ready-mem.bam -o ${n}.allsites.vcf -nt 8
+java -Xmx4g -jar ${GATK} -R $ref -T UnifiedGenotyper -out_mode EMIT_ALL_SITES -I ${n}.ready-mem.bam -o ${n}.allsites.vcf -nt 8
 
 # This removes all positions same as the reference.  These positions are found by removing rows were column (field) 8 begins with AN=2.  This decreases the size of the VCF considerably.  The final VCF contains all SNP, indel or zero mapped/coverage positions
 awk ' $0 ~ /#/ || $8 !~ /^AN=2;/ {print $0}' ${n}.allsites.vcf > $n.ready-mem.vcf
-java -Xmx4g -jar ${igvtools} index $n.ready-mem.vcf
+java -Xmx4g -jar ${IGVTOOLS} index $n.ready-mem.vcf
 
 # Run Pilon
 mkdir pilon
@@ -634,23 +634,23 @@ rm $n.hapreadyOnlySNPs.vcf
 
 #Quality Score Distribution
 echo "***Quality Score Distribution"
-java -Xmx4g -jar ${picard} QualityScoreDistribution REFERENCE_SEQUENCE=$ref INPUT=$n.ready-mem.bam CHART_OUTPUT=$n.QualityScorceDistribution.pdf OUTPUT=$n.QualityScoreDistribution ASSUME_SORTED=true
+java -Xmx4g -jar ${PICARD} QualityScoreDistribution REFERENCE_SEQUENCE=$ref INPUT=$n.ready-mem.bam CHART_OUTPUT=$n.QualityScorceDistribution.pdf OUTPUT=$n.QualityScoreDistribution ASSUME_SORTED=true
 
 #Mean Quality by Cycle
 echo "***Mean Quality by Cycle"
-java -Xmx4g -jar ${picard} CollectMultipleMetrics REFERENCE_SEQUENCE=$ref INPUT=$n.ready-mem.bam OUTPUT=$n.Quality_by_cycle PROGRAM=MeanQualityByCycle ASSUME_SORTED=true
+java -Xmx4g -jar ${PICARD} CollectMultipleMetrics REFERENCE_SEQUENCE=$ref INPUT=$n.ready-mem.bam OUTPUT=$n.Quality_by_cycle PROGRAM=MeanQualityByCycle ASSUME_SORTED=true
 
 #Collect Alignment Summary Metrics
 echo "***Collect Alignment Summary Metrics"
-java -Xmx4g -jar ${picard} CollectAlignmentSummaryMetrics REFERENCE_SEQUENCE=$ref INPUT=$n.ready-mem.bam OUTPUT=$n.AlignmentMetrics ASSUME_SORTED=true
+java -Xmx4g -jar ${PICARD} CollectAlignmentSummaryMetrics REFERENCE_SEQUENCE=$ref INPUT=$n.ready-mem.bam OUTPUT=$n.AlignmentMetrics ASSUME_SORTED=true
 
 #Collect GC Bias Error
 echo "***Collect GC Bias Error"
-java -Xmx4g -jar ${picard} CollectGcBiasMetrics REFERENCE_SEQUENCE=$ref INPUT=$n.ready-mem.bam OUTPUT=$n.CollectGcBiasMetrics CHART_OUTPUT=$n.GC.PDF ASSUME_SORTED=true
+java -Xmx4g -jar ${PICARD} CollectGcBiasMetrics REFERENCE_SEQUENCE=$ref INPUT=$n.ready-mem.bam OUTPUT=$n.CollectGcBiasMetrics CHART_OUTPUT=$n.GC.PDF ASSUME_SORTED=true
 
 #Collect Insert Size Metrics
 echo "***Collect Insert Size Metrics"
-java -Xmx4g -jar ${picard} CollectInsertSizeMetrics REFERENCE_SEQUENCE=$ref INPUT=$n.ready-mem.bam HISTOGRAM_FILE=$n.InsertSize.pdf OUTPUT=$n.CollectInsertSizeMetrics ASSUME_SORTED=true
+java -Xmx4g -jar ${PICARD} CollectInsertSizeMetrics REFERENCE_SEQUENCE=$ref INPUT=$n.ready-mem.bam HISTOGRAM_FILE=$n.InsertSize.pdf OUTPUT=$n.CollectInsertSizeMetrics ASSUME_SORTED=true
 
 cat $n.AlignmentMetrics >> $n.Metrics_summary.xls
 cat $n.CollectInsertSizeMetrics >> $n.Metrics_summary.xls
@@ -700,7 +700,7 @@ readcount=`sed -n 8p $n.FilteredReads.xls | awk '{print $3}'`
 echo "" >> $n.stats2.txt
 
 echo "***Bamtools running"
-aveCoverage=`bamtools coverage -in $n.ready-mem.bam | awk '{sum+=$3} END { print sum/NR"X"}'`
+aveCoverage=`${BAMTOOLS} coverage -in $n.ready-mem.bam | awk '{sum+=$3} END { print sum/NR"X"}'`
 aveCoveragenoX=`echo $aveCoverage | sed 's/X//'`
 echo "Average depth of coverage: $aveCoverage" >> $n.stats2.txt
 
@@ -1114,12 +1114,87 @@ echo "**************************************************************************
 echo "**************************** START ${PWD##*/} ****************************"
 echo "**************************************************************************"
 
-picard='/usr/local/bin/picard-tools-1.141/picard.jar'
-gatk='/usr/local/bin/GenomeAnalysisTK/GenomeAnalysisTK.jar'
-igvtools='/usr/local/bin/IGVTools/igvtools.jar'
+PICARD=`which picard.jar`
+if [[ -z $PICARD ]]; then
+    echo "picard.jar not in PATH"
+    echo "picard version >1.14"
+    echo "Add picard.jar to PATH"
+    echo "See line: $LINENO"
+    exit 1
+fi
+
+BWA=`which bwa`
+if [[ -z $BWA ]]; then
+    echo "bwa is not in PATH"
+    echo "Add bwa to PATH"
+    echo "See line: $LINENO"
+    exit 1
+fi
+
+SAMTOOLS=`which samtools`
+    if [[ -z $SAMTOOLS ]]; then
+    echo "samtools is not in PATH"
+    echo "Add samtools to PATH"
+    echo "See line: $LINENO"
+    exit 1
+fi
+
+ABYSS=`which abyss-pe`
+    if [[ -z $ABYSS ]]; then
+    echo "abyss-pe is not in PATH"
+    echo "Add abyss-pe to PATH"
+    echo "See line: $LINENO"
+    exit 1
+fi
+
+BAMTOOLS=`which bamtools`
+if [[ -z $BAMTOOLS ]]; then
+    echo "Bamtools is not in PATH"
+    echo "Add Bamtools to PATH"
+    echo "See line: $LINENO"
+    exit 1
+fi
+
+GATK=`which GenomeAnalysisTK.jar`
+if [[ -z $GATK ]]; then
+    echo "GenomeAnalysisTK.jar is not in PATH"
+    echo "Add GenomeAnalysisTK.jar to PATH"
+    echo "See line: $LINENO"
+    exit 1
+fi
+
+IGVTOOLS=`which igvtools.jar`
+if [[ -z $IGVTOOLS ]]; then
+    echo "igvtools.jar is not in PATH"
+    echo "Add igvtools.jar to PATH"
+    echo "See line: $LINENO"
+    exit 1
+fi
+
+BBDUK=`which bbduk.sh`
+if [[ -z $BBDUK ]]; then
+    echo "igvtools.jar is not in PATH"
+    echo "Add igvtools.jar to PATH"
+    echo "See line: $LINENO"
+    exit 1
+fi
+
+SPOLIGOSPACERFINDER=`which spoligoSpacerFinder.sh`
+if [[ -z $SPOLIGOSPACERFINDER ]]; then
+    echo "spoligoSpacerFinder.sh is not in PATH"
+    echo "Add spoligoSpacerFinder.sh to PATH"
+    echo "See line: $LINENO"
+    exit 1
+fi
 
 BRUC_MLST=`which Bruc_MLST.sh`
-SPOLIGOSPACERFINDER=`which spoligoSpacerFinder.sh`
+if [[ -z $BRUC_MLST ]]; then
+    echo "spoligoSpacerFinder.sh is not in PATH"
+    echo "Add spoligoSpacerFinder.sh to PATH"
+    echo "See line: $LINENO"
+    exit 1
+fi
+
 
 email_summary_top="/scratch/report/dailyReport.txt"
 # Detail daily stats shown in email (bottom portion of email)

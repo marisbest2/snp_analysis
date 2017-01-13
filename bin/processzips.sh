@@ -600,6 +600,7 @@ else
     echo "gff file not given"
 fi
 
+read -p "$LINENO Enter"
 echo "***Deleting Files"
 rm $n.unsortSNPsZeroCoverage.vcf
 rm $n.sam
@@ -627,6 +628,7 @@ rm $n.calledSNPpositions
 rm $n.body
 rm $n.header
 rm $n.hapreadyOnlySNPs.vcf
+read -p "$LINENO Enter"
 
 ###################################
 # The next 5 steps collect metrics
@@ -742,6 +744,7 @@ echo -e "$n \t $readcount \t ${aveCoverage} \t ${percGenomeCoverage}% "
 echo -e "$n \t $readcount \t ${aveCoverage} \t ${percGenomeCoverage}% " >> /scratch/report/coverageReport.txt
 echo -e "$n \t $readcount \t ${aveCoverage} \t ${percGenomeCoverage}% " >> $email_summary_top
 
+read -p "$LINENO Enter"
 mv $n.Metrics_summary.xls qualityvalues/
 mv $n.stats.txt qualityvalues/
 mv $n.FilteredReads.xls qualityvalues/
@@ -751,6 +754,7 @@ mv ${startingdir}/fastq ${startingdir}/spoligo
 rm ${startingdir}/spoligo/*fastq
 rm -r ${startingdir}/temp
 ln qualityvalues/$n.stats.txt ./stats-$n.txt
+read -p "$LINENO Enter"
 
 cp $0 ./
 
@@ -1098,7 +1102,7 @@ cd ..
 #pause
 #read -p "$LINENO Enter"
 
-run_sample $sample_type | tee log_processZips_${sample_name}.txt
+run_sample $sample_type 2>&1 | tee log_processZips_${sample_name}.txt
 
 }
 

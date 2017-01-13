@@ -531,7 +531,7 @@ else
 echo "***HaplotypeCaller, aka calling SNPs"
 #-allowNonUniqueKmersInRef
 java -Xmx4g -jar ${GATK} -R $ref -T HaplotypeCaller -I $n.ready-mem.bam -o $n.hapreadyAll.vcf -bamout $n.bamout.bam -dontUseSoftClippedBases -allowNonUniqueKmersInRef
-java -Xmx4g -jar ${} index $n.hapreadyAll.vcf
+java -Xmx4g -jar ${IGVTOOLS} index $n.hapreadyAll.vcf
 
 echo "******Awk VCF leaving just SNPs******"
 awk '/#/ || $4 ~ /^[ATGC]$/ && $5 ~ /^[ATGC]$/ {print $0}' $n.hapreadyAll.vcf > $n.hapreadyOnlySNPs.vcf

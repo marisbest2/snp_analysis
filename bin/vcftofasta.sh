@@ -90,7 +90,7 @@ dir_annotation="/scratch/zannotations"; mkdir -p $dir_annotation; chmod -R 777 $
 echo "start time: $uniqdate"
 
 help () {
-    printf "\n\nMust use one of the following arguments: ab1, mel, suis1, suis2, suis3, suis4, canis, ceti1, ceti2, ovis, bovis, h37, past, para, h5n2\n\n"
+    printf "\n\nMust use one of the following arguments: ab1, ab3, mel1, mel2, mel3, suis1, suis2, suis3, suis4, canis, ceti1, ceti2, ovis, bovis, h37, past, para, h5n2\n\n"
     printf "Options:\n"
     printf "\t -c --> looks for positions to filter\n"
     printf "\t -m --> limit email recipients\n"
@@ -725,22 +725,61 @@ elif [[ $1 == ab3 ]]; then
     echo "Script vcftofasta.sh ran using Brucella abortus bv 3 variables" > section5
     email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Christine.R.Quance@usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
 
-elif [[ $1 == mel ]]; then
+elif [[ $1 == mel1 ]]; then
     getbrucname
     genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
+    gbk_file="/home/shared/brucella/melitensis/script_dependents/bv1/NC_003317.gbk"
+    gbk_file1="/home/shared/brucella/melitensis/script_dependents/bv1/NC_003318.gbk"
     # This file tells the script how to cluster VCFs
-    DefiningSNPs="/bioinfo11/TStuber/Results/brucella/melitensis/script_dependents/Mel_Defining_SNPs.txt"
-    coverageFiles="/bioinfo11/TStuber/Results/brucella/coverageFiles"
+    DefiningSNPs="/bioinfo11/TStuber/Results/brucella/melitensis-bv1/script_dependents/mel1_Defining_SNPs.txt"
     FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
     FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
-    FilterDirectory="/bioinfo11/TStuber/Results/brucella/melitensis/script_dependents/FilterFiles" #Files containing positions to filter
-    RemoveFromAnalysis="/bioinfo11/TStuber/Results/brucella/melitensis/script_dependents/RemoveFromAnalysis.txt"
+    FilterDirectory="/bioinfo11/TStuber/Results/brucella/melitensis-bv1/script_dependents/FilterFiles" #Files containing positions to filter
+    RemoveFromAnalysis="/bioinfo11/TStuber/Results/brucella/melitensis-bv1/script_dependents/RemoveFromAnalysis.txt"
     QUAL=150 # Minimum quality for calling a SNP
     export lowEnd=1
     export highEnd=200 # QUAL range to change ALT to N
-    bioinfoVCF="/bioinfo11/TStuber/Results/brucella/melitensis/vcfs"
-    echo "vcftofasta.sh ran as B. melitensis"
-    echo "Script vcftofasta.sh ran using B. melitensis variables" > section5
+    bioinfoVCF="/bioinfo11/TStuber/Results/brucella/melitensis-bv1/vcfs"
+    echo "vcftofasta.sh ran as B. melitensis biovar 1"
+    echo "Script vcftofasta.sh ran using B. melitensis biovar 1 variables" > section5
+    email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Christine.R.Quance@usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
+
+elif [[ $1 == mel2 ]]; then
+    getbrucname
+    genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
+    gbk_file="/home/shared/brucella/melitensis/script_dependents/bv2/NC_012441.gbk"
+    gbk_file1="/home/shared/brucella/melitensis/script_dependents/bv2/NC_012441.gbk"
+    # This file tells the script how to cluster VCFs
+    DefiningSNPs="/bioinfo11/TStuber/Results/brucella/melitensis-bv2/script_dependents/mel2_Defining_SNPs.txt"
+    FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
+    FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
+    FilterDirectory="/bioinfo11/TStuber/Results/brucella/melitensis-bv2/script_dependents/FilterFiles" #Files containing positions to filter
+    RemoveFromAnalysis="/bioinfo11/TStuber/Results/brucella/melitensis-bv2/script_dependents/RemoveFromAnalysis.txt"
+    QUAL=150 # Minimum quality for calling a SNP
+    export lowEnd=1
+    export highEnd=200 # QUAL range to change ALT to N
+    bioinfoVCF="/bioinfo11/TStuber/Results/brucella/melitensis-bv2/vcfs"
+    echo "vcftofasta.sh ran as B. melitensis biovar 2"
+    echo "Script vcftofasta.sh ran using B. melitensis biovar 2 variables" > section5
+    email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Christine.R.Quance@usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
+
+elif [[ $1 == mel3 ]]; then
+    getbrucname
+    genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
+    gbk_file="/home/shared/brucella/melitensis/script_dependents/bv3/NZ_CP007760.gbk"
+    gbk_file1="/home/shared/brucella/melitensis/script_dependents/bv3/NZ_CP007761.gbk"
+    # This file tells the script how to cluster VCFs
+    DefiningSNPs="/bioinfo11/TStuber/Results/brucella/melitensis-bv3/script_dependents/mel3_Defining_SNPs.txt"
+    FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
+    FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
+    FilterDirectory="/bioinfo11/TStuber/Results/brucella/melitensis-bv3/script_dependents/FilterFiles" #Files containing positions to filter
+    RemoveFromAnalysis="/bioinfo11/TStuber/Results/brucella/melitensis-bv3/script_dependents/RemoveFromAnalysis.txt"
+    QUAL=150 # Minimum quality for calling a SNP
+    export lowEnd=1
+    export highEnd=200 # QUAL range to change ALT to N
+    bioinfoVCF="/bioinfo11/TStuber/Results/brucella/melitensis-bv3/vcfs"
+    echo "vcftofasta.sh ran as B. melitensis biovar 3"
+    echo "Script vcftofasta.sh ran using B. melitensis biovar 3 variables" > section5
     email_list="tod.p.stuber@usda.gov Jessica.A.Hicks@aphis.usda.gov Christine.R.Quance@usda.gov Suelee.Robbe-Austerman@aphis.usda.gov"
 
 elif [[ $1 == suis1 ]]; then

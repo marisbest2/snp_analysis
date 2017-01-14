@@ -102,11 +102,41 @@ elif [ $sample_type == ab3 ]; then
 
     ###################################################################
     
-elif [ $sample_type == mel ]; then
-    cp /home/shared/brucella/melitensis/script_dependents/NC_00331c.fasta ./
-    hqs="/home/shared/brucella/melitensis/script_dependents/B-REF-BM1-RESTRICTED-CDC-Rev1-highqualitysnps.vcf"
-    bioinfo="/bioinfo11/TStuber/Results/brucella/melitensis/newFiles"
-    sharedSAN="/home/shared/brucella/melitensis/newFiles"
+elif [ $sample_type == mel1 ]; then
+    cp /home/shared/brucella/melitensis/script_dependents/bv1/mel-bv1-NC003317.fasta ./
+    hqs="/home/shared/brucella/melitensis/script_dependents/bv1/mel-bv1-NC003317-highqualitysnps.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/brucella/melitensis-bv1/newFiles"
+#sharedSAN="/home/shared/brucella/melitensis/newFiles"
+
+    # Run BrucMLST.sh
+    echo "Starting Bruc_MLST.sh"
+    cd ../zips
+    ${BRUC_MLST} &
+    cd ../alignment/
+    echo "Moving forward from Bruc_MLST.sh"
+
+    ###################################################################
+
+elif [ $sample_type == mel2 ]; then
+    cp /home/shared/brucella/melitensis/script_dependents/bv2/mel-bv2-NC012441.fasta ./
+    hqs="/home/shared/brucella/melitensis/script_dependents/bv2/mel-bv2-NC012441-highqualitysnps.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/brucella/melitensis-bv2/newFiles"
+#sharedSAN="/home/shared/brucella/melitensis/newFiles"
+
+    # Run BrucMLST.sh
+    echo "Starting Bruc_MLST.sh"
+    cd ../zips
+    ${BRUC_MLST} &
+    cd ../alignment/
+    echo "Moving forward from Bruc_MLST.sh"
+
+    ###################################################################
+
+elif [ $sample_type == mel3 ]; then
+    cp /home/shared/brucella/melitensis/script_dependents/bv3/mel-bv3-NZCP007760.fasta ./
+    hqs="/home/shared/brucella/melitensis/script_dependents/bv3/mel-bv3-NZCP007760-highqualitysnps.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/brucella/melitensis-bv3/newFiles"
+#sharedSAN="/home/shared/brucella/melitensis/newFiles"
 
     # Run BrucMLST.sh
     echo "Starting Bruc_MLST.sh"
@@ -344,7 +374,7 @@ elif [ $sample_type == secd ]; then
     #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
 
 else
-    echo "Incorrect argument!  Must use one of the following arguments: ab1, mel, suisall, suis1, suis2, suis3, suis4, suis5, canis, ceti1, ceti2, ovis, TBBOV, H37Rv, para, past, h5n2 secd, taylorella"
+    echo "Incorrect argument!  Must use one of the following arguments: ab1, mel1, mel2, mel3, suisall, suis1, suis2, suis3, suis4, suis5, canis, ceti1, ceti2, ovis, TBBOV, H37Rv, para, past, h5n2 secd, taylorella"
     exit 1
 fi
 pause
@@ -805,6 +835,9 @@ pab1="AATTGTCGGATAGCCTGGCGATAACGACGC"
 pab3="CACACGCGGGCCGGAACTGCCGCAAATGAC"
 pab5="GCTGAAGCGGCAGACCGGCAGAACGAATAT"
 pmel="TGTCGCGCGTCAAGCGGCGTGAAATCTCTG"
+ether2="CGAAATCGTGGTGAAGGACGGGACCGAACC" # added 2017-01-13, 0 means mel bv3
+p63B1="CCTGTTTAAAAGAATCGTCGGAACCGCTCT" # added 2017-01-13, 0 means mel bv2
+p16M0="TCCCGCCGCCATGCCGCCGAAAGTCGCCGT" # added 2017-01-13, 0 means mel bv1
 psuis1="TGCGTTGCCGTGAAGCTTAATTCGGCTGAT"
 psuis2="GGCAATCATGCGCAGGGCTTTGCATTCGTC"
 psuis3="CAAGGCAGATGCACATAATCCGGCGACCCG"
@@ -838,6 +871,9 @@ ab1=`grep -c $pab1 $forReads`
 ab3=`grep -c $pab3 $forReads`
 ab5=`grep -c $pab5 $forReads`
 mel=`grep -c $pmel $forReads`
+count_ether2=`grep -c $ether2 $forReads`
+count_p63B1=`grep -c $p63B1 $forReads`
+count_p16M0=`grep -c $p16M0 $forReads`
 suis1=`grep -c $psuis1 $forReads`
 suis2=`grep -c $psuis2 $forReads`
 suis3=`grep -c $psuis3 $forReads`
@@ -880,7 +916,7 @@ onemismatch $primertb6
 tb6=`egrep -c $regex $forReads`
 echo "tb6 $tb6"
 
-bruccounts=`echo "$ab1 $ab3 $ab5 $mel $suis1 $suis2 $suis3 $ceti1 $ceti2 $canis4 $canis $ovis"`
+bruccounts=`echo "$ab1 $ab3 $ab5 $mel $suis1 $suis2 $suis3 $ceti1 $ceti2 $canis4 $canis $ovis $count_ether2 $count_p63B1 $count_p16M0"`
 tbcounts=`echo "$tb157 $tb7 $tbbov $tb5 $tb2 $tb3 $tb4 $tb6"`
 paracounts=`echo "$para"`
 echo $bruccounts
@@ -904,67 +940,77 @@ if [[ $check > 0 ]]; then
 	tagname=`grep $n /bioinfo11/TStuber/Results/brucella/bruc_tags.txt`
 	i=$brucbinary
 
-	if [ $i == 111111111111 ]
+	if [ $i == 111111111111111 ]
         then
 		echo "*** Odd Isolate, Unexpected findings ***" >> $log_oligo
 	    exit 1
 
-	elif [ $i == 011111111111 ]
+	elif [ $i == 011111111111111 ]
         then
 		echo "Brucella abortus bv 1, 2 or 4" >> $log_oligo
         sample_type="ab1"
 
-	elif [ $i == 101111111111 ]
+	elif [ $i == 101111111111111 ]
 		then
 		echo "Brucella abortus bv 3" >> $log_oligo
         sample_type="ab3"
 
-	elif [ $i == 110111111111 ]
+	elif [ $i == 110111111111111 ]
     	then
         echo "Brucella abortus bv 5, 6 or 9" >> $log_oligo
         sample_type="ab1"
 
-	elif [ $i == 111011111111 ]
+	elif [ $i == 111011111111110 ]
         then
         echo "Brucella melitensis" >> $log_oligo
-        sample_type="mel"
+        sample_type="mel1"
 
-	elif [ $i == 111101111111 ]
+	elif [ $i == 111011111111101 ]
+        then
+        echo "Brucella melitensis" >> $log_oligo
+        sample_type="mel2"
+
+	elif [ $i == 111011111111011 ]
+        then
+        echo "Brucella melitensis" >> $log_oligo
+        sample_type="mel3"
+
+	elif [ $i == 111101111111111 ]
         then
 		echo "Brucella suis bv1" >> $log_oligo
         sample_type="suis1"
 
-	elif [ $i == 111110111111 ]
+	elif [ $i == 111110111111111 ]
         then
 		echo "Brucella suis bv2" >> $log_oligo
         sample_type="suis2"
 
-	elif [ $i == 111111011111 ]
+	elif [ $i == 111111011111110 ]
         then
 		echo "Brucella suis bv3" >> $log_oligo
         sample_type="suis3"
 
-	elif [ $i == 111111101111 ] || [ $i == 111111100111 ]
+	elif [ $i == 111111101111111 ] || [ $i == 111111100111111 ]
     	then
         echo "Brucella ceti 1" >> $log_oligo
         sample_type="ceti1"
 
-	elif [ $i == 111111110111 ]
+	elif [ $i == 111111110111111 ]
     	then
         echo "Brucella ceti 2" >> $log_oligo
         sample_type="ceti2"
 
-	elif [ $i == 111111111011 ]
+	elif [ $i == 111111111011110 ]
     	then
         echo "Brucella suis bv4" >> $log_oligo
         sample_type="suis4"
 
-	elif [ $i == 111111111001 ]
+	elif [ $i == 111111111001110 ]
     	then
         echo "Brucella canis" >> $log_oligo
         sample_type="canis"
 
-	elif [ $i == 111111111110 ]
+	elif [ $i == 111111111110111 ]
     	then
         echo "Brucella ovis" >> $log_oligo
         sample_type="ovis"

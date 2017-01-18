@@ -42,7 +42,7 @@ printf "\t\t\tcall with all, tod, jess, suelee, or off\n"
 printf "\t\t-t sample_type\n"
 printf "\t\t\tsample_type options:\n"
 printf "\t\t\t\tTBBOV, H37Rv\n"
-printf "\t\t\t\tab1, mel, suisall, suis1, suis2, suis3, suis4, suis5, canis, ceti1, ceti2, ovis\n"
+printf "\t\t\t\tab1, mel1, mel2, mel3, suisall, suis1, suis2, suis3, suis4, suis5, canis, ceti1, ceti2, ovis\n"
 printf "\t\t\t\tpara, past, h5n2 secd, taylorella\n\n"
 printf "example:\n"
 printf "\t~$ processZips.sh -t TBBOV \t\t# working directory with one sample\n"
@@ -1280,7 +1280,7 @@ while getopts ':hde:t:' OPTION; do
 done
 shift $(($OPTIND - 1))
 
-if [[ $hflag ]];
+if [[ $hflag ]]; then
     help
     exit 1
 fi

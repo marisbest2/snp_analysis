@@ -1285,7 +1285,7 @@ echo "hflag: $hflag"
 echo "debug: $debug"
 echo "email: $email"
 printf "sample_type: $sample_type\n\n"
-read -p "*** Check Arguments and Press Enter to Continue ***"
+#read -p "*** Check Arguments and Press Enter to Continue ***"
 
 if [[ $sample_type ]]; then
     count=`ls | grep -c "_R1"`

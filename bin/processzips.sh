@@ -960,17 +960,17 @@ if [[ $check > 0 ]]; then
         echo "Brucella abortus bv 5, 6 or 9" >> $log_oligo
         sample_type="ab1"
 
-	elif [ $i == 111011111111110 ]
+	elif [ $i == 111011111111110 ] || [ $i == 000001010110110 ]
         then
         echo "Brucella melitensis" >> $log_oligo
         sample_type="mel1"
 
-	elif [ $i == 111011111111101 ]
+	elif [ $i == 111011111111101 ] || [ $i == 000001010110100 ] || [ $i == 010001010110100 ] || [ $i == 111001111110101 ]
         then
         echo "Brucella melitensis" >> $log_oligo
         sample_type="mel2"
 
-	elif [ $i == 111011111111011 ]
+	elif [ $i == 111011111111011 ] || [ $i == 111001111110011 ]
         then
         echo "Brucella melitensis" >> $log_oligo
         sample_type="mel3"
@@ -1279,6 +1279,11 @@ while getopts ':hde:t:' OPTION; do
     esac
 done
 shift $(($OPTIND - 1))
+
+if [[ $hflag ]];
+    help
+    exit 1
+fi
 
 printf "\nARE YOU RUNNING AS ROOT?\n\n"
 echo "hflag: $hflag"

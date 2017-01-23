@@ -514,6 +514,7 @@ print (myout)
 EOL
 
 chmod 755 ./annotate.py
+
 }
     
 #####################################################
@@ -730,6 +731,8 @@ elif [[ $1 == mel1 ]]; then
     genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
     gbk_file="/home/shared/brucella/melitensis/script_dependents/bv1/NC_003317.gbk"
     gbk_file1="/home/shared/brucella/melitensis/script_dependents/bv1/NC_003318.gbk"
+    echo "$gbk_file" > gbk_files
+    echo "$gbk_file1" >> gbk_files
     # This file tells the script how to cluster VCFs
     DefiningSNPs="/bioinfo11/TStuber/Results/brucella/melitensis-bv1/script_dependents/mel1_Defining_SNPs.txt"
     FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
@@ -749,6 +752,8 @@ elif [[ $1 == mel2 ]]; then
     genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
     gbk_file="/home/shared/brucella/melitensis/script_dependents/bv2/NC_012441.gbk"
     gbk_file1="/home/shared/brucella/melitensis/script_dependents/bv2/NC_012441.gbk"
+    echo "$gbk_file" > gbk_files
+    echo "$gbk_file1" >> gbk_files
     # This file tells the script how to cluster VCFs
     DefiningSNPs="/bioinfo11/TStuber/Results/brucella/melitensis-bv2/script_dependents/mel2_Defining_SNPs.txt"
     FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
@@ -768,6 +773,8 @@ elif [[ $1 == mel3 ]]; then
     genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
     gbk_file="/home/shared/brucella/melitensis/script_dependents/bv3/NZ_CP007760.gbk"
     gbk_file1="/home/shared/brucella/melitensis/script_dependents/bv3/NZ_CP007761.gbk"
+        echo "$gbk_file" > gbk_files
+    echo "$gbk_file1" >> gbk_files
     # This file tells the script how to cluster VCFs
     DefiningSNPs="/bioinfo11/TStuber/Results/brucella/melitensis-bv3/script_dependents/mel3_Defining_SNPs.txt"
     FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
@@ -1296,6 +1303,7 @@ rm total_pos
 
 # make a little local database of annotated positions, so they don't need to be created each run
 function get_annotation () {
+
     if [ $((chromCount)) -eq 1 ]; then
         # Get chromosome identifier
         chrom_id=`head -1 ${dircalled}/each_vcf-poslist.txt | sed 's/\(.*\)-\(.*\)/\1/'`
@@ -1322,6 +1330,7 @@ function get_annotation () {
             printf "\nGetting annotation...\n\n"
             date
             annotate_table
+
             TOP_CPUS=60
             for l in `cat ${dircalled}/each_vcf-poslist.txt`; do
                 (chromosome=`echo ${l} | sed 's/\(.*\)-\(.*\)/\1/'`
@@ -1347,12 +1356,14 @@ function get_annotation () {
             cat ${dir_annotation}/${chrom_id} > ${dircalled}/each_annotation_in
         fi
     else
+ 
         # Get annotations for each position
         sort < ${dircalled}/each_vcf-poslist.txt | uniq > ${dircalled}/all_vcf-poslist.temp; mv ${dircalled}/all_vcf-poslist.temp ${dircalled}/each_vcf-poslist.txt
         printf "\nGetting annotation...\n\n"
         date
         TOP_CPUS=60
         printf "reference_pos\tannotation\n" > ${dircalled}/each_annotation_in
+
         for i in `cat ${dircalled}/gbk_files`; do
             # Get an annotating file specific for each gbk being used
             name=`basename ${i}`
@@ -1360,6 +1371,7 @@ function get_annotation () {
             echo "name: $name"
             echo "gbk_file: $gbk_file"
             annotate_table
+
             mv annotate.py annotate-${name%.gbk}.py
         done
         for l in `cat ${dircalled}/each_vcf-poslist.txt`; do

@@ -103,8 +103,8 @@ elif [ $sample_type == ab3 ]; then
     ###################################################################
     
 elif [ $sample_type == mel1 ]; then
-    cp /home/shared/brucella/melitensis/script_dependents/bv1/mel-bv1-NC003317.fasta ./
-    hqs="/home/shared/brucella/melitensis/script_dependents/bv1/mel-bv1-NC003317-highqualitysnps.vcf"
+    cp /home/shared/brucella/melitensis1/script_dependents/mel-bv1-NC003317.fasta ./
+    hqs="/home/shared/brucella/melitensis1/script_dependents/mel-bv1-NC003317-highqualitysnps.vcf"
     bioinfo="/bioinfo11/TStuber/Results/brucella/melitensis-bv1/newFiles"
 #sharedSAN="/home/shared/brucella/melitensis/newFiles"
 
@@ -118,8 +118,8 @@ elif [ $sample_type == mel1 ]; then
     ###################################################################
 
 elif [ $sample_type == mel2 ]; then
-    cp /home/shared/brucella/melitensis/script_dependents/bv2/mel-bv2-NC012441.fasta ./
-    hqs="/home/shared/brucella/melitensis/script_dependents/bv2/mel-bv2-NC012441-highqualitysnps.vcf"
+    cp /home/shared/brucella/melitensis2/script_dependents/mel-bv2-NC012441.fasta ./
+    hqs="/home/shared/brucella/melitensis2/script_dependents/mel-bv2-NC012441-highqualitysnps.vcf"
     bioinfo="/bioinfo11/TStuber/Results/brucella/melitensis-bv2/newFiles"
 #sharedSAN="/home/shared/brucella/melitensis/newFiles"
 
@@ -133,8 +133,8 @@ elif [ $sample_type == mel2 ]; then
     ###################################################################
 
 elif [ $sample_type == mel3 ]; then
-    cp /home/shared/brucella/melitensis/script_dependents/bv3/mel-bv3-NZCP007760.fasta ./
-    hqs="/home/shared/brucella/melitensis/script_dependents/bv3/mel-bv3-NZCP007760-highqualitysnps.vcf"
+    cp /home/shared/brucella/melitensis3/script_dependents/mel-bv3-NZCP007760.fasta ./
+    hqs="/home/shared/brucella/melitensis3/script_dependents/mel-bv3-NZCP007760-highqualitysnps.vcf"
     bioinfo="/bioinfo11/TStuber/Results/brucella/melitensis-bv3/newFiles"
 #sharedSAN="/home/shared/brucella/melitensis/newFiles"
 

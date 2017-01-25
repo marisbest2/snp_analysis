@@ -729,8 +729,8 @@ elif [[ $1 == ab3 ]]; then
 elif [[ $1 == mel1 ]]; then
     getbrucname
     genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
-    gbk_file="/home/shared/brucella/melitensis/script_dependents/bv1/NC_003317.gbk"
-    gbk_file1="/home/shared/brucella/melitensis/script_dependents/bv1/NC_003318.gbk"
+    gbk_file="/home/shared/brucella/melitensis1/script_dependents/NC_003317.gbk"
+    gbk_file1="/home/shared/brucella/melitensis1/script_dependents/NC_003318.gbk"
     echo "$gbk_file" > gbk_files
     echo "$gbk_file1" >> gbk_files
     # This file tells the script how to cluster VCFs
@@ -750,8 +750,8 @@ elif [[ $1 == mel1 ]]; then
 elif [[ $1 == mel2 ]]; then
     getbrucname
     genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
-    gbk_file="/home/shared/brucella/melitensis/script_dependents/bv2/NC_012441.gbk"
-    gbk_file1="/home/shared/brucella/melitensis/script_dependents/bv2/NC_012441.gbk"
+    gbk_file="/home/shared/brucella/melitensis2/script_dependents/NC_012441.gbk"
+    gbk_file1="/home/shared/brucella/melitensis2/script_dependents/NC_012441.gbk"
     echo "$gbk_file" > gbk_files
     echo "$gbk_file1" >> gbk_files
     # This file tells the script how to cluster VCFs
@@ -771,8 +771,8 @@ elif [[ $1 == mel2 ]]; then
 elif [[ $1 == mel3 ]]; then
     getbrucname
     genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
-    gbk_file="/home/shared/brucella/melitensis/script_dependents/bv3/NZ_CP007760.gbk"
-    gbk_file1="/home/shared/brucella/melitensis/script_dependents/bv3/NZ_CP007761.gbk"
+    gbk_file="/home/shared/brucella/melitensis3/script_dependents/NZ_CP007760.gbk"
+    gbk_file1="/home/shared/brucella/melitensis3/script_dependents/NZ_CP007761.gbk"
         echo "$gbk_file" > gbk_files
     echo "$gbk_file1" >> gbk_files
     # This file tells the script how to cluster VCFs

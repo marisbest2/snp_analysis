@@ -199,8 +199,6 @@ fi
 # Test for duplicate VCFs
 testDuplicates
 wait
-#Prepare Filter files.
-#filterFilespreparation
 
 vcfcount=`ls *vcf | wc -l`
 printf "\n $vcfcount vcf files\n\n"
@@ -1154,54 +1152,6 @@ sleep 2
 
 #################################################################################
 
-# This function prepares the filter files.
-# awk needs to see a number in the file, so if the file is blank 2 matching numbers are added.  2 numbers because duplicates are kept therefore allowing a number to be pasting into awk when comparing files.
-
-function filterFilespreparation () {
-
-# For tb inputXLS.py creates text files with positions to be filetered, and places them in FilterDirectory
-#python -u /home/tstuber/workspace/scripts/python_scripts/inputXLS.py | sed 's/ u//g' | tr "," "\t" | sed "s/\'//g" | sed 's/\[//g' |sed 's/\]//g' |sed 's/ //g' | sed 's/^u//g' | sed 's/\.0//g' > ${FilterDirectory}/filterFile.txt
-
-echo "Waiting for filter file creation to complete"
-#filterFileCreations
-wait
-curdr=$(pwd)
-
-cd "${FilterDirectory}"
-
-echo "Preparing Filter Files"
-for i in *.txt; do
-    (getbase=$(basename "$i")
-    number=$(echo $getbase | sed 's/\(.*\)\..*/\1/')
-    #echo $number
-    cat $i | sort | uniq > "${number}.num"
-    if [ $((chromCount)) -eq 1 ]; then
-       echo "100000000" >> "$number.num"
-       echo "100000000" >> "$number.num"
-    elif [ $((chromCount)) -eq 2 ]; then
-       echo "chrom1	100000000" >> "${number}.num"
-       echo "chrom1	100000000" >> "${number}.num"
-       echo "chrom2	100000000" >> "${number}.num"
-       echo "chrom2	100000000" >> "${number}.num"
-    else
-        echo "Greater than 2 chromosomes present."
-    fi
-
-        rm $i
-        mv "${number}.num" "${number}.txt") &
-    let count+=1
-    [[ $((count%NR_CPUS)) -eq 0 ]] && wait
-done
-wait
-sleep 2
-
-cd "${curdr}"
-echo "Finished preparing filter files"
-
-}
-
-
-#################################################################################
 
 # Change SNPs with low QUAL values to N, based on parameter set above in variable settings
 

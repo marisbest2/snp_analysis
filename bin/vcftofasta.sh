@@ -751,7 +751,7 @@ elif [[ $1 == mel2 ]]; then
     getbrucname
     genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
     gbk_file="/home/shared/brucella/melitensis2/script_dependents/NC_012441.gbk"
-    gbk_file1="/home/shared/brucella/melitensis2/script_dependents/NC_012441.gbk"
+    gbk_file1="/home/shared/brucella/melitensis2/script_dependents/NC_012442.gbk"
     echo "$gbk_file" > gbk_files
     echo "$gbk_file1" >> gbk_files
     # This file tells the script how to cluster VCFs

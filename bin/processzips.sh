@@ -326,6 +326,22 @@ elif [ $sample_type == TBBOV ]; then
     echo "Moving forward from spoligoSpacerFinder.sh"
 
     ###################################################################
+
+# Lineage Bov-Afri, AF2122-updated_2017-01-25
+elif [ $sample_type == AF2122 ]; then
+    cp /home/shared/mycobacterium/tbc/snppipeline/tbbov/NC_002945.fasta ./
+    hqs="/home/shared/mycobacterium/tbc/snppipeline/tbbov/HighestQualitySNPs.vcf"
+    gff_file="/home/shared/mycobacterium/tbc/snppipeline/tbbov/NC_002945.gff"
+    bioinfo="/bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/newFiles"
+    #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"
+
+    # Run spoligoSpacerFinder.sh
+    echo "Starting spoligoSpacerFinder.sh"
+    ${SPOLIGOSPACERFINDER} &
+    echo "Moving forward from spoligoSpacerFinder.sh"
+
+    ###################################################################
+
     # H37Rv general
 elif [ $sample_type == H37Rv ]; then
     cp /home/shared/mycobacterium/tbc/snppipeline/tb4b/NC000962.fasta ./

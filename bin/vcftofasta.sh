@@ -940,11 +940,15 @@ elif [[ $1 == ceti2 ]]; then
 elif [[ $1 == ovis ]]; then
     getbrucname
     genotypingcodes="/bioinfo11/TStuber/Results/brucella/bruc_tags.txt"
+    gbk_file="/home/shared/brucella/ovis/script_dependents/NC_009505.gbk"
+    gbk_file1="/home/shared/brucella/ovis/script_dependents/NC_009504.gbk"
+    echo "$gbk_file" > gbk_files
+    echo "$gbk_file1" >> gbk_files
     # This file tells the script how to cluster VCFs
     DefiningSNPs="/bioinfo11/TStuber/Results/brucella/ovis/script_dependents/Ovis_Defining_SNPs.txt"
     coverageFiles="/bioinfo11/TStuber/Results/brucella/coverageFiles"
-    FilterAllVCFs=no #(yes or no), Do you want to filter all VCFs?
-    FilterGroups=no #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
+    FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
+    FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
     FilterDirectory="/bioinfo11/TStuber/Results/brucella/ovis/script_dependents/FilterFiles" #Files containing positions to filter
     RemoveFromAnalysis="/bioinfo11/TStuber/Results/brucella/ovis/script_dependents/RemoveFromAnalysis.txt"
     QUAL=300 # Minimum quality for calling a SNP

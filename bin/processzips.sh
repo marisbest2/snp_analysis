@@ -1455,7 +1455,7 @@ enscript /scratch/report/stat_table.txt -B -j -r -f "Courier7" -o - | ps2pdf - /
 if [[ $email -eq 1 ]]; then
 	email_list="tod.p.stuber@aphis.usda.gov Jessica.A.Hicks@aphis.usda.gov suelee.robbe-austerman@aphis.usda.gov patrick.m.camp@aphis.usda.gov David.T.Farrell@aphis.usda.gov Christine.R.Quance@aphis.usda.gov Robin.L.Swanson@aphis.usda.gov"
 elif [[ $email == "all" ]]; then
-    email_list="tod.p.stuber@aphis.usda.gov Jessica.A.Hicks@aphis.usda.gov suelee.robbe-austerman@aphis.usda.gov patrick.m.camp@aphis.usda.gov David.T.Farrell@aphis.usda.gov Christine.R.Quance@aphis.usda.gov Robin.L.Swanson@aphis.usda.gov"
+    email_list="tod.p.stuber@aphis.usda.gov Jessica.A.Hicks@aphis.usda.gov suelee.robbe-austerman@aphis.usda.gov patrick.m.camp@aphis.usda.gov David.T.Farrell@aphis.usda.gov Christine.R.Quance@aphis.usda.gov Robin.L.Swanson@aphis.usda.gov, hannah.m.tharp@aphis.usda.gov"
 elif [[ $email == "tod" ]]; then
     email_list="tod.p.stuber@usda.gov"
 elif [[ $email == "jess" ]]; then

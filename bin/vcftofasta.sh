@@ -1151,6 +1151,7 @@ else
         (for pos in $positionList; do group_id=`grep "$pos" ${DefiningSNPs} | awk '{print $4 "-" $1}'`; awk -v x=$pos -v g=$group_id 'BEGIN {FS="\t"; OFS="\t"} { if($1 "-" $2 == x ) print FILENAME, g, "Pos:", $2, "QUAL:", $6, $8 }' $i 2> /dev/null; done | grep "AC=1;A" | awk 'BEGIN {FS=";"} {print $1, $2}' >> section2) &
         let count+=1
         [[ $((count%NR_CPUS)) -eq 0 ]] && wait
+    done
 fi
 
 echo "AConeCallPosition is running, end -->  `date`"

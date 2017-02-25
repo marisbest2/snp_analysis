@@ -2694,6 +2694,10 @@ echo "<html>" > email_log.html
 echo "<Body>" >> email_log.html
 awk 'BEGIN{print "<Body>"} {print "<p style=\"line-height: 40%;\">" $0 "</p>"} END{print "</Body>"}' sectiontime >  email_log.html
 echo "****************************************************" >> email_log.html
+echo "$file_count Analyzed in comparison" > tempfile
+awk 'BEGIN{print "<Body>"} {print "<p style=\"line-height: 40%;\">" $0 "</p>"} END{print "</Body>"}' tempfile >  email_log.html
+echo "****************************************************" >> email_log.html
+rm tempfile
 echo "" >> email_log.html
 awk 'BEGIN{print "<Body>"} {print "<p style=\"line-height: 40%;\">" $0 "</p>"} END{print "</Body>"}' section5 >> email_log.html
 echo "" >> email_log.html

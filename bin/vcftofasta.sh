@@ -2661,7 +2661,6 @@ printf 'Runtime: %dh:%dm:%ds\n' $(($runtime/3600)) $(($runtime%3600/60)) $(($run
 cat sectiontime >  log.txt
 echo "" >> log.txt
 echo "****************************************************" >> log.txt
-file_count
 echo "$file_count Analyzed in comparison" >>  log.txt
 echo "" >> log.txt
 echo "****************************************************" >> log.txt

@@ -1909,7 +1909,7 @@ rm elite
 removeIsolates
 
 ############################### Rename files ###############################
-file_count = `ls *vcf | wc -l`
+file_count=`ls *vcf | wc -l`
 
 echo "Files are being renamed"
 for i in *.txt; do

@@ -1909,6 +1909,7 @@ rm elite
 removeIsolates
 
 ############################### Rename files ###############################
+file_count = `ls *vcf | wc -l`
 
 echo "Files are being renamed"
 for i in *.txt; do
@@ -2658,6 +2659,10 @@ runtime=$((endtime-starttime))
 printf 'Runtime: %dh:%dm:%ds\n' $(($runtime/3600)) $(($runtime%3600/60)) $(($runtime%60)) >> sectiontime
 
 cat sectiontime >  log.txt
+echo "" >> log.txt
+echo "****************************************************" >> log.txt
+file_count
+echo "$file_count Analyzed in comparison" >>  log.txt
 echo "" >> log.txt
 echo "****************************************************" >> log.txt
 echo "" >> log.txt

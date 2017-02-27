@@ -107,7 +107,7 @@ help () {
     printf "set -t to 0 to negate\n"
     printf "-t sets both those to include when running elite and coloring\n"
     printf "-t default [1]\n"
-    printf "tables not made if over 8000 columns\n\n"
+    printf "tables not made if over 16300 columns\n\n"
     rm sectiontime
     exit 1
 }
@@ -1705,10 +1705,10 @@ fi
 rm RAxML_parsimonyTree*
 for i in RAxML*Tree*; do mv $i ../${i}.tre; done
 
-# do not organize table if > 8000 positions
+# do not organize table if > 16300 positions
 position_count=`grep -v ">" root.fas | head -1 | wc -m`
 echo "position_count: $position_count"
-if [ $((position_count)) -lt 8000 ]; then
+if [ $((position_count)) -lt 16300 ]; then
     # on server2 "5e-07" value was in newick the "| grep -v "e-0" " cleans it out
     tr ":" "\n" < tableinput.${d} | tr "," "\n" | sed 's/(//g' | sed 's/)//g' | grep -v "\.[0-9]*" | grep -v "e-0" | grep -v "root" > cleanedAlignment.txt
     # Place headers onto aligned file

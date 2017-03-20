@@ -315,7 +315,9 @@ elif [ $sample_type == tay5 ]; then
     # Lineage Bov-Afri, AF2122
 elif [ $sample_type == TBBOV ]; then
     cp /home/shared/mycobacterium/tbc/snppipeline/tbbov/NC_002945.fasta ./
+    #cp /home/shared/mycobacterium/tbc/tbbov/script_dependents/NC_002945.fasta ./
     hqs="/home/shared/mycobacterium/tbc/snppipeline/tbbov/HighestQualitySNPs.vcf"
+    #hqs="/home/shared/mycobacterium/tbc/tbbov/script_dependents/02-4414-highqualitysnps.vcf"
     gff_file="/home/shared/mycobacterium/tbc/snppipeline/tbbov/NC_002945.gff"
     bioinfo="/bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/newFiles"
     #sharedSAN="/home/shared/mycobacterium/bovis/newFiles"

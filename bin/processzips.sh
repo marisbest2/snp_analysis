@@ -167,7 +167,7 @@ elif [ $sample_type == suis1 ]; then
     #bioinfo="/bioinfo11/TStuber/Results/brucella/suis1/newFiles"
     #sharedSAN="/home/shared/brucella/suis1/newFiles"
     cp /bioinfo11/TStuber/Results/brucella/suis1/script_dependents/python/NC_017251-NC_017250.fasta ./
-    hqs="/Volumes/root/TStuber/Results/brucella/suis1/script_dependents/python/B00-0468-highqualitysnps.vcf"
+    hqs="/bioinfo11/TStuber/Results/brucella/suis1/script_dependents/python/B00-0468-highqualitysnps.vcf"
 
     # Run BrucMLST.sh
     echo "Starting Bruc_MLST.sh"

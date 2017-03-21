@@ -166,7 +166,7 @@ elif [ $sample_type == suis1 ]; then
     #hqs="/home/shared/brucella/suis1/script_dependents/NC_01725cHighestQualitySNPs.vcf"
     #bioinfo="/bioinfo11/TStuber/Results/brucella/suis1/newFiles"
     #sharedSAN="/home/shared/brucella/suis1/newFiles"
-    cp /Volumes/root/TStuber/Results/brucella/suis1/script_dependents/python/NC_017251-NC_017250.fasta ./
+    cp /bioinfo11/TStuber/Results/brucella/suis1/script_dependents/python/NC_017251-NC_017250.fasta ./
     hqs="/Volumes/root/TStuber/Results/brucella/suis1/script_dependents/python/B00-0468-highqualitysnps.vcf"
 
     # Run BrucMLST.sh

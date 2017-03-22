@@ -162,12 +162,12 @@ elif [ $sample_type == suisall ]; then
     ###################################################################
 
 elif [ $sample_type == suis1 ]; then
-    #cp /home/shared/brucella/suis1/script_dependents/NC_01725c.fasta ./
-    #hqs="/home/shared/brucella/suis1/script_dependents/NC_01725cHighestQualitySNPs.vcf"
-    #bioinfo="/bioinfo11/TStuber/Results/brucella/suis1/newFiles"
-    #sharedSAN="/home/shared/brucella/suis1/newFiles"
-    cp /bioinfo11/TStuber/Results/brucella/suis1/script_dependents/python/NC_017251-NC_017250.fasta ./
-    hqs="/home/shared/brucella/suis1/script_dependents/B00-0468-highqualitysnps.vcf"
+    cp /home/shared/brucella/suis1/script_dependents/NC_01725c.fasta ./
+    hqs="/home/shared/brucella/suis1/script_dependents/NC_01725cHighestQualitySNPs.vcf"
+    bioinfo="/bioinfo11/TStuber/Results/brucella/suis1/newFiles"
+    sharedSAN="/home/shared/brucella/suis1/newFiles"
+    #cp /bioinfo11/TStuber/Results/brucella/suis1/script_dependents/python/NC_017251-NC_017250.fasta ./
+    #hqs="/home/shared/brucella/suis1/script_dependents/B00-0468-highqualitysnps.vcf"
 
     # Run BrucMLST.sh
     echo "Starting Bruc_MLST.sh"

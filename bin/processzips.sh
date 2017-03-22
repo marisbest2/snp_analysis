@@ -167,7 +167,7 @@ elif [ $sample_type == suis1 ]; then
     #bioinfo="/bioinfo11/TStuber/Results/brucella/suis1/newFiles"
     #sharedSAN="/home/shared/brucella/suis1/newFiles"
     cp /bioinfo11/TStuber/Results/brucella/suis1/script_dependents/python/NC_017251-NC_017250.fasta ./
-    hqs="/bioinfo11/TStuber/Results/brucella/suis1/script_dependents/python/B00-0468-highqualitysnps.vcf"
+    hqs="/home/shared/brucella/suis1/script_dependents/B00-0468-highqualitysnps.vcf"
 
     # Run BrucMLST.sh
     echo "Starting Bruc_MLST.sh"
@@ -427,11 +427,11 @@ echo -e "Quality trimming sample "$strain""
     threads=auto \
     showspeed=f
 
+rm "$forReads"
+rm "$revReads"
 mv -v trimmed_reads/${strain}_Trimmed_R1.fastq.gz ./
 mv -v trimmed_reads/${strain}_Trimmed_R2.fastq.gz ./
 rm -r trimmed_reads
-rm "$forReads"
-rm "$revReads"
 
 forReads=`ls | grep _R1`
 echo "Forward Reads to be used after trimmed: $forReads"

@@ -965,9 +965,9 @@ elif [[ $1 == bovis ]]; then
     FilterAllVCFs=yes #(yes or no), Do you want to filter all VCFs?
     FilterGroups=yes #(yes or no), Do you want to filter VCFs withing their groups, subgroups, and clades
     RemoveFromAnalysis="/bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/script_dependents/RemoveFromAnalysis.txt"
-    QUAL=150 # Minimum quality for calling a SNP
+    QUAL=125 # changed from 150, Minimum quality for calling a SNP
     export lowEnd=1
-    export highEnd=200 # QUAL range to change ALT to N
+    export highEnd=50 # changed from 200, QUAL range to change ALT to N
     bioinfoVCF="/bioinfo11/TStuber/Results/mycobacterium/tbc/tbbov/script2"
     echo "vcftofasta.sh ran as M. bovis"
     echo "Script vcftofasta.sh ran using M. bovis variables" >> section5

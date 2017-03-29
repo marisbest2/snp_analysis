@@ -1878,7 +1878,6 @@ sed 's/\*//g' < preparedTags.txt | sed 's/(/_/g' | sed 's/)/_/g' | sed 's/ /_/g'
 rm preparedTags.txt
 
 cat ${genotypingcodes} | tr '\r' '\n' | grep "Yes" | sed 's/_.*//' >> elite
-echo "Only samples in this file will be ran when elite is used as the secound argument" >> elite
 
 ####################
 

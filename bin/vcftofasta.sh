@@ -1928,7 +1928,7 @@ for i in *.vcf; do
     echo "******************** Naming convention ********************"
     echo "Original File: $i"
     base=`basename "$i"`
-    searchName=`echo $base | sed 's/[._].*//' | sed 's/V//'`
+    searchName=`echo $base | sed 's/[._].*//' | sed 's/VAL//'`
     echo "searchName: $searchName"
     # Direct script to text file containing a list of the correct labels to use.
     # The file must be a txt file.

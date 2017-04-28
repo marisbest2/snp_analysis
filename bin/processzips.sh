@@ -194,8 +194,8 @@ elif [ $sample_type == suis2 ]; then
     ###################################################################
 
 elif [ $sample_type == suis3 ]; then
-    cp /home/shared/brucella/suis3/script_dependents/B-REF-BS3-686.fasta ./
-    hqs="/home/shared/brucella/suis3/script_dependents/B15-0007-highqualitysnps.vcf"
+    cp /home/shared/brucella/suis3/script_dependents/NZ_CP007719-NZ_CP007718.fasta ./
+    hqs="/home/shared/brucella/suis3/script_dependents/highqualitysnps.vcf"
     bioinfo="/bioinfo11/TStuber/Results/brucella/suis3/newFiles"
     sharedSAN="/home/shared/brucella/suis3/newFiles"
 

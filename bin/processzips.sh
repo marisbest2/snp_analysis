@@ -1185,7 +1185,7 @@ cp $0 ./
 echo "***Sending files to the Network"
 cp -r ${startingdir} ${bioinfo}
 
-if [[ $aveCoveragenoX < 30 || > 300 ]]; then
+if [[ $aveCoveragenoX -lt 30 || -gt 300 ]]; then
     sbnumber="${sbnumber}*"
 fi
 

@@ -418,7 +418,7 @@ echo "<----- $n ----->" >> /scratch/report/spoligoCheck_all.txt
 echo "WGSpoligo:	$WGSpoligo" >> /scratch/report/spoligoCheck_all.txt
 
 octal_code=`awk '{print $2}' spoligo.txt`
-mybinary=`cat 01-3941.myspacers | tr -d '\n'`
+mybinary=`cat $n.myspacers | tr -d '\n'`
 
 sbnumber=`awk -v x=$octal_code 'x == $1 {print $2}' /bioinfo11/TStuber/Results/mycobacterium/tbc/spoligotype_db.txt`
 binarynumber=`awk -v x=$octal_code 'x == $1 {print $3}' /bioinfo11/TStuber/Results/mycobacterium/tbc/spoligotype_db.txt`

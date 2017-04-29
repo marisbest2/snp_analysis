@@ -1186,6 +1186,7 @@ echo "***Sending files to the Network"
 cp -r ${startingdir} ${bioinfo}
 
 if [[ $aveCoveragenoX -lt 30 || -gt 300 ]]; then
+    echo "true"
     sbnumber="${sbnumber}*"
 fi
 

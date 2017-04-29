@@ -417,6 +417,15 @@ printf "%s\t%s\n" "$n" "$WGSpoligo" >> "/bioinfo11/TStuber/Results/mycobacterium
 echo "<----- $n ----->" >> /scratch/report/spoligoCheck_all.txt
 echo "WGSpoligo:	$WGSpoligo" >> /scratch/report/spoligoCheck_all.txt
 
+octal_code=`awk '{print $2}' spoligo.txt`
+mybinary=`cat 01-3941.myspacers | tr -d '\n'`
+
+sbnumber=`awk -v x=$octal_code 'x == $1 {print $2}' /bioinfo11/TStuber/Results/mycobacterium/tbc/spoligotype_db.txt`
+binarynumber=`awk -v x=$octal_code 'x == $1 {print $3}' /bioinfo11/TStuber/Results/mycobacterium/tbc/spoligotype_db.txt`
+
+if [[ $mybinary != $binarynumber ]]; then
+    binarynumber="ERROR: CROSS REFERENCE OUR SPOLIGO BINARY WITH MBOVIS.ORG"
+fi
 }
 
 ###################
@@ -1176,8 +1185,12 @@ cp $0 ./
 echo "***Sending files to the Network"
 cp -r ${startingdir} ${bioinfo}
 
-printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\n" $sample_type $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoveragenoX $percGenomeCoverage $unmapped_contig_count $quality_snps >> /scratch/report/pre_stat_table.txt
-printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\n" $sample_type $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoverage $percGenomeCoverage $unmapped_contig_count $quality_snps >> /scratch/report/stat_table_cumulative.txt
+if [[ $aveCoveragenoX < 30 || > 300 ]]; then
+    sbnumber="${sbnumber}*"
+fi
+
+printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\t%s\t%s\t%s\n" $sample_type $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoveragenoX $percGenomeCoverage $unmapped_contig_count $quality_snps $octal_code $sbnumber $binarynumber >> /scratch/report/pre_stat_table.txt
+printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\t%s\t%s\t%s\n" $sample_type $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoveragenoX $percGenomeCoverage $unmapped_contig_count $quality_snps $octal_code $sbnumber $binarynumber >> /scratch/report/stat_table_cumulative.txt
 
 #Make dailyStats.txt for each stats.txt made for each isolate.
 echo "" >> $email_summary_bottom
@@ -1720,7 +1733,7 @@ if [[ $email ]] || [[ -z $sample_type ]]; then
 
 currentdir=`pwd`
 
-printf "ref_type\tsample\tR1_zip\tR2_zip\ttotal_read_prs\tup_reads\t%%dup_reads\tave_read_length\tref\tave_cov_X\tper_cov\tunmapped_contigs\tquality_snps\n" > /scratch/report/stat_table.txt
+printf "ref_type\tsample\tR1_zip\tR2_zip\ttotal_read_prs\tup_reads\t%%dup_reads\tave_read_length\tref\tave_cov_X\tper_cov\tunmapped_contigs\tquality_snps\toctal_code\tSB_number\tbinary\n" > /scratch/report/stat_table.txt
 printf "" > /scratch/report/pre_stat_table.txt
 printf "\n" >> /scratch/report/stat_table_cumulative.txt
 date >> /scratch/report/stat_table_cumulative.txt

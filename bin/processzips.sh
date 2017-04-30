@@ -53,10 +53,6 @@ exit 1
 }
 
 ###################
-#scope out
-octal_code=""
-sbnumber=""
-binarynumber=""
 
 function spoligofinder () {
 
@@ -438,6 +434,11 @@ fi
 # RUN_SAMPLE
 ###################
 function run_sample() {
+
+#scope out
+octal_code=""
+sbnumber=""
+binarynumber=""
 
 alias pause='read -p "$LINENO Enter"'
 echo "current directory"
@@ -1870,6 +1871,8 @@ rm ${root}/excelwriterstats.py
 
 fi
 
+echo "done"
+echo "$octal_code $sbnumber $binarynumber"
 ##############################
 
 

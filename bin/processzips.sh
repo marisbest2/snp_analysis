@@ -426,6 +426,10 @@ binarynumber=`awk -v x=$octal_code 'x == $1 {print $3}' /bioinfo11/TStuber/Resul
 if [[ $mybinary != $binarynumber ]]; then
     binarynumber="ERROR: CROSS REFERENCE OUR SPOLIGO BINARY WITH MBOVIS.ORG"
 fi
+
+echo "$octal_code $sbnumber $mybinary"
+echo "$octal_code $sbnumber $mybinary" >> ../spoligo_summary.txt 
+
 }
 
 ###################
@@ -434,13 +438,6 @@ fi
 # RUN_SAMPLE
 ###################
 function run_sample() {
-
-#scope out
-octal_code=""
-sbnumber=""
-binarynumber=""
-
-alias pause='read -p "$LINENO Enter"'
 echo "current directory"
 pwd
 startingdir=`pwd`
@@ -709,9 +706,8 @@ elif [ $sample_type == TBBOV ]; then
 
     # Run spoligoSpacerFinder.sh
     echo "Starting spoligoSpacerFinder.sh"
-    spoligofinder &
+    spoligofinder & 
     echo "Moving forward from spoligoSpacerFinder.sh"
-
     ###################################################################
 
 # Lineage Bov-Afri, AF2122-updated_2017-01-25
@@ -1190,9 +1186,13 @@ cp $0 ./
 echo "***Sending files to the Network"
 cp -r ${startingdir} ${bioinfo}
 
+octal_code=`awk '{print $1}' ${startingdir}/spoligo_summary.txt`
+sbnumber=`awk '{print $2}' ${startingdir}/spoligo_summary.txt`
+binarynumber=`awk '{print $3}' ${startingdir}/spoligo_summary.txt`
+
 if [[ $aveCoveragenoX -lt 30 ]] || [[ $aveCoveragenoX -gt 300 ]]; then
-    echo "true"
-    sbnumber="${sbnumber}*"
+    echo "#######################true"
+    sbnumber="${sbnumber}_"
 fi
 
 printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\t%s\t%s\t%s\n" $sample_type $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoveragenoX $percGenomeCoverage $unmapped_contig_count $quality_snps $octal_code $sbnumber $binarynumber >> /scratch/report/pre_stat_table.txt
@@ -1553,7 +1553,6 @@ cd ..
 #read -p "$LINENO Enter"
 
 run_sample $sample_type 2>&1 | tee log_processZips_${sample_name}.txt
-
 }
 
 # END OF FUCTIONS
@@ -1739,6 +1738,8 @@ if [[ $email ]] || [[ -z $sample_type ]]; then
 
 currentdir=`pwd`
 
+
+
 printf "ref_type\tsample\tR1_zip\tR2_zip\ttotal_read_prs\tup_reads\t%%dup_reads\tave_read_length\tref\tave_cov_X\tper_cov\tunmapped_contigs\tquality_snps\toctal_code\tSB_number\tbinary\n" > /scratch/report/stat_table.txt
 printf "" > /scratch/report/pre_stat_table.txt
 printf "\n" >> /scratch/report/stat_table_cumulative.txt
@@ -1872,6 +1873,7 @@ rm ${root}/excelwriterstats.py
 fi
 
 echo "done"
+echo "AT END: octal_code $octal_code sbnumber $sbnumber mybinary $mybinary"
 echo "$octal_code $sbnumber $binarynumber"
 ##############################
 

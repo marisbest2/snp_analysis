@@ -53,6 +53,10 @@ exit 1
 }
 
 ###################
+#scope out
+octal_code=""
+sbnumber=""
+binarynumber=""
 
 function spoligofinder () {
 
@@ -1837,7 +1841,7 @@ sort -k1,2 /scratch/report/pre_stat_table.txt >> /scratch/report/stat_table.txt
 ${root}/excelwriterstats.py /scratch/report/stat_table.txt
 
 column -t /scratch/report/stat_table.txt > /scratch/report/stat_table.temp; mv /scratch/report/stat_table.temp /scratch/report/stat_table.txt
-enscript /scratch/report/stat_table.txt -B -j -r -f "Courier7" -o - | ps2pdf - /scratch/report/stat_table.pdf
+enscript /scratch/report/stat_table.txt -B -j -r -f "Courier6" -o - | ps2pdf - /scratch/report/stat_table.pdf
 
 if [[ $email -eq 1 ]]; then
 	email_list="tod.p.stuber@aphis.usda.gov Jessica.A.Hicks@aphis.usda.gov suelee.robbe-austerman@aphis.usda.gov patrick.m.camp@aphis.usda.gov David.T.Farrell@aphis.usda.gov Christine.R.Quance@aphis.usda.gov Robin.L.Swanson@aphis.usda.gov"

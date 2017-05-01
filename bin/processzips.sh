@@ -1749,7 +1749,7 @@ currentdir=`pwd`
 
 
 
-printf "ref_type\tsample\tR1_zip\tR2_zip\ttotal_read_prs\tup_reads\t%%dup_reads\tave_read_length\tref\tave_cov_X\tper_cov\tunmapped_contigs\tquality_snps\tmlst\toctal_code\tSB_number\tbinary\n" > /scratch/report/stat_table.txt
+printf "ref_type\tsample\tR1_zip\tR2_zip\ttotal_read_pairs\tunpaired_reads\tdupicate_reads\tave_read_length\tref\tave_cov_X\tper_cov\tunmapped_contigs\tquality_snps\tmlst\toctal_code\tSB_number\tbinary\n" > /scratch/report/stat_table.txt
 printf "" > /scratch/report/pre_stat_table.txt
 printf "\n" >> /scratch/report/stat_table_cumulative.txt
 date >> /scratch/report/stat_table_cumulative.txt
@@ -1852,7 +1852,7 @@ sort -k1,2 /scratch/report/pre_stat_table.txt >> /scratch/report/stat_table.txt
 ${root}/excelwriterstats.py /scratch/report/stat_table.txt
 
 column -t /scratch/report/stat_table.txt > /scratch/report/stat_table.temp; mv /scratch/report/stat_table.temp /scratch/report/stat_table.txt
-enscript /scratch/report/stat_table.txt -B -j -r -f "Courier6" -o - | ps2pdf - /scratch/report/stat_table.pdf
+enscript /scratch/report/stat_table.txt -B -j -r -f "Courier4" -o - | ps2pdf - /scratch/report/stat_table.pdf
 
 if [[ $email -eq 1 ]]; then
 	email_list="tod.p.stuber@aphis.usda.gov Jessica.A.Hicks@aphis.usda.gov suelee.robbe-austerman@aphis.usda.gov patrick.m.camp@aphis.usda.gov David.T.Farrell@aphis.usda.gov Christine.R.Quance@aphis.usda.gov Robin.L.Swanson@aphis.usda.gov"

@@ -1190,13 +1190,22 @@ octal_code=`awk '{print $1}' ${startingdir}/spoligo_summary.txt`
 sbnumber=`awk '{print $2}' ${startingdir}/spoligo_summary.txt`
 binarynumber=`awk '{print $3}' ${startingdir}/spoligo_summary.txt`
 
-if [[ $aveCoveragenoX -lt 30 ]] || [[ $aveCoveragenoX -gt 300 ]]; then
+a=`echo $aveCoveragenoX | sed 's/\..*//'`
+
+if [[ $a -lt 30 ]] || [[ $a -gt 300 ]]; then
     echo "#######################true"
     sbnumber="${sbnumber}_"
 fi
 
-printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\t%s\t%s\t%s\n" $sample_type $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoveragenoX $percGenomeCoverage $unmapped_contig_count $quality_snps $octal_code $sbnumber $binarynumber >> /scratch/report/pre_stat_table.txt
-printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\t%s\t%s\t%s\n" $sample_type $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoveragenoX $percGenomeCoverage $unmapped_contig_count $quality_snps $octal_code $sbnumber $binarynumber >> /scratch/report/stat_table_cumulative.txt
+mlst=`grep "MLST " alignment/*_mlst.txt | sed 's/.*\(MLST.*\)/\1/'`
+if [[ $a -lt 30 ]] || [[ $a -gt 300 ]]; then
+    echo "#######################true"
+    mlst="${mlst}_"
+fi
+
+
+printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\t%s\t%s\t%s\t%s\n" $sample_type $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoveragenoX $percGenomeCoverage $unmapped_contig_count $quality_snps $mlst $octal_code $sbnumber $binarynumber >> /scratch/report/pre_stat_table.txt
+printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\t%s\t%s\t%s\t%s\n" $sample_type $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoveragenoX $percGenomeCoverage $unmapped_contig_count $quality_snps $mlst $octal_code $sbnumber $binarynumber >> /scratch/report/stat_table_cumulative.txt
 
 #Make dailyStats.txt for each stats.txt made for each isolate.
 echo "" >> $email_summary_bottom
@@ -1740,7 +1749,7 @@ currentdir=`pwd`
 
 
 
-printf "ref_type\tsample\tR1_zip\tR2_zip\ttotal_read_prs\tup_reads\t%%dup_reads\tave_read_length\tref\tave_cov_X\tper_cov\tunmapped_contigs\tquality_snps\toctal_code\tSB_number\tbinary\n" > /scratch/report/stat_table.txt
+printf "ref_type\tsample\tR1_zip\tR2_zip\ttotal_read_prs\tup_reads\t%%dup_reads\tave_read_length\tref\tave_cov_X\tper_cov\tunmapped_contigs\tquality_snps\tmlst\toctal_code\tSB_number\tbinary\n" > /scratch/report/stat_table.txt
 printf "" > /scratch/report/pre_stat_table.txt
 printf "\n" >> /scratch/report/stat_table_cumulative.txt
 date >> /scratch/report/stat_table_cumulative.txt
@@ -1873,8 +1882,6 @@ rm ${root}/excelwriterstats.py
 fi
 
 echo "done"
-echo "AT END: octal_code $octal_code sbnumber $sbnumber mybinary $mybinary"
-echo "$octal_code $sbnumber $binarynumber"
 ##############################
 
 

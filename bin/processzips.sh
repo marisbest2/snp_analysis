@@ -1197,7 +1197,8 @@ if [[ $a -lt 30 ]] || [[ $a -gt 300 ]]; then
     sbnumber="${sbnumber}_"
 fi
 
-mlst=`grep "MLST " alignment/*_mlst.txt | sed 's/.*\(MLST.*\)/\1/'`
+pwd
+mlst=`grep "MLST " ./*_mlst.txt | sed 's/.*\(MLST.*\)/\1/' | sed 's/ /_/g'`
 if [[ $a -lt 30 ]] || [[ $a -gt 300 ]]; then
     echo "#######################true"
     mlst="${mlst}_"

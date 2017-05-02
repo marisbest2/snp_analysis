@@ -1194,14 +1194,14 @@ a=`echo $aveCoveragenoX | sed 's/\..*//'`
 
 if [[ $a -lt 30 ]] || [[ $a -gt 300 ]]; then
     echo "#######################true"
-    sbnumber="${sbnumber}*"
+    sbnumber="${sbnumber}-"
 fi
 
 pwd
 mlst=`grep "MLST " ./*_mlst.txt | sed 's/.*\(MLST.*\)/\1/' | sed 's/ /_/g'`
 if [[ $a -lt 30 ]] || [[ $a -gt 300 ]]; then
     echo "#######################true"
-    mlst="${mlst}*"
+    mlst="${mlst}-"
 fi
 
 

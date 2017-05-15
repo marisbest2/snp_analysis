@@ -1192,6 +1192,7 @@ binarynumber=`awk '{print $3}' ${startingdir}/spoligo_summary.txt`
 
 a=`echo $aveCoveragenoX | sed 's/\..*//'`
 
+# if coverage is below 30X or above 300X mark SB or MLST number
 if [[ $a -lt 30 ]] || [[ $a -gt 300 ]]; then
     echo "#######################true"
     sbnumber="${sbnumber}-"

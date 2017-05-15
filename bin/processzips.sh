@@ -1204,6 +1204,12 @@ if [[ $a -lt 30 ]] || [[ $a -gt 300 ]]; then
     mlst="${mlst}-"
 fi
 
+# if no MLST then default to NA to fill column
+if [ $mlst ]; then
+    echo "MLST value"
+else
+    mlst="NA"
+fi
 
 printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\t%s\t%s\t%s\t%s\n" $sample_type $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoveragenoX $percGenomeCoverage $unmapped_contig_count $quality_snps $mlst $octal_code $sbnumber $binarynumber >> /scratch/report/pre_stat_table.txt
 printf "%s\t%s\t%s\t%s\t%'d\t%'d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\t%s\t%s\t%s\t%s\n" $sample_type $n $read1_size $read2_size $total_reads_pairs $unpaired_reads $duplicate_reads $average_read_length $r $aveCoveragenoX $percGenomeCoverage $unmapped_contig_count $quality_snps $mlst $octal_code $sbnumber $binarynumber >> /scratch/report/stat_table_cumulative.txt

@@ -11,12 +11,12 @@ echo "**********************START**********************"
 echo "directory"
 pwd
 # Make fastq directory
-mkdir ./../fastq
-cp ./../zips/*.fastq.gz ./../fastq
-
-# change working directory to /fastq
-cd ./../fastq
-
+#mkdir ./../fastq
+#cp ./../zips/*.fastq.gz ./../fastq
+#
+## change working directory to /fastq
+#cd ./../fastq
+#
 echo "starting to unzip files"
 # Unzip files
 gunzip *.fastq.gz
@@ -52,6 +52,7 @@ echo "${patt[*]}" | tr " " "\n" >> searchpattern
 forward="TGATCCAGAGCCGGCGACCCTCTAT"
 reverse="ATAGAGGGTCGCCGGCTCTGGATCA"
 onemismatch
+echo "sp01"
 sp01=`cat $forReads $revReads | egrep -h -m 5 -c -f searchpattern`
 
 #Spacer02
@@ -82,6 +83,7 @@ sp05=`cat $forReads $revReads | egrep -h -m 5 -c -f searchpattern`
 forward="CGTCGTCATTTCCGGCTTCAATTTC"
 reverse="GAAATTGAAGCCGGAAATGACGACG"
 onemismatch
+echo "sp06"
 sp06=`cat $forReads $revReads | egrep -h -m 5 -c -f searchpattern`
 
 #Spacer07
@@ -178,6 +180,7 @@ sp21=`cat $forReads $revReads | egrep -h -m 5 -c -f searchpattern`
 forward="ACCGCAGACGGCACGATTGAGACAA"
 reverse="TTGTCTCAATCGTGCCGTCTGCGGT"
 onemismatch
+echo "sp22"
 sp22=`cat $forReads $revReads | egrep -h -m 5 -c -f searchpattern`
 
 #Spacer23

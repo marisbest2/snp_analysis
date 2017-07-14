@@ -1326,20 +1326,14 @@ class script1:
             
             print("\n@@@ Abyss")
             abyss_contig_count=0
-<<<<<<< HEAD
+
             os.system("ABYSS --out {} --coverage 3 --kmer 64 {} {}" .format(abyss_out, unmapped_read1, unmapped_read2))
-            with open(abyss_out) as f:
-                for line in f:
-                    abyss_contig_count += line.count(">")
-=======
-            os.system("ABYSS --out {} --kmer 64 {} {}" .format(abyss_out, unmapped_read1, unmapped_read2))
             try:
                 with open(abyss_out) as f:
                     for line in f:
                         abyss_contig_count += line.count(">")
             except FileNotFoundError:
                 abyss_contig_count = 0
->>>>>>> origin/master
 
             print("\n@@@ Sort BAM")
             os.system("samtools sort {} -o {}" .format(allbam, sortedbam))

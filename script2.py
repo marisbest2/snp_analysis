@@ -2093,13 +2093,13 @@ print ("<h2>Groupings</h2>", file=htmlfile)
 print ("<table>", file=htmlfile)
 print ("<tr align=\"left\"><th>Sample Name</th><tr>", file=htmlfile)
 
+group_calls_list = list(filter(None, group_calls_list))
 try:
     group_calls_list.sort(key=lambda x: x[0]) # sort list of list by first element
 except IndexError:
     print("Unable to sort grouping list")
     pass
 
-group_calls_list = list(filter(None, group_calls_list))
 for i in group_calls_list:
     print ("<tr>", file=htmlfile)
     for x in i:

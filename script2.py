@@ -97,7 +97,7 @@ print ("Start time: %s" % startTime)
 
 ### PARSE ARGUMENTS
 parser = OptionParser()
-parser.add_option('-s', '--species', action='store', dest='species', help='provide species/reference specific for VCFs, possible options: bovis, h37, ab1, ab3, suis1, suis3, suis4, mel1, mel2, mel3, canis, ceti1, ceti2, para', metavar='<REQUIRED options: bovis, h37, ab1, ab3, suis1, mel1, mel2, mel3, canis, ceti1, ceti2, para')
+parser.add_option('-s', '--species', action='store', dest='species', help='provide species/reference specific for VCFs, possible options: bovis, h37, ab1, ab3, suis1, suis3, suis4, mel1, mel2, mel3, canis, ceti1, ceti2, para', metavar='<REQUIRED options: bovis, h37, af, ab1, ab3, suis1, mel1, mel2, mel3, canis, ceti1, ceti2, para')
 parser.add_option('-a', '--all_vcf', action='store_true', dest='all_vcf', help='make tree using all VCFs')
 parser.add_option('-e', '--elite', action='store_true', dest='elite', help='create a tree with on elite sample representation')
 parser.add_option('-d', '--debug', action='store_true', dest='debug_call', help='debug, run loops withouth future')
@@ -122,7 +122,7 @@ elif options.email == "suelee":
 else:
     email_list = options.email
 
-if options.species == "bovis" or options.species == "h37" or options.species == "ab1" or options.species == "ab3" or options.species == "suis1" or options.species == "suis3" or options.species == "suis4" or options.species == "mel1" or options.species == "mel2" or options.species == "mel3" or options.species == "canis" or options.species == "ceti1" or options.species == "ceti2" or options.species == "para":
+if options.species == "bovis" or options.species == "h37" or options.species == "af" or options.species == "ab1" or options.species == "ab3" or options.species == "suis1" or options.species == "suis3" or options.species == "suis4" or options.species == "mel1" or options.species == "mel2" or options.species == "mel3" or options.species == "canis" or options.species == "ceti1" or options.species == "ceti2" or options.species == "para":
     print('options.species True %s' % options.species)
 else:
     print('options.species False %s' % options.species)

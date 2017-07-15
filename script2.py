@@ -2099,6 +2099,7 @@ except IndexError:
     print("Unable to sort grouping list")
     pass
 
+group_calls_list = list(filter(None, group_calls_list))
 for i in group_calls_list:
     print ("<tr>", file=htmlfile)
     for x in i:

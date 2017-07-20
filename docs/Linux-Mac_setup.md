@@ -28,11 +28,9 @@ On Mac OS X
     ~$ wget https://repo.continuum.io/archive/Anaconda3-4.3.1-MacOSX-x86_64.sh
     ~$ bash Anaconda3-4.3.1-MacOSX-x86_64.sh
 
-If `wget` is unavailable install Homebrew, the highly trusted package manager for macOS.
-Follow instructions at:
+If `wget` is unavailable Anaconda can be installed using the graphical installer for Python 3.
 
-    https://brew.sh
-
+    https://www.continuum.io/downloads
 
 On Linux
 

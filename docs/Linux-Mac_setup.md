@@ -69,7 +69,7 @@ After this is ran GATK just downloaded from the GATK website can be deleted.  Th
 ## Scripts and dependents
 Clone scripts: 
 
-    ~$ git clone https://github.com/stuber/snp_analysis.git
+    ~$ git clone git@github.com:USDA-VS/snp_analysis.git
     
 If git is unavailable, `~$ conda install git` will make it available.
 

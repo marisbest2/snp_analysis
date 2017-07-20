@@ -116,9 +116,17 @@ If an error occurs it may have to do with running multiple samples and downloadi
 
 ## Test script 2
 
-Test using VCF files bundled with dependencies, or better yet use the VCFs you just produced from script 1 above.  Use VCFs in `alignment` directory ending with *-zc.vcf.  Make working directory containing only those VCFs and call script.  In `test` directory:
+Test using VCF files test files, or better yet use the VCFs you just produced from script 1 above.  Use VCFs in `alignment` directory ending with *-zc.vcf.  Make working directory containing only those VCFs and call script.  In script 1 `test` directory just made, run:
 
     $ mkdir vcfs; find . -name "*zc.vcf" -exec cp {} vcfs \;; cd vcfs; ls
+    
+To use test files
+
+    $ cd ~
+    
+    ~$ git clone https://github.com/USDA-VS/vcf_test_files.git
+    
+    ~$ 
    
 If running bovis VCFs, run the following:
 

@@ -1967,9 +1967,6 @@ if os.path.isfile(genotypingcodes):
     print ("\nChanging the VCF names")
     names_not_changed = change_names() # check if genotypingcodes exist.  if not skip.
 
-all_starting_files = glob.glob('starting_files/*vcf')
-file_number = len(all_starting_files)
-
 files = glob.glob('*vcf')
 print ("REMOVING FROM ANALYSIS...")
 wb = xlrd.open_workbook(remove_from_analysis)
@@ -1994,6 +1991,9 @@ for i in files:
         print ("### %s is an empty file and has been deleted" % i)
         error_list.append("File was empty %s" % i)
         os.remove(i)
+
+all_starting_files = glob.glob('starting_files/*vcf')
+file_number = len(all_starting_files)
 
 print ("SORTING FILES...")
 defining_snps = {}

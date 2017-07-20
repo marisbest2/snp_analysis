@@ -73,11 +73,11 @@ Clone scripts:
     
 If git is unavailable, `~$ conda install git` will make it available.
 
-Put `VCFs_to_SNP_alignment` in your $PYTHONPATH, or easier run lines below to put script in your anaconda PATH.
+Put `snp_analysis` in your $PYTHONPATH, or easier run lines below to put script in your anaconda PATH.
 
-    ~$ ln -s ~/VCFs_to_SNP_alignment/loopwrapper.py ~/anaconda3/bin/
-    ~$ ln -s ~/VCFs_to_SNP_alignment/script1.py ~/anaconda3/bin/
-    ~$ ln -s ~/VCFs_to_SNP_alignment/script2.py ~/anaconda3/bin/
+    ~$ ln -s ~/snp_analysis/loopwrapper.py ~/anaconda3/bin/
+    ~$ ln -s ~/snp_analysis/script1.py ~/anaconda3/bin/
+    ~$ ln -s ~/snp_analysis/script2.py ~/anaconda3/bin/
 
 The script will look in your home directory for dependencies.  These will be installed automatically when script 1 or 2 are ran if they are not already available.  
 

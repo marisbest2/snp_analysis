@@ -57,8 +57,8 @@ Install specific version of Python modules.
 
     ~$ conda install python=3.5
     
-    ~$ conda install ete3 pyvcf biopython bwa samtools picard abyss gatk raxml xlrd xlsxwriter gitpython regex pandas=0.18.1
-    ~$ conda update ete3 pyvcf biopython bwa samtools picard abyss gatk raxml xlrd xlsxwriter gitpython
+    ~$ conda install pyvcf biopython bwa samtools picard abyss gatk raxml xlrd xlsxwriter gitpython regex pandas=0.18.1
+    ~$ conda update pyvcf biopython bwa samtools picard abyss gatk raxml xlrd xlsxwriter gitpython
 
 When gatk is downloaded using Anacoda it still needs to be registered.  GATK has a way to do this.  Go to GATK's website, download GATK package, unzip it, and run:
 

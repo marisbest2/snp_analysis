@@ -126,7 +126,7 @@ To use test files
     
     ~$ git clone https://github.com/USDA-VS/vcf_test_files.git
     
-    ~$ 
+    ~$ cd vcf_test_files/bovis
    
 If running bovis VCFs, run the following:
 

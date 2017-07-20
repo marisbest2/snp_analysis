@@ -53,7 +53,7 @@ Setup Bioconda channels.  Add them in the order shown below.  Order is important
     ~$ conda config --add channels r
     ~$ conda config --add channels bioconda
     
-As of Anaconda3-4.3.1 ete3 requires python version 3.6
+Install specific version of Python modules.
 
     ~$ conda install python=3.5
     

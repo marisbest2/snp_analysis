@@ -37,6 +37,7 @@ try:
     from xvfbwrapper import Xvfb
     xvfb_available = True
 except:
+    xvfb_available = False
     pass
 
 home = os.path.expanduser("~")

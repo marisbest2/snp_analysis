@@ -95,11 +95,11 @@ Test files can be downloaded at:
     ~$ git clone https://github.com/USDA-VS/fastq_data_set-tb_complex
     ~$ git clone https://github.com/USDA-VS/fastq_data_set-brucella
     
-Files have been cut to 200,000 reads, which will give around 20X coverage.  This file size is convenent for downloading and testing.  They should not be added to any currated database or used in diagnostic reporting.  The complete sequence files are available in SRA.
+Files have been cut to 200,000 reads, which will give around 20X coverage.  This file size is convenent for downloading and testing.  They should not be added to any currated database or used in reporting.  The complete sequence files are available in SRA.
 
 Test by making directory containing FASTQs the working directory.
 
-    ~$ cd ~/VCFs_to_SNP_alignment
+    ~$ cd ~/fastq_data_set-tb_complex
 
 To add in testing make a backup of the files
 

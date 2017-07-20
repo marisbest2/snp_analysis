@@ -69,7 +69,7 @@ After this is ran GATK just downloaded from the GATK website can be deleted.  Th
 ## Scripts and dependents
 Clone scripts: 
 
-    ~$ git clone https://github.com/stuber/VCFs_to_SNP_alignment.git
+    ~$ git clone https://github.com/stuber/snp_analysis.git
     
 If git is unavailable, `~$ conda install git` will make it available.
 

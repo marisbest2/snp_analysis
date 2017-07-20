@@ -13,7 +13,6 @@ import vcf
 import pandas as pd # pandas 0.18.1 tested, 0.19.2 does not work
 import numpy as np
 import xlsxwriter
-from xvfbwrapper import Xvfb
 from collections import Counter
 from datetime import datetime
 from optparse import OptionParser
@@ -34,6 +33,11 @@ try:
 except:
     ete3_available = False
     pass
+try:
+    from xvfbwrapper import Xvfb
+    xvfb_available = True
+except:
+    pass
 
 home = os.path.expanduser("~")
 
@@ -41,20 +45,21 @@ home = os.path.expanduser("~")
 #xvfb = subprocess.Popen(['Xvfb', ':99']) # allows not needing to use -X flag when ssh'ing into session.
 #Manage headless displays with Xvfb (X virtual framebuffer
 
-try:
-    vdisplay = Xvfb()
-    vdisplay.start()
-    vdisplay_status=True
-except RuntimeError:
-    print("##### Xvfb did not start")
-    print("##### PDFs and SVGs will not be made")
-    vdisplay_status=False
-    time.sleep(3) # pause to see files will not be made
-except OSError:
-    print("##### Xvfb did not start")
-    print("##### PDFs and SVGs will not be made")
-    vdisplay_status=False
-    time.sleep(3) # pause to see files will not be made
+if xvfb_available:
+    try:
+        vdisplay = Xvfb()
+        vdisplay.start()
+        vdisplay_status=True
+    except RuntimeError:
+        print("##### Xvfb did not start")
+        print("##### PDFs and SVGs will not be made")
+        vdisplay_status=False
+        time.sleep(3) # pause to see files will not be made
+    except OSError:
+        print("##### Xvfb did not start")
+        print("##### PDFs and SVGs will not be made")
+        vdisplay_status=False
+        time.sleep(3) # pause to see files will not be made
 
 root = str(os.getcwd())
 error_list = []

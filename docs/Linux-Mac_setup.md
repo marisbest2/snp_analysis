@@ -78,14 +78,6 @@ Put `snp_analysis` in your $PYTHONPATH, or easier run lines below to put script 
     ~$ ln -s ~/snp_analysis/loopwrapper.py ~/anaconda*/bin/
     ~$ ln -s ~/snp_analysis/script1.py ~/anaconda*/bin/
     ~$ ln -s ~/snp_analysis/script2.py ~/anaconda*/bin/
-
-The script will look in your home directory for dependencies.  These will be installed automatically when script 1 or 2 are ran if they are not already available.  
-
-    $ ~/dependencies
-
-If dependencies are not available they will be cloned from Github when script 1 and script 2 are ran.  Check this repo periodically, using `git pull`, or simply delete the `dependencies` directory in the home directory and rerun the script.  When the script does not find this directory it will download it anew with the latest updates.
-
-    https://github.com/stuber/dependencies.git
     
 
 ## Test script 1

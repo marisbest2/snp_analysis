@@ -21,14 +21,14 @@ Script 2 is written in Python and must be ran using Python 3.
 
 Anaconda is a highly trusted Python package distrubution platform.  If running Python 2 a new environment can be set without disrupting your current Python environment.  See note below for installing an additional Anaconda environment.  
 
-Install Anaconda if not already installed.  Tested using Anaconda3-4.3.1, or try the latest at: https://www.continuum.io/downloads
+Install Anaconda if not already installed.  Tested using Anaconda3-4.3.1.
 
 On Mac OS X
         
     ~$ wget https://repo.continuum.io/archive/Anaconda3-4.3.1-MacOSX-x86_64.sh
     ~$ bash Anaconda3-4.3.1-MacOSX-x86_64.sh
 
-If `wget` is unavailable Anaconda can be installed using the graphical installer for Python 3.
+If `wget` is unavailable Anaconda can be installed by using the graphical installer for Python 3.  See the Anaconda download page.
 
     https://www.continuum.io/downloads
 
@@ -37,7 +37,7 @@ On Linux
     ~$ wget https://repo.continuum.io/archive/Anaconda3-4.3.1-Linux-x86_64.sh        
     ~$ bash Anaconda3-4.3.1-Linux-x86_64.sh
     
-Use Anaconda's default installation except when asked if to, "prepend to PATH", choose yes.
+When installing from the command line use Anaconda's default installation except when asked if to, "prepend to PATH", choose yes.
     
 Once Anaconda is installed close and reopen terminal.
 
@@ -53,14 +53,14 @@ Setup Bioconda channels.  Add them in the order shown below.  Order is important
     ~$ conda config --add channels r
     ~$ conda config --add channels bioconda
     
-As of Anaconda3-4.3.1 ete3 requires python version < 3.6
+As of Anaconda3-4.3.1 ete3 requires python version 3.6
 
     ~$ conda install python=3.5
     
-    ~$ conda install ete3 pyvcf biopython bwa samtools picard abyss gatk raxml xlrd xlsxwriter gitpython regex pandas=0.18.1 scipy=0.17.1
+    ~$ conda install ete3 pyvcf biopython bwa samtools picard abyss gatk raxml xlrd xlsxwriter gitpython regex pandas=0.18.1
     ~$ conda update ete3 pyvcf biopython bwa samtools picard abyss gatk raxml xlrd xlsxwriter gitpython
 
-When gatk is downloaded using Anacoda it still needs to be registered.  GATK has a way to do this.  Go to GATK's website, register if not already, download GATK package, unzip it, and run:
+When gatk is downloaded using Anacoda it still needs to be registered.  GATK has a way to do this.  Go to GATK's website, download GATK package, unzip it, and run:
 
     ~$ gatk-register /path/to/Downloads/GenomeAnalysisTK-3.7/GenomeAnalysisTK.jar.  
     

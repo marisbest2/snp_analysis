@@ -28,7 +28,12 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email import encoders
-from ete3 import Tree, TreeStyle, NodeStyle, TextFace, faces, AttrFace
+try:
+    from ete3 import Tree, TreeStyle, NodeStyle, TextFace, faces, AttrFace
+    ete3_available = True
+except:
+    ete3_available = False
+    pass
 
 home = os.path.expanduser("~")
 
@@ -1433,7 +1438,7 @@ def get_snps(directory):
 
     # ete3 used to make svg and pdf from trees
     # Anaconda 4.0 is needed to install ete3.  Shown to work with Anaconda 4.1.6, but getcwd error occurs.  Cannot install with Anaconda 4.3
-    if vdisplay_status:
+    if vdisplay_status and ete3_available:
         rooted_tree_pdf = directory + ".pdf"
         rooted_tree_svg = directory + ".svg"
         rooted_tree_path = "RAxML_bestTree.raxml.tre"

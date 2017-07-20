@@ -101,15 +101,15 @@ Test by making directory containing FASTQs the working directory.
 
     ~$ cd ~/fastq_data_set-tb_complex
 
-To add in testing make a backup of the files
+To aid in testing make a backup of the files
 
     $ mkdir original test; cp *gz original; mv *gz test; cd test; ls
 
 Calling loopwrapper.py will batch FASTQs based on available computer resources.
 
-    ~$ loopwrapper.py
+    $ loopwrapper.py
 
-If an error occurs it have to do with running multiple samples and downloading dependencies.  If so dependencies have been downloaded but the script needs to be restarted.  Reset `test` directory and start again.
+If an error occurs it may have to do with running multiple samples and downloading dependencies.  Reset `test` directory and restart.
 
     $ rm -r ../test/*; cp ../original/* ./; ls
     $ loopwrapper.py

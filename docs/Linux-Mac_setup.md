@@ -66,25 +66,6 @@ When gatk is downloaded using Anacoda it still needs to be registered.  GATK has
     
 After this is ran GATK just downloaded from the GATK website can be deleted.  The download was only needed to register the Anaconda GATK package.
 
-Xvfb (short for X virtual framebuffer) is a display server implementing the X11 display server protocol and must be in your environment to generate PDF and SVG tree files.  If X11 is not in your environment, xvfbwrapper will install, but not work.  Xvfb is likely already install but beware.  Root privileges will be needed if it is not yet in your environment.  It's available on Mac OS X via XQuartz and Linux via your package manager.
-
-Note, Xvfb is finicky.  Using Xvfb is an unfortuante necessity.  Any feedback to improve the portablity generating PDF and SVG files will be appreciated.   On Mac OS X install using pip and on Linux use conda.  On Mac after following instructions below if error “Xvfb did not start”, then restart XQuartz application before running the script again.
-
-On Mac OS X
-
-Install XQuartz https://www.xquartz.org
-
-On Linux
-    
-    ~$ sudo apt-get install xvfb  # Debian (Ubuntu)   
-    ~$ sudo yum install xorg-x11-server-Xvfb  # CentOS
-    
-Install on Mac and Linux
-
-    ~$ conda install xvfbwrapper
-
-RAxML must be in your PATH as: raxmlHPC-SSE3, raxmlHPC-PTHREADS-AVX2, or raxml.  It seems raxmlHPC-SSE3 is the most system universal but if you have the correct computer architecture running raxmlHPC-PTHREADS-AVX2 is faster.  The script will first look for raxmlHPC-PTHREADS-AVX2.  If it is not found it will look for raxmlHPC-SSE3, then raxml.  If none are found in your PATH the script will fail.
-
 ## Scripts and dependents
 Clone scripts: 
 

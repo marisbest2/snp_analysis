@@ -12,13 +12,13 @@ permalink: /test_files/
 
 ## Script1
 
-Test files can be downloaded at:
+FASTQ test files can be downloaded at:
 
     ~$ git clone https://github.com/USDA-VS/fastq_data_set-tb_complex
     ~$ git clone https://github.com/USDA-VS/fastq_data_set-brucella
 
 ## Script2
 
-Test files can be downloaded at:
+VCF test files can be downloaded at:
 
     ~$ git clone https://github.com/USDA-VS/vcf_test_files.git

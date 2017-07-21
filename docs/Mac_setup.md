@@ -24,7 +24,7 @@ Anaconda is a highly trusted Python package distrubution platform.  If running P
 Install Anaconda if not already installed.  Tested using Anaconda3-4.3.1.
 
 On macOS
-        
+      
     ~$ wget https://repo.continuum.io/archive/Anaconda3-4.3.1-MacOSX-x86_64.sh
     ~$ bash Anaconda3-4.3.1-MacOSX-x86_64.sh
 
@@ -130,7 +130,8 @@ For list of options:
     
     $ script2.py -h
     
-To deactivate virtual environment, use:
+---
+If optional environment used:  To deactivate virtual environment, use:
     
-    > source deactivate anaconda400 # skip if new environment was not activated
+    > source deactivate <env name> # skip if new environment was not activated
     

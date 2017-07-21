@@ -124,7 +124,8 @@ For list of options:
     
     $ script2.py -h
     
-To deactivate virtual environment, use:
+---
+If optional environment used:  To deactivate virtual environment, use:
     
-    > source deactivate anaconda400 # skip if new environment was not activated
+    > source deactivate <env name> # skip if new environment was not activated
     

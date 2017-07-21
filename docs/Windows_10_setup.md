@@ -1,7 +1,7 @@
 ---
 layout: "default"
 title: Windows 10 setup
-weight: 3
+weight: 4
 permalink: /windows10_setup/
 ---
 

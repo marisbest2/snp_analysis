@@ -1,7 +1,7 @@
 ---
 layout: "default"
 title: Screenshots
-weight: 5
+weight: 6
 permalink: /screenshots/
 ---
 

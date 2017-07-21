@@ -5,7 +5,7 @@ weight : 2
 #permalink: /linux_setup/
 ---
 
-<h1><p style="text-align: center">Linux/Mac setup</p></h1>
+<h1><p style="text-align: center">Linux setup</p></h1>
 
 -----
 <br>

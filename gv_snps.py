@@ -3925,9 +3925,8 @@ class loop():
 parser = OptionParser()
 
 #script direction
-parser.add_option('-0', '--loop_step1', action='store_true', dest='loop', help='Loop files through step 1: Many FASTQ to VCF')
-parser.add_option('-1', '--step1', action='store_true', dest='step1', help='Step 1: FASTQ to VCF')
-parser.add_option('-2', '--step2', action='store_true', dest='step2', help='Step 2: VCF files to tables and trees')
+parser.add_option('-1', '--script1', action='store_true', dest='script1', help='Loop files through step 1: Many FASTQ to VCF')
+parser.add_option('-2', '--script2', action='store_true', dest='script2', help='Script 2: VCF files to tables and trees')
 
 #universal
 parser.add_option('-s', '--species', action='store', dest='species', help='--> -s option: USE TO FORCE SPECIES TYPE <--', metavar='<OPTIONAL options: bovis, h37, ab1, ab3, suis1, mel1, mel2, mel3, canis, ceti1, ceti2, para')
@@ -3961,9 +3960,15 @@ else:
     email_list = "tod.p.stuber@aphis.usda.gov"
 
 ################################################################################################################################################
-if options.loop:
+if options.script1:
     print("running loop")
     loop().run_loop()
+
+if options.script2:
+    print("running script 2")
+    run_script2()
+
+
 
 
 

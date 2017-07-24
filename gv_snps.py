@@ -3924,10 +3924,6 @@ class loop():
 
 parser = OptionParser()
 
-#script direction
-parser.add_option('-1', '--script1', action='store_true', dest='script1', help='Loop files through step 1: Many FASTQ to VCF')
-parser.add_option('-2', '--script2', action='store_true', dest='script2', help='Script 2: VCF files to tables and trees')
-
 #universal
 parser.add_option('-s', '--species', action='store', dest='species', help='--> -s option: USE TO FORCE SPECIES TYPE <--', metavar='<OPTIONAL options: bovis, h37, ab1, ab3, suis1, mel1, mel2, mel3, canis, ceti1, ceti2, para')
 parser.add_option('-d', '--debug', action='store_true', dest='debug_call', help='debug, run without loop')
@@ -3960,16 +3956,45 @@ else:
     email_list = "tod.p.stuber@aphis.usda.gov"
 
 ################################################################################################################################################
-if options.script1:
-    print("running loop")
-    loop().run_loop()
+all_file_types_count = len(glob.glob('*.*'))
+fastq_check = len(glob.glob('*fastq.gz'))
+vcf_check = len(glob.glob('*vcf'))
 
-if options.script2:
-    print("running script 2")
-    run_script2()
+if fastq_check > 0:
+    fastq_check = True
+if vcf_check > 0:
+    vcf_check = True
+if fastq_check and vcf_check:
+    print("\n#####You have a mix of FASTQ and VCF files.  This is not allowed\n\n")
+    sys.exit(0)
 
-
-
-
-
+if fastq_check:
+    R1 = glob.glob('*_R1*fastq.gz')
+    R2 = glob.glob('*_R2*fastq.gz')
+    R1count = len(R1)
+    R2count = len(R2)
+    fastq_count = R1count + R2count
+    if (fastq_count % 2 != 0):
+        print("\n#####Check paired files.  Unpaired files seen by odd number of counted FASTQs\n\n")
+        sys.exit(0)
+    if (R1count != R2count):
+        print("\n#####Check paired files.  R1 files do not equal R2\n\n")
+        sys.exit(0)
+    if (all_file_types_count != fastq_count):
+        print("\n#####Only zipped FASTQ files are allowed in directory\n\n")
+        sys.exit(0)
+    elif (fastq_count > 1):
+        print("running loop")
+        loop().run_loop()
+elif vcf_check:
+    vcfs_count = len(glob.glob('*vcf'))
+    if (all_file_types_count != vcfs_count):
+        print("\n#####You have more than just VCF files in your directory.  Only VCF files are allowed if running script 2\n\n")
+        sys.exit(0)
+    else:
+        print("running script 2")
+        run_script2()
+else:
+    print ("######There was an error determining the file type.")
+    sys.exit(0)
 

@@ -1415,14 +1415,6 @@ class script1():
                         write_out.close()
                     except AttributeError:
                         pass
-    #
-    #            with open(zero_coverage_vcf) as vfile:
-    #                print("finding annotations...\n")
-    #                with futures.ProcessPoolExecutor() as pool:
-    #                    for annotated_line in pool.map(partial(script1.get_annotations, in_annotation_as_dict = in_annotation_as_dict), vfile): #function, passed arguement, list
-    #                        print("%s" % annotated_line, file=write_out)
-    #            write_out.close()
-                ###
 
                 os.remove(samfile)
                 os.remove(allbam)
@@ -1634,9 +1626,6 @@ class script2():
 
         #print ("\n\nRAxML found in $PATH as: %s" % sys_raxml)
 
-        #set cpu usage
-        cpu_count = multiprocessing.cpu_count()
-        
         global raxml_cpu
 
         if cpu_count < 20:
@@ -2268,8 +2257,6 @@ class script2():
 
         print ("\nSET VARIABLES")
         print ("\tgenotypingcodes: %s " % genotypingcodes)
-
-        cpu_count = int(cpu_count/2.3)
 
         htmlfile_name = root_dir+ "/summary_log.html"
         htmlfile = open(htmlfile_name, 'at')
@@ -2985,7 +2972,6 @@ def get_snps(directory):
 
     files = glob.glob('*vcf')
     all_positions = {}
-    print("TESTTESTTESTTEST")
     if options.debug_call:
         for i in files:
             found_positions = find_positions(i)
@@ -3733,7 +3719,6 @@ class loop():
     
     def run_loop(self):
         home = os.path.expanduser("~")
-        cpu_count = multiprocessing.cpu_count()
 
         startTime = datetime.now()
         print ("\n\n*** START ***\n")
@@ -3744,8 +3729,6 @@ class loop():
         if (list_len % 2 != 0):
             print("\n#####Check paired files.  Unpaired files seen by odd number of counted FASTQs\n\n")
             sys.exit(0)
-
-        sample_restriction = int(cpu_count/3)
 
         for file in list_of_files:
             prefix_name=re.sub('_.*', '', file)
@@ -3904,6 +3887,11 @@ class loop():
 global root_dir
 root_dir = str(os.getcwd())
 
+global cpu_count
+global limited_cpu_count
+#set cpu usage
+cpu_count = multiprocessing.cpu_count()
+limited_cpu_count = int(cpu_count/3)
 
 parser = OptionParser()
 

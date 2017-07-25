@@ -1598,13 +1598,13 @@ class script2():
                 vdisplay.start()
                 vdisplay_status=True
             except RuntimeError:
-                print("##### Xvfb did not start")
-                print("##### PDFs and SVGs will not be made")
+                print("Xvfb did not start")
+                print("PDFs and SVGs will not be made\n")
                 vdisplay_status=False
                 time.sleep(3) # pause to see files will not be made
             except OSError:
-                print("##### Xvfb did not start")
-                print("##### PDFs and SVGs will not be made")
+                print("Xvfb did not start")
+                print("PDFs and SVGs will not be made\n")
                 vdisplay_status=False
                 time.sleep(3) # pause to see files will not be made
 
@@ -1612,9 +1612,9 @@ class script2():
         global sys_raxml
         
         try:
-            subprocess.call("raxml")
+            subprocess.call("raxml", stdout=open(os.devnull, 'wb'))
             sys_raxml = "raxml"
-            print ("%s found" % sys_raxml)
+            #print ("%s found" % sys_raxml)
         except OSError:
             print ("looking for RAxML")
             try:
@@ -1632,7 +1632,7 @@ class script2():
                     print ("#####See help page for support")
                     sys.exit(0)
 
-        print ("\n\nRAxML found in $PATH as: %s" % sys_raxml)
+        #print ("\n\nRAxML found in $PATH as: %s" % sys_raxml)
 
         #set cpu usage
         cpu_count = multiprocessing.cpu_count()
@@ -2985,7 +2985,7 @@ def get_snps(directory):
 
     files = glob.glob('*vcf')
     all_positions = {}
-
+    print("TESTTESTTESTTEST")
     if options.debug_call:
         for i in files:
             found_positions = find_positions(i)
@@ -3922,8 +3922,9 @@ parser.add_option('-u', '--upload', action='store_true', dest='upload', help='[*
 parser.add_option('-f', '--filter', action='store_true', dest='filter', help='Find possible positions to filter')
 
 (options, args) = parser.parse_args()
-print ("SET OPTIONS: ")
+print ("\nSET OPTIONS: ")
 print (options)
+print("")
 
 if options.email == "all":
     email_list = "tod.p.stuber@aphis.usda.gov, Jessica.A.Hicks@aphis.usda.gov, Christine.R.Quance@aphis.usda.gov, Suelee.Robbe-Austerman@aphis.usda.gov, patrick.m.camp@aphis.usda.gov, David.T.Farrell@aphis.usda.gov, Robin.L.Swanson@aphis.usda.gov, hannah.m.tharp@aphis.usda.gov, Doris.M.Bravo@aphis.usda.gov"
@@ -3973,7 +3974,7 @@ if fastq_check:
             print("#####Incorrect use of options when running loop/script 1")
             sys.exit(0)
         else:
-            print("--> RUNNING LOOP/SCRIPT 1") #
+            print("\n--> RUNNING LOOP/SCRIPT 1\n") #
             loop().run_loop()
 elif vcf_check:
     vcfs_count = len(glob.glob('*vcf'))
@@ -3985,7 +3986,7 @@ elif vcf_check:
             print("#####Incorrect use of options when running script 2")
             sys.exit(0)
         else:
-            print("--> RUNNING SCRIPT 2") #
+            print("\n--> RUNNING SCRIPT 2\n") #
             script2().run_script2()
 else:
     print ("#####Error determining file type.")

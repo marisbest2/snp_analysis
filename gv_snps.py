@@ -1585,6 +1585,7 @@ class script2():
 
     def run_script2(self):
 
+
         home = os.path.expanduser("~")
 
         #os.environ["DISPLAY"]=":99"
@@ -1608,7 +1609,8 @@ class script2():
                 time.sleep(3) # pause to see files will not be made
 
         error_list = []
-
+        global sys_raxml
+        
         try:
             subprocess.call("raxml")
             sys_raxml = "raxml"
@@ -1634,6 +1636,8 @@ class script2():
 
         #set cpu usage
         cpu_count = multiprocessing.cpu_count()
+        
+        global raxml_cpu
 
         if cpu_count < 20:
             raxml_cpu = 2
@@ -2460,240 +2464,7 @@ class script2():
             return names_not_changed
 
         # Table to Excel file
-        def excelwriter(filename):
-            orginal_name=filename
-            filename = filename.replace(".txt",".xlsx")
-            wb = xlsxwriter.Workbook(filename)
-            ws = wb.add_worksheet("Sheet1")
-            with open(orginal_name,'r') as csvfile:
-                table = csv.reader(csvfile, delimiter='\t')
-                i = 0
-                for row in table:
-                    ws.write_row(i, 0, row)
-                    i += 1
-
-            col = len(row)
-            col = col + 1
-            #print (i, "x", col)
-
-            formatA = wb.add_format({'bg_color':'#58FA82'})
-            formatG = wb.add_format({'bg_color':'#F7FE2E'})
-            formatC = wb.add_format({'bg_color':'#0000FF'})
-            formatT = wb.add_format({'bg_color':'#FF0000'})
-            formatnormal = wb.add_format({'bg_color':'#FDFEFE'})
-            formatlowqual = wb.add_format({'font_color':'#C70039', 'bg_color':'#E2CFDD'})
-            formathighqual = wb.add_format({'font_color':'#000000', 'bg_color':'#FDFEFE'})
-            formatambigous = wb.add_format({'font_color':'#C70039', 'bg_color':'#E2CFDD'})
-            formatN = wb.add_format({'bg_color':'#E2CFDD'})
-
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
-                                  'criteria':'containing',
-                                  'value':60,
-                                  'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
-                                'criteria':'containing',
-                                'value':59,
-                                'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
-                                'criteria':'containing',
-                                'value':58,
-                                'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
-                                'criteria':'containing',
-                                'value':57,
-                                'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
-                                'criteria':'containing',
-                                'value':56,
-                                'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
-                                'criteria':'containing',
-                                'value':55,
-                                'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
-                                'criteria':'containing',
-                                'value':54,
-                                'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
-                                'criteria':'containing',
-                                'value':53,
-                                'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
-                                'criteria':'containing',
-                                'value':52,
-                                'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
-                                'criteria':'containing',
-                                'value':51,
-                                'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
-                                'criteria':'containing',
-                                'value':50,
-                                'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
-                                'criteria':'not containing',
-                                'value':100,
-                                'format':formatlowqual})
-
-            ws.conditional_format(2,1,i-3,col-1, {'type':'cell',
-                                'criteria':'==',
-                                'value':'B$2',
-                                'format':formatnormal})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
-                                'criteria':'containing',
-                                'value':'A',
-                                'format':formatA})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
-                                'criteria':'containing',
-                                'value':'G',
-                                'format':formatG})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
-                                'criteria':'containing',
-                                'value':'C',
-                                'format':formatC})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
-                                'criteria':'containing',
-                                'value':'T',
-                                'format':formatT})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
-                                'criteria':'containing',
-                                'value':'S',
-                                'format':formatambigous})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
-                                'criteria':'containing',
-                                'value':'Y',
-                                'format':formatambigous})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
-                                'criteria':'containing',
-                                'value':'R',
-                                'format':formatambigous})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
-                                'criteria':'containing',
-                                'value':'W',
-                                'format':formatambigous})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
-                                'criteria':'containing',
-                                'value':'K',
-                                'format':formatambigous})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
-                                'criteria':'containing',
-                                'value':'M',
-                                'format':formatambigous})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
-                                'criteria':'containing',
-                                'value':'N',
-                                'format':formatN})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
-                                'criteria':'containing',
-                                'value':'-',
-                                'format':formatN})
-
-            ws.set_column(0, 0, 30)
-            ws.set_column(1, col-1, 2)
-            ws.freeze_panes(2, 1)
-            format_rotation = wb.add_format({'rotation':'90'})
-            ws.set_row(0, 140, format_rotation)
-            formatannotation = wb.add_format({'font_color':'#0A028C', 'rotation':'-90', 'align':'top'})
-            #set last row
-            ws.set_row(i-1, 400, formatannotation)
-
-            wb.close()
-
-        def get_annotations(all_positions):
-            print ("Getting annotations")
-            dict_annotation = {}
-            in_annotation_as_dict = SeqIO.to_dict(SeqIO.parse(gbk_file, "genbank"))
-            for each_absolute_pos in all_positions:
-                pos_found = False
-                each_absolute_pos = each_absolute_pos.split("-")
-                chrom = each_absolute_pos[0]
-                chrom.rstrip()
-                #print ("chrom %s" % chrom)
-                pos = each_absolute_pos[1]
-                pos.rstrip()
-                pos = int(pos)
-                #print ("pos %s" % pos)
-                for each_key, each_value in in_annotation_as_dict.items():
-                    if chrom == each_key:
-                        for feature in each_value.features:
-                            if pos in feature and "CDS" in feature.type:
-                                myproduct = "none list"
-                                mylocus = "none list"
-                                mygene = "none list"
-                                for p in feature.qualifiers['product']:
-                                    myproduct = p
-                                for l in feature.qualifiers['locus_tag']:
-                                    mylocus = l
-                                if "gene" in feature.qualifiers:
-                                    gene = feature.qualifiers['gene']
-                                    for g in gene:
-                                        mygene = g
-                                myout = myproduct + ", gene: " + mygene + ", locus_tag: " + mylocus
-                                pos_found = True
-                if pos_found == False:
-                    myout = "No annotated product"
-                dict_annotation.update({chrom + "-" + str(pos):myout})
-                #print ("myout %s" % myout)
-            return (dict_annotation)
-
-        def sort_table(intable, ordered, out_org):
-            mytable = pd.read_csv(intable, sep='\t')
-            mytable=mytable.set_index('reference_pos')
-
-            # order list is from tree file
-            # gives order for samples to be listed in table to be phylogenetically correct
-            ordered_list = []
-            with open(ordered) as infile:
-                for i in infile:
-                    i = i.rstrip()
-                    ordered_list.append(i)
-            # sinces this is set as the mytable index do not include in ordering
-            ordered_list.remove('reference_pos')
-
-            # reorder table based on order of list
-            mytable = mytable.reindex(ordered_list)
-
-            # count number of SNPs in each column
-            snp_per_column = []
-            for column_header in mytable:
-                count = 0
-                column = mytable[column_header]
-                # for each element in the column
-                for element in column:
-                    if element != column[0]:
-                        count = count + 1
-                snp_per_column.append(count)
-                #print ("the count is: %s" % count)
-            row1 = pd.Series (snp_per_column, mytable.columns, name="snp_per_column")
-
-            # get the snp count per column
-            # for each column in the table
-            snp_from_top = []
-            for column_header in mytable:
-                count = 0
-                column = mytable[column_header]
-                # for each element in the column
-                # skip the first element
-                for element in column[1:]:
-                    if element == column[0]:
-                        count = count + 1
-                    else:
-                        break
-                snp_from_top.append(count)
-                #print ("the count is: %s" % count)
-            row2 = pd.Series (snp_from_top, mytable.columns, name="snp_from_top")
-
-            mytable = mytable.append([row1])
-            mytable = mytable.append([row2])
-
-            mytable = mytable.T
-            mytable = mytable.sort_values(['snp_from_top', 'snp_per_column'], ascending=[True, False])
-            mytable = mytable.T
-
-            # remove snp_per_column and snp_from_top rows
-            mytable = mytable[:-2]
-            mytable.to_csv(out_org, sep='\t')
-
+        
         def find_filter_dict(each_vcf):
             dict_qual = {}
             dict_map = {}
@@ -2714,7 +2485,8 @@ class script2():
             return dict_qual, dict_map
 
         test_duplicate() #***FUNCTION CALL
-
+        
+        global mygbk
         try:
             mygbk = True
             print ("\tgbk_file: %s " % gbk_file)
@@ -3352,6 +3124,43 @@ def get_snps(directory):
         write_out_positions.close()
         write_out_details.close()
 
+    def get_annotations(all_positions):
+            print ("Getting annotations")
+            dict_annotation = {}
+            in_annotation_as_dict = SeqIO.to_dict(SeqIO.parse(gbk_file, "genbank"))
+            for each_absolute_pos in all_positions:
+                pos_found = False
+                each_absolute_pos = each_absolute_pos.split("-")
+                chrom = each_absolute_pos[0]
+                chrom.rstrip()
+                #print ("chrom %s" % chrom)
+                pos = each_absolute_pos[1]
+                pos.rstrip()
+                pos = int(pos)
+                #print ("pos %s" % pos)
+                for each_key, each_value in in_annotation_as_dict.items():
+                    if chrom == each_key:
+                        for feature in each_value.features:
+                            if pos in feature and "CDS" in feature.type:
+                                myproduct = "none list"
+                                mylocus = "none list"
+                                mygene = "none list"
+                                for p in feature.qualifiers['product']:
+                                    myproduct = p
+                                for l in feature.qualifiers['locus_tag']:
+                                    mylocus = l
+                                if "gene" in feature.qualifiers:
+                                    gene = feature.qualifiers['gene']
+                                    for g in gene:
+                                        mygene = g
+                                myout = myproduct + ", gene: " + mygene + ", locus_tag: " + mylocus
+                                pos_found = True
+                if pos_found == False:
+                    myout = "No annotated product"
+                dict_annotation.update({chrom + "-" + str(pos):myout})
+                #print ("myout %s" % myout)
+            return (dict_annotation)
+
     if mygbk:
         dict_annotation = get_annotations(all_positions)
         write_out=open('annotations.txt', 'w+')
@@ -3524,6 +3333,64 @@ def get_snps(directory):
     rooted_tree = outdir + directory + "-rooted.tre"
     os.system("{} -s {} -n raxml -m GTRCATI -o root -p 12345 -T {} > /dev/null 2>&1" .format(sys_raxml, alignment_file, raxml_cpu))
 
+    def sort_table(intable, ordered, out_org):
+            mytable = pd.read_csv(intable, sep='\t')
+            mytable=mytable.set_index('reference_pos')
+
+            # order list is from tree file
+            # gives order for samples to be listed in table to be phylogenetically correct
+            ordered_list = []
+            with open(ordered) as infile:
+                for i in infile:
+                    i = i.rstrip()
+                    ordered_list.append(i)
+            # sinces this is set as the mytable index do not include in ordering
+            ordered_list.remove('reference_pos')
+
+            # reorder table based on order of list
+            mytable = mytable.reindex(ordered_list)
+
+            # count number of SNPs in each column
+            snp_per_column = []
+            for column_header in mytable:
+                count = 0
+                column = mytable[column_header]
+                # for each element in the column
+                for element in column:
+                    if element != column[0]:
+                        count = count + 1
+                snp_per_column.append(count)
+                #print ("the count is: %s" % count)
+            row1 = pd.Series (snp_per_column, mytable.columns, name="snp_per_column")
+
+            # get the snp count per column
+            # for each column in the table
+            snp_from_top = []
+            for column_header in mytable:
+                count = 0
+                column = mytable[column_header]
+                # for each element in the column
+                # skip the first element
+                for element in column[1:]:
+                    if element == column[0]:
+                        count = count + 1
+                    else:
+                        break
+                snp_from_top.append(count)
+                #print ("the count is: %s" % count)
+            row2 = pd.Series (snp_from_top, mytable.columns, name="snp_from_top")
+
+            mytable = mytable.append([row1])
+            mytable = mytable.append([row2])
+
+            mytable = mytable.T
+            mytable = mytable.sort_values(['snp_from_top', 'snp_per_column'], ascending=[True, False])
+            mytable = mytable.T
+
+            # remove snp_per_column and snp_from_top rows
+            mytable = mytable[:-2]
+            mytable.to_csv(out_org, sep='\t')
+
     try:
         ordered_list_from_tree = outdir + directory + "-cleanedAlignment.txt"
         write_out=open(ordered_list_from_tree, 'w+')
@@ -3647,7 +3514,146 @@ def get_snps(directory):
                 print ("no_annotation", end = '', file=f)
                 print ('\t' * column_count, file=f)
             f.close()
-        
+
+        def excelwriter(filename):
+            orginal_name=filename
+            filename = filename.replace(".txt",".xlsx")
+            wb = xlsxwriter.Workbook(filename)
+            ws = wb.add_worksheet("Sheet1")
+            with open(orginal_name,'r') as csvfile:
+                table = csv.reader(csvfile, delimiter='\t')
+                i = 0
+                for row in table:
+                    ws.write_row(i, 0, row)
+                    i += 1
+
+            col = len(row)
+            col = col + 1
+            #print (i, "x", col)
+
+            formatA = wb.add_format({'bg_color':'#58FA82'})
+            formatG = wb.add_format({'bg_color':'#F7FE2E'})
+            formatC = wb.add_format({'bg_color':'#0000FF'})
+            formatT = wb.add_format({'bg_color':'#FF0000'})
+            formatnormal = wb.add_format({'bg_color':'#FDFEFE'})
+            formatlowqual = wb.add_format({'font_color':'#C70039', 'bg_color':'#E2CFDD'})
+            formathighqual = wb.add_format({'font_color':'#000000', 'bg_color':'#FDFEFE'})
+            formatambigous = wb.add_format({'font_color':'#C70039', 'bg_color':'#E2CFDD'})
+            formatN = wb.add_format({'bg_color':'#E2CFDD'})
+
+            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+                                  'criteria':'containing',
+                                  'value':60,
+                                  'format':formathighqual})
+            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+                                'criteria':'containing',
+                                'value':59,
+                                'format':formathighqual})
+            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+                                'criteria':'containing',
+                                'value':58,
+                                'format':formathighqual})
+            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+                                'criteria':'containing',
+                                'value':57,
+                                'format':formathighqual})
+            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+                                'criteria':'containing',
+                                'value':56,
+                                'format':formathighqual})
+            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+                                'criteria':'containing',
+                                'value':55,
+                                'format':formathighqual})
+            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+                                'criteria':'containing',
+                                'value':54,
+                                'format':formathighqual})
+            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+                                'criteria':'containing',
+                                'value':53,
+                                'format':formathighqual})
+            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+                                'criteria':'containing',
+                                'value':52,
+                                'format':formathighqual})
+            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+                                'criteria':'containing',
+                                'value':51,
+                                'format':formathighqual})
+            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+                                'criteria':'containing',
+                                'value':50,
+                                'format':formathighqual})
+            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+                                'criteria':'not containing',
+                                'value':100,
+                                'format':formatlowqual})
+
+            ws.conditional_format(2,1,i-3,col-1, {'type':'cell',
+                                'criteria':'==',
+                                'value':'B$2',
+                                'format':formatnormal})
+            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                                'criteria':'containing',
+                                'value':'A',
+                                'format':formatA})
+            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                                'criteria':'containing',
+                                'value':'G',
+                                'format':formatG})
+            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                                'criteria':'containing',
+                                'value':'C',
+                                'format':formatC})
+            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                                'criteria':'containing',
+                                'value':'T',
+                                'format':formatT})
+            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                                'criteria':'containing',
+                                'value':'S',
+                                'format':formatambigous})
+            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                                'criteria':'containing',
+                                'value':'Y',
+                                'format':formatambigous})
+            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                                'criteria':'containing',
+                                'value':'R',
+                                'format':formatambigous})
+            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                                'criteria':'containing',
+                                'value':'W',
+                                'format':formatambigous})
+            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                                'criteria':'containing',
+                                'value':'K',
+                                'format':formatambigous})
+            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                                'criteria':'containing',
+                                'value':'M',
+                                'format':formatambigous})
+            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                                'criteria':'containing',
+                                'value':'N',
+                                'format':formatN})
+            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+                                'criteria':'containing',
+                                'value':'-',
+                                'format':formatN})
+
+            ws.set_column(0, 0, 30)
+            ws.set_column(1, col-1, 2)
+            ws.freeze_panes(2, 1)
+            format_rotation = wb.add_format({'rotation':'90'})
+            ws.set_row(0, 140, format_rotation)
+            formatannotation = wb.add_format({'font_color':'#0A028C', 'rotation':'-90', 'align':'top'})
+            #set last row
+            ws.set_row(i-1, 400, formatannotation)
+
+            wb.close()
+
         excelwriter(out_sort) #***FUNCTION CALL #sort
         excelwriter(out_org) #***FUNCTION CALL #org
 

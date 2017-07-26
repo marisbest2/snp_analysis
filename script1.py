@@ -1327,7 +1327,7 @@ class script1:
             print("\n@@@ Abyss")
             abyss_contig_count=0
 
-            os.system("ABYSS --out {} --coverage 3 --kmer 64 {} {}" .format(abyss_out, unmapped_read1, unmapped_read2))
+            os.system("ABYSS --out {} --coverage 5 --kmer 64 {} {}" .format(abyss_out, unmapped_read1, unmapped_read2))
             try:
                 with open(abyss_out) as f:
                     for line in f:

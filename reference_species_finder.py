@@ -4,3 +4,10 @@
 species_cross_reference = {}
 species_cross_reference["bovis"] = ["002945", "00879"]
 species_cross_reference["h37"] = ["000962", "002755", "009525", "018143"]
+
+header=">AF2122_NC002945"
+
+for k, vlist in species_cross_reference.items():
+    for l in vlist:
+        if l in header:
+            print(k)

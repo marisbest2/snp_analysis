@@ -2979,8 +2979,8 @@ def get_snps(directory):
     else:
         print("going in...")
         print(files)
-        print("cpu_count %s" % cpu_count)
-        with futures.ProcessPoolExecutor(max_workers=cpu_count) as pool:
+        print("limited_cpu_count %s" % limited_cpu_count)
+        with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool:
             for found_positions in pool.map(find_positions, files):
                 all_positions.update(found_positions)
 

@@ -18,8 +18,8 @@ import gzip
 import glob
 import git
 import csv
-from optparse import OptionParser
-from optparse import OptionParser
+#from optparse import OptionParser
+from argparse import ArgumentParser
 from numpy import mean
 from functools import partial
 from email.utils import formatdate
@@ -1775,7 +1775,7 @@ class script2():
         global filter_files
         global email_list
 
-        if options.species == "suis1":
+        if args.species == "suis1":
 
             qual_gatk_threshold = 300
             N_gatk_threshold = 350
@@ -1805,10 +1805,10 @@ class script2():
                 os.mkdir(filter_files)
             else:        os.mkdir(filter_files)
             get_filters(excelinfile, filter_files) #***FUNCTION CALL
-            if options.email == "s":
+            if args.email == "s":
                 email_list = "tod.p.stuber@aphis.usda.gov, jessica.a.hicks@aphis.usda.gov, christine.r.quance@aphis.usda.gov, suelee.robbe-austerman@aphis.usda.gov"
 
-        elif options.species == "suis3":
+        elif args.species == "suis3":
 
             qual_gatk_threshold = 300
             N_gatk_threshold = 350
@@ -1837,10 +1837,10 @@ class script2():
                 os.mkdir(filter_files)
             else:        os.mkdir(filter_files)
             get_filters(excelinfile, filter_files) #***FUNCTION CALL
-            if options.email == "s":
+            if args.email == "s":
                 email_list = "tod.p.stuber@aphis.usda.gov, jessica.a.hicks@aphis.usda.gov, christine.r.quance@aphis.usda.gov, suelee.robbe-austerman@aphis.usda.gov"
 
-        elif options.species == "suis4":
+        elif args.species == "suis4":
 
             qual_gatk_threshold = 300
             N_gatk_threshold = 350
@@ -1869,10 +1869,10 @@ class script2():
                 os.mkdir(filter_files)
             else:        os.mkdir(filter_files)
             get_filters(excelinfile, filter_files) #***FUNCTION CALL
-            if options.email == "s":
+            if args.email == "s":
                 email_list = "tod.p.stuber@aphis.usda.gov, jessica.a.hicks@aphis.usda.gov, christine.r.quance@aphis.usda.gov, suelee.robbe-austerman@aphis.usda.gov"
 
-        elif options.species == "ab1":
+        elif args.species == "ab1":
 
             qual_gatk_threshold = 300
             N_gatk_threshold = 350
@@ -1901,10 +1901,10 @@ class script2():
                 os.mkdir(filter_files)
             else:        os.mkdir(filter_files)
             get_filters(excelinfile, filter_files) #***FUNCTION CALL
-            if options.email == "s":
+            if args.email == "s":
                 email_list = "tod.p.stuber@aphis.usda.gov, jessica.a.hicks@aphis.usda.gov, christine.r.quance@aphis.usda.gov, suelee.robbe-austerman@aphis.usda.gov"
 
-        elif options.species == "ab3":
+        elif args.species == "ab3":
 
             qual_gatk_threshold = 300
             N_gatk_threshold = 350
@@ -1933,10 +1933,10 @@ class script2():
                 os.mkdir(filter_files)
             else:        os.mkdir(filter_files)
             get_filters(excelinfile, filter_files) #***FUNCTION CALL
-            if options.email == "s":
+            if args.email == "s":
                 email_list = "tod.p.stuber@aphis.usda.gov, jessica.a.hicks@aphis.usda.gov, christine.r.quance@aphis.usda.gov, suelee.robbe-austerman@aphis.usda.gov"
 
-        elif options.species == "mel1":
+        elif args.species == "mel1":
 
             qual_gatk_threshold = 300
             N_gatk_threshold = 350
@@ -1965,10 +1965,10 @@ class script2():
                 os.mkdir(filter_files)
             else:        os.mkdir(filter_files)
             get_filters(excelinfile, filter_files) #***FUNCTION CALL
-            if options.email == "s":
+            if args.email == "s":
                 email_list = "tod.p.stuber@aphis.usda.gov, jessica.a.hicks@aphis.usda.gov, christine.r.quance@aphis.usda.gov, suelee.robbe-austerman@aphis.usda.gov"
 
-        elif options.species == "mel2":
+        elif args.species == "mel2":
 
             qual_gatk_threshold = 300
             N_gatk_threshold = 350
@@ -1997,10 +1997,10 @@ class script2():
                 os.mkdir(filter_files)
             else:        os.mkdir(filter_files)
             get_filters(excelinfile, filter_files) #***FUNCTION CALL
-            if options.email == "s":
+            if args.email == "s":
                 email_list = "tod.p.stuber@aphis.usda.gov, jessica.a.hicks@aphis.usda.gov, christine.r.quance@aphis.usda.gov, suelee.robbe-austerman@aphis.usda.gov"
 
-        elif options.species == "mel3":
+        elif args.species == "mel3":
 
             qual_gatk_threshold = 300
             N_gatk_threshold = 350
@@ -2029,10 +2029,10 @@ class script2():
                 os.mkdir(filter_files)
             else:        os.mkdir(filter_files)
             get_filters(excelinfile, filter_files) #***FUNCTION CALL
-            if options.email == "s":
+            if args.email == "s":
                 email_list = "tod.p.stuber@aphis.usda.gov, jessica.a.hicks@aphis.usda.gov, christine.r.quance@aphis.usda.gov, suelee.robbe-austerman@aphis.usda.gov"
 
-        elif options.species == "canis":
+        elif args.species == "canis":
 
             qual_gatk_threshold = 300
             N_gatk_threshold = 350
@@ -2061,10 +2061,10 @@ class script2():
                 os.mkdir(filter_files)
             else:        os.mkdir(filter_files)
             get_filters(excelinfile, filter_files) #***FUNCTION CALL
-            if options.email == "s":
+            if args.email == "s":
                 email_list = "tod.p.stuber@aphis.usda.gov, jessica.a.hicks@aphis.usda.gov, christine.r.quance@aphis.usda.gov, suelee.robbe-austerman@aphis.usda.gov"
 
-        elif options.species == "ceti1":
+        elif args.species == "ceti1":
 
             qual_gatk_threshold = 300
             N_gatk_threshold = 350
@@ -2093,10 +2093,10 @@ class script2():
                 os.mkdir(filter_files)
             else:        os.mkdir(filter_files)
             get_filters(excelinfile, filter_files) #***FUNCTION CALL
-            if options.email == "s":
+            if args.email == "s":
                 email_list = "tod.p.stuber@aphis.usda.gov, jessica.a.hicks@aphis.usda.gov, christine.r.quance@aphis.usda.gov, suelee.robbe-austerman@aphis.usda.gov"
 
-        elif options.species == "ceti2":
+        elif args.species == "ceti2":
 
             qual_gatk_threshold = 300
             N_gatk_threshold = 350
@@ -2125,10 +2125,10 @@ class script2():
                 os.mkdir(filter_files)
             else:        os.mkdir(filter_files)
             get_filters(excelinfile, filter_files) #***FUNCTION CALL
-            if options.email == "s":
+            if args.email == "s":
                 email_list = "tod.p.stuber@aphis.usda.gov, jessica.a.hicks@aphis.usda.gov, christine.r.quance@aphis.usda.gov, suelee.robbe-austerman@aphis.usda.gov"
 
-        elif options.species == "bovis":
+        elif args.species == "bovis":
             
             qual_gatk_threshold = 150
             N_gatk_threshold = 200
@@ -2156,10 +2156,10 @@ class script2():
             else:
                 os.mkdir(filter_files)
             get_filters(excelinfile, filter_files) #***FUNCTION CALL
-            if not options.email:
+            if not args.email:
                 email_list = "tod.p.stuber@aphis.usda.gov, jessica.a.hicks@aphis.usda.gov, suelee.robbe-austerman@aphis.usda.gov"
 
-        elif options.species == "af":
+        elif args.species == "af":
             
             qual_gatk_threshold = 150
             N_gatk_threshold = 200
@@ -2187,10 +2187,10 @@ class script2():
             else:
                 os.mkdir(filter_files)
             get_filters(excelinfile, filter_files) #***FUNCTION CALL
-            if not options.email:
+            if not args.email:
                 email_list = "tod.p.stuber@aphis.usda.gov, jessica.a.hicks@aphis.usda.gov, suelee.robbe-austerman@aphis.usda.gov"
 
-        elif options.species == "h37":
+        elif args.species == "h37":
             
             qual_gatk_threshold = 150
             N_gatk_threshold = 200
@@ -2217,10 +2217,10 @@ class script2():
                 os.mkdir(filter_files)
             else:        os.mkdir(filter_files)
             get_filters(excelinfile, filter_files) #***FUNCTION CALL
-            if options.email == "s":
+            if args.email == "s":
                 email_list = "tod.p.stuber@aphis.usda.gov, jessica.a.hicks@aphis.usda.gov, suelee.robbe-austerman@aphis.usda.gov"
 
-        elif options.species == "para":
+        elif args.species == "para":
             
             qual_gatk_threshold = 150
             N_gatk_threshold = 200
@@ -2247,7 +2247,7 @@ class script2():
                 os.mkdir(filter_files)
             else:        os.mkdir(filter_files)
             get_filters(excelinfile, filter_files) #***FUNCTION CALL
-            if options.email == "s":
+            if args.email == "s":
                 email_list = "tod.p.stuber@aphis.usda.gov, jessica.a.hicks@aphis.usda.gov, suelee.robbe-austerman@aphis.usda.gov"
 
         else:
@@ -2410,7 +2410,7 @@ class script2():
                             names_not_changed.append(each_vcf)
             names_not_changed = set(names_not_changed) # remove duplicates
 
-            if options.elite:
+            if args.elite:
                 list_of_files = []
                 list_of_files = glob.glob('*vcf')
                 if not os.path.exists("temp_hold"):
@@ -2543,7 +2543,7 @@ class script2():
         group_calls_list = []
 
         print ("Grouping files...")
-        if options.debug_call:
+        if args.debug_call:
             for i in files:
                 dict_amb, group_calls, malformed = group_files(i)
                 all_list_amb.update(dict_amb)
@@ -2562,7 +2562,7 @@ class script2():
         directory_list.remove('starting_files')
 
         print ("Getting SNPs in each directory")
-        if options.debug_call:
+        if args.debug_call:
             for i in directory_list:
                 get_snps(i)
         else:
@@ -2575,14 +2575,14 @@ class script2():
         #############################################
         #MAKE HTML FILE:
         print ("<html>\n<head><style> table { font-family: arial, sans-serif; border-collapse: collapse; width: 40%; } td, th { border: 1px solid #dddddd; padding: 4px; text-align: left; font-size: 11px; } </style></head>\n<body style=\"font-size:12px;\">", file=htmlfile)
-        print ("<h2>Script ran using <u>%s</u> variables</h2>" % options.species.upper(), file=htmlfile)
+        print ("<h2>Script ran using <u>%s</u> variables</h2>" % args.species.upper(), file=htmlfile)
         print ("<h4>There are %s VCFs in this run</h4>" % file_number, file=htmlfile)
 
         #OPTIONS
-        print ("Additional options ran: email: %s, options.filter: %s, all_vcf: %s, elite: %s, debug: %s, uploaded: %s" % (options.email, options.filter, options.all_vcf, options.elite, options.debug_call, options.upload), file=htmlfile)
-        if options.all_vcf:
+        print ("Additional options ran: email: %s, args.filter: %s, all_vcf: %s, elite: %s, debug: %s, uploaded: %s" % (args.email, args.filter, args.all_vcf, args.elite, args.debug_call, args.upload), file=htmlfile)
+        if args.all_vcf:
             print ("\n<h4>All_VCFs is available</h4>", file=htmlfile)
-        elif options.elite:
+        elif args.elite:
             print ("\n<h4>Elite VCF comparison available</h4>", file=htmlfile)
 
         #TIME
@@ -2655,7 +2655,7 @@ class script2():
             msg = MIMEMultipart()
             msg['From'] = "tod.p.stuber@aphis.usda.gov"
             msg['To'] = email_list
-            msg['Subject'] = "Script 2 " + options.species
+            msg['Subject'] = "Script 2 " + args.species
             with open(htmlfile_name) as fp:
                 msg.attach(MIMEText(fp.read(), 'html'))
 
@@ -2674,15 +2674,15 @@ class script2():
             #smtp.sendmail("tod.p.stuber@aphis.usda.gov", email_list, msg.as_string())
             smtp.quit()
 
-        if options.email == "none":
+        if args.email == "none":
             print ("\n\temail not sent")
-        elif options.email:
+        elif args.email:
             send_email()
             print ("\n\temail sent to: %s" % email_list)
         else:
             print ("\n\temail not sent")
 
-        if options.upload:
+        if args.upload:
             print ("Uploading Samples...")
             def copytree(src, dst, symlinks=False, ignore=None): #required to ignore permissions
                 try:
@@ -2724,8 +2724,8 @@ def read_aligner(directory):
     R1 = glob.glob('*_R1*fastq.gz')
     R2 = glob.glob('*_R2*fastq.gz')
     print("R1 and R2: %s %s" % (R1, R2))
-    if options.species:
-        sample = script1(R1[0], R2[0], options.species) #force species
+    if args.species:
+        sample = script1(R1[0], R2[0], args.species) #force species
     else:
         sample = script1(R1[0], R2[0]) #no species give, will find best
     stat_summary = sample.align_reads()
@@ -2742,7 +2742,7 @@ def group_files(each_vcf):
     print("qual_gatk_threshold: %s " % qual_gatk_threshold)
     ###
     # Fix common VCF errors
-    if options.debug_call:
+    if args.debug_call:
         print ("FIXING FILE: " + each_vcf)
     temp_file = each_vcf + ".temp"
     write_out=open(temp_file, 'w') #r+ used for reading and writing to the same file
@@ -2846,7 +2846,7 @@ def group_files(each_vcf):
                 ### ADD AMBIGIOUS CALL TO LIST
                 group_calls.append("*" + directory + "-mix")
         # if -a or -e (non elites already deleted from the analysis) copy all vcfs to All_VCFs
-        if options.all_vcf or options.elite:
+        if args.all_vcf or args.elite:
             if not os.path.exists("All_VCFs"):
                 os.makedirs("All_VCFs")
             shutil.move(each_vcf, "All_VCFs")
@@ -2972,7 +2972,7 @@ def get_snps(directory):
 
     files = glob.glob('*vcf')
     all_positions = {}
-    if options.debug_call:
+    if args.debug_call:
         for i in files:
             found_positions = find_positions(i)
             all_positions.update(found_positions)
@@ -3006,7 +3006,7 @@ def get_snps(directory):
     print ("Positions after filtering %s\n" % format(len(all_positions), ",d"))
 
     # NEEDS TO BE FIXED
-    if options.filter:
+    if args.filter:
         #write to files
         positions_to_filter = "positions_to_filter.txt"
         positions_to_filter_details = "positions_to_filter_details.txt"
@@ -3019,7 +3019,7 @@ def get_snps(directory):
         from collections import defaultdict
         dd_qual = {}
         dd_map = {}
-        if options.debug_call:
+        if args.debug_call:
             for each_vcf in files:
                 print ("working on: %s" % each_vcf)
                 dict_qual, dict_map = find_filter_dict(each_vcf)
@@ -3789,7 +3789,7 @@ class loop():
             print(run_list)
 
             print("Iterating directories")
-            if options.debug_call: #run just one sample at a time to debug
+            if args.debug_call: #run just one sample at a time to debug
                 for d in run_list:
                     print("DEBUGGING, SAMPLES RAN INDIVIDUALLY")
                     stat_summary = read_aligner(d)
@@ -3812,7 +3812,7 @@ class loop():
                             worksheet.write(row, col, v) #stat summary to be attached in email and left in working directory
                             col += 1
                         stats_lock = False
-                        if not options.quiet and path_found:
+                        if not args.quiet and path_found:
                             try: #try to open cumulative stats file
                                 mytable=pd.read_excel(summary_cumulative_file)
                                 top=mytable[0:0]
@@ -3875,7 +3875,7 @@ class loop():
             #smtp.sendmail(send_from, send_to, msg.as_string())
             smtp.quit()
 
-        if options.email:
+        if args.email:
             send_email(email_list)
 
 
@@ -3893,40 +3893,36 @@ global limited_cpu_count
 cpu_count = multiprocessing.cpu_count()
 limited_cpu_count = int(cpu_count/3)
 
-#optparse is deprecated
-#need to switch to argparse
-#https://docs.python.org/2/library/argparse.html#module-argparse
-
-parser = OptionParser()
+parser = ArgumentParser()
 
 #universal
-parser.add_option('-s', '--species', action='store', dest='species', help='--> -s option: USE TO FORCE SPECIES TYPE <--', metavar='<OPTIONAL options: bovis, h37, ab1, ab3, suis1, mel1, mel2, mel3, canis, ceti1, ceti2, para')
-parser.add_option('-d', '--debug', action='store_true', dest='debug_call', help='debug, run without loop')
-parser.add_option('-m', '--email', action='store', dest='email', help='[**NVSL only**, specify own SMTP address for functionality] email recipients: all, s, tod, jess, suelee, chris, email_address')
+parser.add_argument('-s', '--species', type=str, action='store', dest='species', help='--> -s option: USE TO FORCE SPECIES TYPE <--', metavar='<OPTIONAL options: bovis, h37, ab1, ab3, suis1, mel1, mel2, mel3, canis, ceti1, ceti2, para')
+parser.add_argument('-d', '--debug', action='store_true', dest='debug_call', help='debug, run without loop')
+parser.add_argument('-m', '--email', action='store', dest='email', help='[**NVSL only**, specify own SMTP address for functionality] email recipients: all, s, tod, jess, suelee, chris, email_address')
 
 #script 1 specific
-parser.add_option('-q', '--quiet', action='store_true', dest='quiet', help='prevent stats going to cumlative collection')
+parser.add_argument('-q', '--quiet', action='store_true', dest='quiet', help='prevent stats going to cumlative collection')
 
 #script 2 specific
-parser.add_option('-a', '--all_vcf', action='store_true', dest='all_vcf', help='make tree using all VCFs')
-parser.add_option('-e', '--elite', action='store_true', dest='elite', help='create a tree with on elite sample representation')
-parser.add_option('-u', '--upload', action='store_true', dest='upload', help='[**NVSL only**, specify own storage for functionality] upload files to the bioinfo drive')
-parser.add_option('-f', '--filter', action='store_true', dest='filter', help='Find possible positions to filter')
+parser.add_argument('-a', '--all_vcf', action='store_true', dest='all_vcf', help='make tree using all VCFs')
+parser.add_argument('-e', '--elite', action='store_true', dest='elite', help='create a tree with on elite sample representation')
+parser.add_argument('-u', '--upload', action='store_true', dest='upload', help='[**NVSL only**, specify own storage for functionality] upload files to the bioinfo drive')
+parser.add_argument('-f', '--filter', action='store_true', dest='filter', help='Find possible positions to filter')
 
-(options, args) = parser.parse_args()
-print ("\nSET OPTIONS: ")
-print (options)
+args = parser.parse_args()
+print ("\nSET ARGUMENTS: ")
+print (args)
 print("")
 
-if options.email == "all":
+if args.email == "all":
     email_list = "tod.p.stuber@aphis.usda.gov, Jessica.A.Hicks@aphis.usda.gov, Christine.R.Quance@aphis.usda.gov, Suelee.Robbe-Austerman@aphis.usda.gov, patrick.m.camp@aphis.usda.gov, David.T.Farrell@aphis.usda.gov, Robin.L.Swanson@aphis.usda.gov, hannah.m.tharp@aphis.usda.gov, Doris.M.Bravo@aphis.usda.gov"
-elif options.email == "tod":
+elif args.email == "tod":
     email_list = "tod.p.stuber@aphis.usda.gov"
-elif options.email == "jess":
+elif args.email == "jess":
     email_list = "Jessica.A.Hicks@aphis.usda.gov"
-elif options.email == "suelee":
+elif args.email == "suelee":
     email_list = "tod.p.stuber@aphis.usda.gov, Jessica.A.Hicks@aphis.usda.gov, Suelee.Robbe-Austerman@aphis.usda.gov"
-elif options.email == "chris":
+elif args.email == "chris":
     email_list = "tod.p.stuber@aphis.usda.gov, Jessica.A.Hicks@aphis.usda.gov, Christine.R.Quance@aphis.usda.gov, Suelee.Robbe-Austerman@aphis.usda.gov"
 else:
     email_list = "tod.p.stuber@aphis.usda.gov"
@@ -3962,7 +3958,7 @@ if fastq_check:
         print("\n#####Only zipped FASTQ files are allowed in directory\n\n")
         sys.exit(0)
     elif (fastq_count > 1):
-        if options.all_vcf or options.elite or options.upload or options.filter:
+        if args.all_vcf or args.elite or args.upload or args.filter:
             print("#####Incorrect use of options when running loop/script 1")
             sys.exit(0)
         else:
@@ -3974,7 +3970,7 @@ elif vcf_check:
         print("\n#####You have more than just VCF files in your directory.  Only VCF files are allowed if running script 2\n\n")
         sys.exit(0)
     else:
-        if options.quiet:
+        if args.quiet:
             print("#####Incorrect use of options when running script 2")
             sys.exit(0)
         else:

@@ -3893,6 +3893,10 @@ global limited_cpu_count
 cpu_count = multiprocessing.cpu_count()
 limited_cpu_count = int(cpu_count/3)
 
+#optparse is deprecated
+#need to switch to argparse
+#https://docs.python.org/2/library/argparse.html#module-argparse
+
 parser = OptionParser()
 
 #universal

@@ -18,7 +18,6 @@ import gzip
 import glob
 import git
 import csv
-#from optparse import OptionParser
 from argparse import ArgumentParser
 from numpy import mean
 from functools import partial

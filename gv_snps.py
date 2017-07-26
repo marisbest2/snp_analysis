@@ -2911,7 +2911,6 @@ def group_files(each_vcf):
 
 # Group files, map pooled from script 2
 def find_positions(filename):
-    print("in function")
     found_positions = {}
     vcf_reader = vcf.Reader(open(filename, 'r'))
     try:
@@ -2977,9 +2976,6 @@ def get_snps(directory):
             found_positions = find_positions(i)
             all_positions.update(found_positions)
     else:
-        print("going in...")
-        print(files)
-        print("limited_cpu_count %s" % limited_cpu_count)
         with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool:
             for found_positions in pool.map(find_positions, files):
                 all_positions.update(found_positions)

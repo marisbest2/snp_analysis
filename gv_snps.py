@@ -1317,7 +1317,7 @@ class script1():
                 print("\n@@@ Abyss")
                 abyss_contig_count=0
 
-                os.system("ABYSS --out {} --coverage 3 --kmer 64 {} {}" .format(abyss_out, unmapped_read1, unmapped_read2))
+                os.system("ABYSS --out {} --coverage 5 --kmer 64 {} {}" .format(abyss_out, unmapped_read1, unmapped_read2))
                 try:
                     with open(abyss_out) as f:
                         for line in f:
@@ -2565,7 +2565,7 @@ class script2():
             for i in directory_list:
                 get_snps(i)
         else:
-            with futures.ProcessPoolExecutor(max_workers=cpu_count) as pool:
+            with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool:
                 pool.map(get_snps, directory_list)
 
         runtime = (datetime.now() - startTime)
@@ -3894,7 +3894,7 @@ limited_cpu_count = int(cpu_count/4)
 if limited_cpu_count == 0:
     limited_cpu_count = 1
 
-parser = ArgumentParser()
+parser = ArgumentParser(description='jeeves.py --> SNPs: get, group and verify')
 
 #universal
 parser.add_argument('-s', '--species', type=str, action='store', dest='species', help='--> -s option: USE TO FORCE SPECIES TYPE <--', metavar='<OPTIONAL options: bovis, h37, ab1, ab3, suis1, mel1, mel2, mel3, canis, ceti1, ceti2, para')

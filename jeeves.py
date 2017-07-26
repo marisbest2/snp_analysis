@@ -3897,7 +3897,7 @@ if limited_cpu_count == 0:
 parser = ArgumentParser(description='jeeves.py --> SNPs: get, group and verify')
 
 #universal
-parser.add_argument('-s', '--species', type=str, action='store', dest='species', help='--> -s option: USE TO FORCE SPECIES TYPE <--', metavar='<OPTIONAL options: bovis, h37, ab1, ab3, suis1, mel1, mel2, mel3, canis, ceti1, ceti2, para')
+parser.add_argument('-s', '--species', type=str, action='store', dest='species', help='Step 1, FASTQs --> VCF\n\tOPTIONAL:\n -s option: USE TO FORCE SPECIES TYPE\nStep 2  VCFs --> Tables\n\tREQUIRED:\n -s option: SPECIES TYPE MUST MATCH REFERENCE TYPE', metavar='<options: bovis, h37, ab1, ab3, suis1, mel1, mel2, mel3, canis, ceti1, ceti2, para')
 parser.add_argument('-d', '--debug', action='store_true', dest='debug_call', help='debug, run without loop')
 parser.add_argument('-m', '--email', action='store', dest='email', help='[**NVSL only**, specify own SMTP address for functionality] email recipients: all, s, tod, jess, suelee, chris, email_address')
 
@@ -3909,6 +3909,7 @@ parser.add_argument('-a', '--all_vcf', action='store_true', dest='all_vcf', help
 parser.add_argument('-e', '--elite', action='store_true', dest='elite', help='create a tree with on elite sample representation')
 parser.add_argument('-u', '--upload', action='store_true', dest='upload', help='[**NVSL only**, specify own storage for functionality] upload files to the bioinfo drive')
 parser.add_argument('-f', '--filter', action='store_true', dest='filter', help='Find possible positions to filter')
+parser.add_argument('--version', action='version', version='%(prog)s 0.0.1')
 
 args = parser.parse_args()
 print ("\nSET ARGUMENTS: ")

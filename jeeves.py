@@ -18,7 +18,8 @@ import gzip
 import glob
 import git
 import csv
-from argparse import ArgumentParser
+import argparse
+import textwrap
 from numpy import mean
 from functools import partial
 from email.utils import formatdate
@@ -3928,22 +3929,36 @@ limited_cpu_count = int(cpu_count/4)
 if limited_cpu_count == 0:
     limited_cpu_count = 1
 
-parser = ArgumentParser(description='jeeves.py --> SNPs: get, group and verify')
+parser = argparse.ArgumentParser(prog='PROG', formatter_class=argparse.RawDescriptionHelpFormatter, description=textwrap.dedent('''\
+
+---------------------------------------------------------
+jeeves --> get SNPs, group SNPs, verify SNPs
+
+jeeves is called on a working directory containing FASTQ or VCF files.
+
+See documentation at: https://usda-vs.github.io/snp_analysis/
+
+        Step 1: FASTQs --> VCF
+
+        Step 2: VCFs --> Tables & Trees
+
+-s <OPTIONAL SPECIES TYPES>: bovis, h37, ab1, ab3, suis1, mel1, mel2, mel3, canis, ceti1, ceti2, para
+
+'''), epilog='''---------------------------------------------------------''')
 
 #universal
-parser.add_argument('-s', '--species', type=str, action='store', dest='species', help='Step 1, FASTQs --> VCF\n\tOPTIONAL:\n -s option: USE TO FORCE SPECIES TYPE\nStep 2  VCFs --> Tables\n\tREQUIRED:\n -s option: SPECIES TYPE MUST MATCH REFERENCE TYPE', metavar='<options: bovis, h37, ab1, ab3, suis1, mel1, mel2, mel3, canis, ceti1, ceti2, para')
-parser.add_argument('-d', '--debug', action='store_true', dest='debug_call', help='debug, run without loop')
-parser.add_argument('-m', '--email', action='store', dest='email', help='[**NVSL only**, specify own SMTP address for functionality] email recipients: all, s, tod, jess, suelee, chris, email_address')
+parser.add_argument('-s', '--species', action='store', dest='species', help='OPTIONAL: USE TO FORCE SPECIES TYPE <see options above>')
 
-#script 1 specific
-parser.add_argument('-q', '--quiet', action='store_true', dest='quiet', help='prevent stats going to cumlative collection')
-
-#script 2 specific
+parser.add_argument('-d', '--debug', action='store_true', dest='debug_call', help='debug, run without loop.map for loops')
 parser.add_argument('-a', '--all_vcf', action='store_true', dest='all_vcf', help='make tree using all VCFs')
 parser.add_argument('-e', '--elite', action='store_true', dest='elite', help='create a tree with on elite sample representation')
-parser.add_argument('-u', '--upload', action='store_true', dest='upload', help='[**NVSL only**, specify own storage for functionality] upload files to the bioinfo drive')
 parser.add_argument('-f', '--filter', action='store_true', dest='filter', help='Find possible positions to filter')
-parser.add_argument('--version', action='version', version='%(prog)s 0.0.1')
+
+parser.add_argument('-q', '--quiet', action='store_true', dest='quiet', help='[**APHIS only**] prevent stats going to cumlative collection')
+parser.add_argument('-m', '--email', action='store', dest='email', help='[**APHIS only**, specify own SMTP address for functionality] email options: all, s, tod, jess, suelee, chris, email_address')
+parser.add_argument('-u', '--upload', action='store_true', dest='upload', help='[**APHIS only**, specify own storage for functionality] upload files to the bioinfo drive')
+
+parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.0.1')
 
 args = parser.parse_args()
 print ("\nSET ARGUMENTS: ")

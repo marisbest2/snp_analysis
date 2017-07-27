@@ -3906,6 +3906,7 @@ def get_species():
     single_vcf = glob.glob('*vcf')[0]
     vcf_reader = vcf.Reader(open(single_vcf, 'r'))
     count = 0
+    print("single_vcf %s" % single_vcf)
     for record in vcf_reader:
         while count < 1:
             count += 1

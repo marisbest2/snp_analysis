@@ -1634,6 +1634,7 @@ class script2():
         
         def update_directory(dependents_dir): # UPDATE DIRECTORIES
             home = os.path.expanduser("~")
+            print("dependents_dir %s\n" % dependents_dir)
             
             if os.path.isdir("/bioinfo11/TStuber/Results"): #check bioinfo from server
                 upload_to = "/bioinfo11/TStuber/Results"
@@ -3883,6 +3884,37 @@ class loop():
 ################################################################################################################################################
 ################################################################################################################################################
 ################################################################################################################################################
+def get_species():
+
+    #species = corresponding NCBI accession
+    species_cross_reference = {}
+    species_cross_reference["bovis"] = ["002945", "00879"]
+    species_cross_reference["h37"] = ["000962", "002755", "009525", "018143"]
+    species_cross_reference["ab1"] = ["006932", "006933"]
+    species_cross_reference["ab3"] = ["007682", "007683"]
+    species_cross_reference["canis"] = ["010103", "010104"]
+    species_cross_reference["ceti1"] = ["Bceti1Cudo"]
+    species_cross_reference["ceti2"] = ["022905", "022906"]
+    species_cross_reference["mel1"] = ["003317", "003318"]
+    species_cross_reference["mel2"] = ["012441", "012442"]
+    species_cross_reference["mel3"] = ["007760", "007761"]
+    species_cross_reference["ovis"] = ["009504", "009505"]
+    species_cross_reference["suis1"] = ["017250", "017251"]
+    species_cross_reference["suis3"] = ["007719", "007718"]
+    species_cross_reference["suis4"] = ["B-REF-BS4-40"]
+    
+    single_vcf = glob.glob('*vcf')[0]
+    vcf_reader = vcf.Reader(open(single_vcf, 'r'))
+    count = 0
+    for record in vcf_reader:
+        while count < 1:
+            count += 1
+    header = record.CHROM
+    for k, vlist in species_cross_reference.items():
+        for l in vlist:
+            if l in header:
+                return(k)
+
 global root_dir
 root_dir = str(os.getcwd())
 
@@ -3967,6 +3999,11 @@ if fastq_check:
             print("\n--> RUNNING LOOP/SCRIPT 1\n") #
             loop().run_loop()
 elif vcf_check:
+
+    if not args.species:
+        args.species = get_species()
+        print("args.species %s" % args.species)
+
     vcfs_count = len(glob.glob('*vcf'))
     if (all_file_types_count != vcfs_count):
         print("\n#####You have more than just VCF files in your directory.  Only VCF files are allowed if running script 2\n\n")
@@ -3976,8 +4013,13 @@ elif vcf_check:
             print("#####Incorrect use of options when running script 2")
             sys.exit(0)
         else:
-            print("\n--> RUNNING SCRIPT 2\n") #
-            script2().run_script2()
+            if args.species:
+                print("\n--> RUNNING SCRIPT 2\n") #
+                script2().run_script2()
+            else:
+                print("#####Based on VCF CHROM id (reference used to build VCF) a matching species cannot be found neither was there a -s option given")
+                sys.exit(0)
+
 else:
     print ("#####Error determining file type.")
     sys.exit(0)

@@ -1765,7 +1765,6 @@ class script2():
 ### SET PARAMETERS
         global qual_gatk_threshold
         global N_gatk_threshold
-        global bruc_private_codes
         global genotypingcodes
         global gbk_file
         global definingSNPs
@@ -2282,58 +2281,6 @@ class script2():
         ##################
         # FUNCTIONS
         ##################
-
-        def bruc_private_codes(upload_to):
-
-            if os.path.isfile("/Volumes/MB/Brucella/Brucella Logsheets/ALL_WGS.xlsx"):
-                private_location = "/Volumes/MB/Brucella/Brucella Logsheets/ALL_WGS.xlsx"
-                print("private_location:  %s" % private_location)
-                found = True
-
-            elif os.path.isfile("/fdrive/Brucella/Brucella Logsheets/ALL_WGS.xlsx"):
-                private_location = "/fdrive/Brucella/Brucella Logsheets/ALL_WGS.xlsx"
-                print("private_location:  %s" % private_location)
-                found = True
-
-            else:
-                print("Path to Brucella genotyping codes not found")
-
-            if found:
-                wb_out = xlsxwriter.Workbook(upload_to + "/brucella/genotyping_codes.xlsx")
-                ws_out = wb_out.add_worksheet()
-
-                wb_in = xlrd.open_workbook(private_location)
-
-                row = 0
-                col = 0
-
-                sheet_in = wb_in.sheet_by_index(1)
-                for row_data in sheet_in.col(32):
-                    row_data = row_data.value
-                    row_data = re.sub("/", "_", row_data)
-                    row_data = re.sub("\.", "_", row_data)
-                    row_data = re.sub("\*", "_", row_data)
-                    row_data = re.sub("\?", "_", row_data)
-                    row_data = re.sub("\(", "_", row_data)
-                    row_data = re.sub("\)", "_", row_data)
-                    row_data = re.sub("\[", "_", row_data)
-                    row_data = re.sub("\]", "_", row_data)
-                    row_data = re.sub(" ", "_", row_data)
-                    row_data = re.sub("{", "_", row_data)
-                    row_data = re.sub("}", "_", row_data)
-                    row_data = re.sub("\'", "_", row_data)
-                    row_data = re.sub("-_", "_", row_data)
-                    row_data = re.sub("_-", "_", row_data)
-                    row_data = re.sub("--", "_", row_data)
-                    row_data = re.sub("_$", "", row_data)
-                    row_data = re.sub("-$", "", row_data)
-                    row_data = re.sub("\'", "", row_data)
-                    row_data = str(row_data)
-
-                    ws_out.write(row, col, row_data)
-                    row += 1
-
-                wb_out.close()
 
         def zip(src, dst):
             print ("\nZipping files...\n")
@@ -2947,6 +2894,58 @@ def find_positions(filename):
     except TypeError:
         print ("TypeError error found")
     return found_positions
+
+        def bruc_private_codes(upload_to):
+
+            if os.path.isfile("/Volumes/MB/Brucella/Brucella Logsheets/ALL_WGS.xlsx"):
+                private_location = "/Volumes/MB/Brucella/Brucella Logsheets/ALL_WGS.xlsx"
+                print("private_location:  %s" % private_location)
+                found = True
+
+            elif os.path.isfile("/fdrive/Brucella/Brucella Logsheets/ALL_WGS.xlsx"):
+                private_location = "/fdrive/Brucella/Brucella Logsheets/ALL_WGS.xlsx"
+                print("private_location:  %s" % private_location)
+                found = True
+
+            else:
+                print("Path to Brucella genotyping codes not found")
+
+            if found:
+                wb_out = xlsxwriter.Workbook(upload_to + "/brucella/genotyping_codes.xlsx")
+                ws_out = wb_out.add_worksheet()
+
+                wb_in = xlrd.open_workbook(private_location)
+
+                row = 0
+                col = 0
+
+                sheet_in = wb_in.sheet_by_index(1)
+                for row_data in sheet_in.col(32):
+                    row_data = row_data.value
+                    row_data = re.sub("/", "_", row_data)
+                    row_data = re.sub("\.", "_", row_data)
+                    row_data = re.sub("\*", "_", row_data)
+                    row_data = re.sub("\?", "_", row_data)
+                    row_data = re.sub("\(", "_", row_data)
+                    row_data = re.sub("\)", "_", row_data)
+                    row_data = re.sub("\[", "_", row_data)
+                    row_data = re.sub("\]", "_", row_data)
+                    row_data = re.sub(" ", "_", row_data)
+                    row_data = re.sub("{", "_", row_data)
+                    row_data = re.sub("}", "_", row_data)
+                    row_data = re.sub("\'", "_", row_data)
+                    row_data = re.sub("-_", "_", row_data)
+                    row_data = re.sub("_-", "_", row_data)
+                    row_data = re.sub("--", "_", row_data)
+                    row_data = re.sub("_$", "", row_data)
+                    row_data = re.sub("-$", "", row_data)
+                    row_data = re.sub("\'", "", row_data)
+                    row_data = str(row_data)
+
+                    ws_out.write(row, col, row_data)
+                    row += 1
+
+                wb_out.close()
 
 def get_snps(directory):
     os.chdir(root_dir+ "/" + directory)

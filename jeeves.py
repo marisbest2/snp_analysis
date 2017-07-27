@@ -3902,19 +3902,21 @@ def get_species():
     species_cross_reference["suis1"] = ["017250", "017251"]
     species_cross_reference["suis3"] = ["007719", "007718"]
     species_cross_reference["suis4"] = ["B-REF-BS4-40"]
-    
-    single_vcf = glob.glob('*vcf')[0]
-    vcf_reader = vcf.Reader(open(single_vcf, 'r'))
-    count = 0
-    print("single_vcf %s" % single_vcf)
-    for record in vcf_reader:
-        while count < 1:
-            count += 1
-    header = record.CHROM
-    for k, vlist in species_cross_reference.items():
-        for l in vlist:
-            if l in header:
-                return(k)
+
+    vcf_list = glob.glob('*vcf')
+    for each_vcf in vcf_list:
+        print(each_vcf)
+        try:
+            vcf_reader = vcf.Reader(open(each_vcf, 'r'))
+            print("single_vcf %s" % each_vcf)
+            for record in vcf_reader:
+                header = record.CHROM
+                for k, vlist in species_cross_reference.items():
+                    for l in vlist:
+                        if l in header:
+                            return(k)
+        except ValueError:
+            pass
 
 global root_dir
 root_dir = str(os.getcwd())

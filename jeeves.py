@@ -3947,7 +3947,7 @@ See documentation at: https://usda-vs.github.io/snp_analysis/
 '''), epilog='''---------------------------------------------------------''')
 
 #universal
-parser.add_argument('-s', '--species', action='store', dest='species', help='OPTIONAL: USE TO FORCE SPECIES TYPE <see options above>')
+parser.add_argument('-s', '--species', action='store', dest='species', help='OPTIONAL: Used to FORCE species type <see options above>')
 
 parser.add_argument('-d', '--debug', action='store_true', dest='debug_call', help='debug, run without loop.map for loops')
 parser.add_argument('-a', '--all_vcf', action='store_true', dest='all_vcf', help='make tree using all VCFs')

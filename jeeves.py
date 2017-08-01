@@ -838,50 +838,6 @@ class script1():
             spoligo_dictionary["spacer42"] = ["ATGGTGGGACATGGACGAGCGCGAC", "GTCGCGCTCGTCCATGTCCCACCAT"]
             spoligo_dictionary["spacer43"] = ["CGCAGAATCGCACCGGGTGCGGGAG", "CTCCCGCACCCGGTGCGATTCTGCG"]
 
-    #        spoligo_dictionary["spacer01"] = ["TGATCCAGAGCCGGCGACCCTCTAT"]
-    #        spoligo_dictionary["spacer02"] = ["CAAAAGCTGTCGCCCAAGCATGAGG"]
-    #        spoligo_dictionary["spacer03"] = ["CCGTGCTTCCAGTGATCGCCTTCTA"]
-    #        spoligo_dictionary["spacer04"] = ["ACGTCATACGCCGACCAATCATCAG"]
-    #        spoligo_dictionary["spacer05"] = ["TTTTCTGACCACTTGTGCGGGATTA"]
-    #        spoligo_dictionary["spacer06"] = ["CGTCGTCATTTCCGGCTTCAATTTC"]
-    #        spoligo_dictionary["spacer07"] = ["GAGGAGAGCGAGTACTCGGGGCTGC"]
-    #        spoligo_dictionary["spacer08"] = ["CGTGAAACCGCCCCCAGCCTCGCCG"]
-    #        spoligo_dictionary["spacer09"] = ["ACTCGGAATCCCATGTGCTGACAGC"]
-    #        spoligo_dictionary["spacer10"] = ["TCGACACCCGCTCTAGTTGACTTCC"]
-    #        spoligo_dictionary["spacer11"] = ["GTGAGCAACGGCGGCGGCAACCTGG"]
-    #        spoligo_dictionary["spacer12"] = ["ATATCTGCTGCCCGCCCGGGGAGAT"]
-    #        spoligo_dictionary["spacer13"] = ["GACCATCATTGCCATTCCCTCTCCC"]
-    #        spoligo_dictionary["spacer14"] = ["GGTGTGATGCGGATGGTCGGCTCGG"]
-    #        spoligo_dictionary["spacer15"] = ["CTTGAATAACGCGCAGTGAATTTCG"]
-    #        spoligo_dictionary["spacer16"] = ["CGAGTTCCCGTCAGCGTCGTAAATC"]
-    #        spoligo_dictionary["spacer17"] = ["GCGCCGGCCCGCGCGGATGACTCCG"]
-    #        spoligo_dictionary["spacer18"] = ["CATGGACCCGGGCGAGCTGCAGATG"]
-    #        spoligo_dictionary["spacer19"] = ["TAACTGGCTTGGCGCTGATCCTGGT"]
-    #        spoligo_dictionary["spacer20"] = ["TTGACCTCGCCAGGAGAGAAGATCA"]
-    #        spoligo_dictionary["spacer21"] = ["TCGATGTCGATGTCCCAATCGTCGA"]
-    #        spoligo_dictionary["spacer22"] = ["ACCGCAGACGGCACGATTGAGACAA"]
-    #        spoligo_dictionary["spacer23"] = ["AGCATCGCTGATGCGGTCCAGCTCG"]
-    #        spoligo_dictionary["spacer24"] = ["CCGCCTGCTGGGTGAGACGTGCTCG"]
-    #        spoligo_dictionary["spacer25"] = ["GATCAGCGACCACCGCACCCTGTCA"]
-    #        spoligo_dictionary["spacer26"] = ["CTTCAGCACCACCATCATCCGGCGC"]
-    #        spoligo_dictionary["spacer27"] = ["GGATTCGTGATCTCTTCCCGCGGAT"]
-    #        spoligo_dictionary["spacer28"] = ["TGCCCCGGCGTTTAGCGATCACAAC"]
-    #        spoligo_dictionary["spacer29"] = ["AAATACAGGCTCCACGACACGACCA"]
-    #        spoligo_dictionary["spacer30"] = ["GGTTGCCCCGCGCCCTTTTCCAGCC"]
-    #        spoligo_dictionary["spacer31"] = ["TCAGACAGGTTCGCGTCGATCAAGT"]
-    #        spoligo_dictionary["spacer32"] = ["GACCAAATAGGTATCGGCGTGTTCA"]
-    #        spoligo_dictionary["spacer33"] = ["GACATGACGGCGGTGCCGCACTTGA"]
-    #        spoligo_dictionary["spacer34"] = ["AAGTCACCTCGCCCACACCGTCGAA"]
-    #        spoligo_dictionary["spacer35"] = ["TCCGTACGCTCGAAACGCTTCCAAC"]
-    #        spoligo_dictionary["spacer36"] = ["CGAAATCCAGCACCACATCCGCAGC"]
-    #        spoligo_dictionary["spacer37"] = ["CGCGAACTCGTCCACAGTCCCCCTT"]
-    #        spoligo_dictionary["spacer38"] = ["CGTGGATGGCGGATGCGTTGTGCGC"]
-    #        spoligo_dictionary["spacer39"] = ["GACGATGGCCAGTAAATCGGCGTGG"]
-    #        spoligo_dictionary["spacer40"] = ["CGCCATCTGTGCCTCATACAGGTCC"]
-    #        spoligo_dictionary["spacer41"] = ["GGAGCTTTCCGGCTTCTATCAGGTA"]
-    #        spoligo_dictionary["spacer42"] = ["ATGGTGGGACATGGACGAGCGCGAC"]
-    #        spoligo_dictionary["spacer43"] = ["CGCAGAATCGCACCGGGTGCGGGAG"]
-
             count_summary={}
 
             with futures.ProcessPoolExecutor() as pool: #max_workers=4
@@ -891,16 +847,6 @@ class script1():
                             count_summary.update({k:count})
                             count_summary=OrderedDict(sorted(count_summary.items()))
 
-    #        for v in spoligo_dictionary.values():
-    #            v, count = script1.finding_sp(v)
-    #            print(v)
-    #            print(total)
-    #            for k, value in spoligo_dictionary.items():
-    #                if v == value:
-    #                    count_summary.update({k:count})
-    #                    count_summary=OrderedDict(sorted(count_summary.items()))
-
-            #Binary dictionary
             spoligo_binary_dictionary={}
             for k, v in count_summary.items():
                 if v > 4:

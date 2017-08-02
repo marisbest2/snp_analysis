@@ -29,10 +29,9 @@ The Samtools Anaconda install is unable to access libraries.  Fix: uninstall con
 restart terminal
 
 `~$ which samtools`
+
 `~$ samtools`
 
 The above should now print samtools list of commands.
-
-### Step 2
 
 -----

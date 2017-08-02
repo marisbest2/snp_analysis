@@ -39,7 +39,7 @@ Once Anaconda is installed close and reopen terminal.
 ---
 
 <strong>Optional:</strong>
-If you are currently using Python 2, and wish to keep it as your default, a virtual environment can be built.  `jeeves.py` can run in this virtual environment.  Skip this step, however, if you are not concerned with the version of Python you are running.
+If you are currently using Python 2, and wish to keep it as your default, a virtual environment can be built.  `jeeves.py` can run in this virtual environment.  Skip this step, however, if you are not concerned with the Python version you are running.
 
 To setup virtual environment:
 

@@ -485,6 +485,22 @@ class script1():
                 option_list=[dependents_dir, reference, hqs, gbk_file, email_list, upload_to, remote, script_dependents, spoligo_db]
                 return option_list, found
 
+            if give_option == "suis3":
+                found=True
+                #Remove network path at and left of "Results"
+                dependents_dir="/brucella/suis3/script_dependents/script1"
+                upload_to, remote, script_dependents = script1.update_directory(dependents_dir) #***FUNCTION CALL
+                
+                spoligo_db = script_dependents + "/nospoligo.txt"
+                reference = script_dependents + "/NZ_CP007719-NZ_CP007718.fasta"
+                print("Reference being used: %s" % reference)
+                hqs = script_dependents + "/highqualitysnps.vcf"
+                gbk_file = None #script_dependents + "/no.gff"
+                email_list = "tod.p.stuber@aphis.usda.gov"
+                
+                option_list=[dependents_dir, reference, hqs, gbk_file, email_list, upload_to, remote, script_dependents, spoligo_db]
+                return option_list, found
+
             if give_option == "suis4":
                 found=True
                 #Remove network path at and left of "Results"

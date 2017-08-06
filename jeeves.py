@@ -1572,21 +1572,26 @@ class script2():
         except OSError:
             print ("looking for RAxML")
             try:
-                subprocess.call("raxmlHPC-SSE3")
-                sys_raxml = "raxmlHPC-SSE3"
+                subprocess.call("raxmlHPC-PTHREADS")
+                sys_raxml = "raxmlHPC-PTHREAD"
                 print ("%s found" % sys_raxml)
             except OSError:
-                print ("looking for RAxML")
                 try:
-                    subprocess.call("raxmlHPC-PTHREADS-AVX2")
-                    sys_raxml = "raxmlHPC-PTHREADS-AVX2"
-                    print ("RAxML found")
+                    subprocess.call("raxmlHPC-SSE3")
+                    sys_raxml = "raxmlHPC-SSE3"
+                    print ("%s found" % sys_raxml)
                 except OSError:
-                    print ("#####RAxML is not in you PATH")
-                    print ("#####See help page for support")
-                    sys.exit(0)
+                    print ("looking for RAxML")
+                    try:
+                        subprocess.call("raxmlHPC-PTHREADS-AVX2")
+                        sys_raxml = "raxmlHPC-PTHREADS-AVX2"
+                        print ("RAxML found")
+                    except OSError:
+                        print ("#####RAxML is not in you PATH")
+                        print ("#####See help page for support")
+                        sys.exit(0)
 
-        #print ("\n\nRAxML found in $PATH as: %s" % sys_raxml)
+        print ("\n\n----> RAxML found in $PATH as: %s <-----" % sys_raxml)
 
         global raxml_cpu
 

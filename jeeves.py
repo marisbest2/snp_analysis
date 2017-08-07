@@ -1573,7 +1573,7 @@ class script2():
             print ("looking for RAxML")
             try:
                 subprocess.call("raxmlHPC-PTHREADS")
-                sys_raxml = "raxmlHPC-PTHREAD"
+                sys_raxml = "raxmlHPC-PTHREADS"
                 print ("%s found" % sys_raxml)
             except OSError:
                 try:

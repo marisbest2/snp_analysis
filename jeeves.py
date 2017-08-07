@@ -856,7 +856,7 @@ class script1():
 
             count_summary={}
 
-            with futures.ProcessPoolExecutor() as pool: #max_workers=4
+            with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool: #max_workers=4
                 for v, count in pool.map(script1.finding_sp, spoligo_dictionary.values()):
                     for k, value in spoligo_dictionary.items():
                         if v == value:
@@ -1011,7 +1011,7 @@ class script1():
 
             count_summary={}
 
-            with futures.ProcessPoolExecutor() as pool: #max_workers=4
+            with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool: 
                 for v, count in pool.map(script1.finding_best_ref, oligo_dictionary.values()):
                     for k, value in oligo_dictionary.items():
                         if v == value:
@@ -3029,7 +3029,7 @@ def get_snps(directory):
                 no = []
                 dd_map = dict((k, dd_map.get(k, no) + dict_map.get(k, no)) for k in keys)
         else:
-            with futures.ProcessPoolExecutor() as pool:
+            with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool:
                 for dict_qual, dict_map in pool.map(find_filter_dict, files):
                     keys = set(dd_qual).union(dict_qual)
                     no = []
@@ -3776,11 +3776,10 @@ class loop():
                 directory_list.append(f)
 
         total_samples = len(directory_list)
-        sample_restriction = int(cpu_count/4)
         lower_count = 0
         upper_count = 1
         while lower_count < total_samples:
-            upper_count = lower_count + sample_restriction
+            upper_count = lower_count + limited_cpu_count
             run_list = directory_list[lower_count:upper_count] #create a run list
             for i in run_list:
                 directory_list.remove(i)
@@ -3800,7 +3799,7 @@ class loop():
                     os.chdir(root_dir)
             else: # run all in run_list in parallel
                 print("SAMPLES RAN IN PARALLEL")
-                with futures.ProcessPoolExecutor(max_workers=sample_restriction) as pool: #max_workers=cpu_count
+                with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool: #max_workers=cpu_count
                     for stat_summary in pool.map(read_aligner, run_list): #run in parallel run_list in read_aligner (script1)
                         print("statsummary")
                         print(stat_summary) #stat_summary returned from script 1

@@ -10,10 +10,6 @@ permalink: /faq/
 -----
 <br>
 
-## Step 1
-
------
-
 ## GATK fails
 
 Did `gatk-register` run successfully?  See setup instructions.  After running command a message similar to "jar file specified matches expected version" should be output.

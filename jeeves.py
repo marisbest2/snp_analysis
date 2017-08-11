@@ -3389,7 +3389,7 @@ def get_snps(directory):
                     line=re.sub('[0-9].*\.[0-9].*\n', '', line)
                     line=re.sub('root\n', '', line)
                     write_out.write(line)
-            os.rename("RAxML_bestTree.raxml", "RAxML_bestTree.raxml.tre")
+            os.rename("RAxML_bestTree.raxml", directory + "-RAxML-bestTree.tre")
             write_out.close()
 
         out_org = outdir + directory + "-organized-table.txt"

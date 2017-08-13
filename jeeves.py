@@ -3325,6 +3325,7 @@ def get_snps(directory):
             # order list is from tree file
             # gives order for samples to be listed in table to be phylogenetically correct
             ordered_list = []
+            # ordered = ordered_list_from_tree
             with open(ordered) as infile:
                 for i in infile:
                     i = i.rstrip()

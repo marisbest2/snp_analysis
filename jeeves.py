@@ -31,8 +31,6 @@ from distutils.dir_util import copy_tree
 from datetime import datetime
 from datetime import datetime
 from concurrent import futures
-from concurrent import futures
-from collections import OrderedDict
 from collections import OrderedDict
 from collections import Counter
 from Bio.SeqIO.QualityIO import FastqGeneralIterator

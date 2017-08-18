@@ -3944,6 +3944,7 @@ def get_species():
     species_cross_reference["mel2"] = ["012441", "012442"]
     species_cross_reference["mel3"] = ["007760", "007761"]
     species_cross_reference["ovis"] = ["009504", "009505"]
+    species_cross_reference["neo"] = ["KN046827"]
     species_cross_reference["suis1"] = ["017250", "017251"]
     species_cross_reference["suis3"] = ["007719", "007718"]
     species_cross_reference["suis4"] = ["B-REF-BS4-40"]

@@ -528,6 +528,22 @@ class script1():
 
                 option_list=[dependents_dir, reference, hqs, gbk_file, email_list, upload_to, remote, script_dependents, spoligo_db]
                 return option_list, found
+                
+            if give_option == "neo":
+                found=True
+                #Remove network path at and left of "Results"
+                dependents_dir="/brucella/neotomae/script_dependents/script1"
+                upload_to, remote, script_dependents = script1.update_directory(dependents_dir) #***FUNCTION CALL
+                
+                spoligo_db = script_dependents + "/nospoligo.txt"
+                reference = script_dependents + "/KN046827.fasta"
+                print("Reference being used: %s" % reference)
+                hqs = script_dependents + "/ERR1845155-highqualitysnps.vcf"
+                gbk_file = script_dependents + "/KN046827.gbk"
+                email_list = "tod.p.stuber@aphis.usda.gov"
+
+                option_list=[dependents_dir, reference, hqs, gbk_file, email_list, upload_to, remote, script_dependents, spoligo_db]
+                return option_list, found
 
             if give_option == "bovis":
                 found=True
@@ -2114,6 +2130,38 @@ class script2():
             definingSNPs = script_dependents + "/DefiningSNPsGroupDesignations.xlsx"
             remove_from_analysis = script_dependents + "/RemoveFromAnalysis.xlsx"
             bioinfoVCF = upload_to + "/brucella/ovis/vcfs"
+            excelinfile = script_dependents + "/Filtered_Regions.xlsx"
+            print(excelinfile)
+            filter_files = script_dependents + "/filter_files"
+            if os.path.isdir(filter_files):
+                shutil.rmtree(filter_files)
+                os.mkdir(filter_files)
+            else:        os.mkdir(filter_files)
+            get_filters(excelinfile, filter_files) #***FUNCTION CALL
+            if args.email == "s":
+                email_list = "tod.p.stuber@aphis.usda.gov, jessica.a.hicks@aphis.usda.gov, christine.r.quance@aphis.usda.gov, suelee.robbe-austerman@aphis.usda.gov"
+                
+        elif args.species == "neo":
+
+            qual_gatk_threshold = 300
+            N_gatk_threshold = 350
+            
+            #Remove network path at and left of "Results"
+            dependents_dir="/brucella/neotomae/script_dependents/script2"
+            
+            upload_to, remote, script_dependents = update_directory(dependents_dir) #***FUNCTION CALL
+            bruc_private_codes(upload_to)
+            try:
+                shutil.copy(upload_to + "/brucella/genotyping_codes.xlsx", script_dependents)
+            except FileNotFoundError:
+                print ("will use previously used genotyping_codes.xlsx file")
+
+            genotypingcodes = script_dependents + "/genotyping_codes.xlsx"
+            gbk_file = script_dependents + "/KN046827.gbk"
+            # This file tells the script how to cluster VCFs
+            definingSNPs = script_dependents + "/DefiningSNPsGroupDesignations.xlsx"
+            remove_from_analysis = script_dependents + "/RemoveFromAnalysis.xlsx"
+            bioinfoVCF = upload_to + "/brucella/neotomae/vcfs"
             excelinfile = script_dependents + "/Filtered_Regions.xlsx"
             print(excelinfile)
             filter_files = script_dependents + "/filter_files"
@@ -3939,7 +3987,7 @@ See documentation at: https://usda-vs.github.io/snp_analysis/
 
         Step 2: VCFs --> Tables & Trees
 
--s <OPTIONAL SPECIES TYPES>: bovis, h37, ab1, ab3, suis1, mel1, mel2, mel3, canis, ceti1, ceti2, ovis, para
+-s <OPTIONAL SPECIES TYPES>: bovis, h37, ab1, ab3, suis1, mel1, mel2, mel3, canis, ceti1, ceti2, ovis, neo, para
 
 '''), epilog='''---------------------------------------------------------''')
 

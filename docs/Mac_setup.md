@@ -39,12 +39,7 @@ Once Anaconda is installed close and reopen terminal.
 ---
 
 <strong>Optional:</strong>
-If you are currently using Python 2, and wish to keep it as your default, a virtual environment can be built.  `jeeves.py` can run in this virtual environment.  Skip this step, however, if you are not concerned with the Python version you are running.
-
-To setup virtual environment:
-
-    ~$ conda create -n snp_analysis python=3.5 # Optional:  skip if wanting to use your current environment
-    ~$ source activate snp_analysis # Optional:  skip if wanting to use your current environment
+If you are currently using Python 2, and wish to keep it as your default, a virtual environment can be built.  `jeeves.py` can run in this virtual environment.  See notes at the bottom of this page.  It is recommend to not run in a virtual environment if possible.
 
 ---
 
@@ -125,8 +120,23 @@ For list of options:
     
     $ jeeves.py -h
     
+<br>
+
 ---
-If optional environment used:  To deactivate virtual environment, use:
+
+<br>
+
+<strong>Optional:</strong>
+If you are currently using Python 2, and wish to keep it as your default, a virtual environment can be built.  `jeeves.py` can run in this virtual environment.  Skip this step, however, if you are not concerned with the Python version you are running.
+
+To setup virtual environment:
+
+    ~$ conda create -n snp_analysis python=3.5 # Optional:  skip if wanting to use your current environment
+    ~$ source activate snp_analysis # Optional:  skip if wanting to use your current environment
+
+Proceed to setting up channels...
+
+When optional environment is used:  To deactivate virtual environment, use:
     
     > source deactivate <env name> # skip if new environment was not activated
     

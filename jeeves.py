@@ -2509,7 +2509,7 @@ class script2():
                 error_list.append("File was empty %s" % i)
                 os.remove(i)
 
-        all_starting_files = glob.glob('starting_files/*vcf')
+        all_starting_files = glob.glob('*vcf')
         file_number = len(all_starting_files)
 
         print ("SORTING FILES...")

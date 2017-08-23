@@ -3438,7 +3438,7 @@ def get_snps(directory):
                     line=re.sub('root\n', '', line)
                     write_out.write(line)
             best_raxml_tre = directory + "-RAxML-bestTree.tre"
-            os.rename("RAxML_bestTree.raxml", best_raxml)
+            os.rename("RAxML_bestTree.raxml", best_raxml_tre)
             write_out.close()
     
         best_raxml_svg = directory + "-RAxML-bestTree.svg"

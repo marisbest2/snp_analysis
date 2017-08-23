@@ -3443,7 +3443,7 @@ def get_snps(directory):
     
         best_raxml_svg = directory + "-RAxML-bestTree.svg"
         best_raxml_pdf = directory + "-RAxML-bestTree.pdf"
-        os.system("cat {} | nw_display -s -S -w 1300 -t -v 30 -i 'opacity:0' -b 'opacity:0' -l 'font-size:18;font-family:serif;font-style:italic' -d 'stroke-width:1;stroke:blue' - > {}" .format(best_raxml_tre, best_raxml_svg)) #-s produces svg, -S suppress scale bar, -w to set the number of columns available for display, -t tab format, -v vertical spacing, -i inner node label, -b branch style
+        os.system("cat {} | nw_display -s -S -w 1300 -t -v 30 -i 'opacity:0' -b 'opacity:0' -l 'font-size:14;font-family:serif;font-style:italic' -d 'stroke-width:1;stroke:blue' - > {}" .format(best_raxml_tre, best_raxml_svg)) #-s produces svg, -S suppress scale bar, -w to set the number of columns available for display, -t tab format, -v vertical spacing, -i inner node label, -b branch style
         svg2pdf(url=best_raxml_svg, write_to=best_raxml_pdf)
         
         out_org = outdir + directory + "-organized-table.txt"

@@ -20,6 +20,7 @@ import git
 import csv
 import argparse
 import textwrap
+import cairosvg
 from numpy import mean
 from functools import partial
 from email.utils import formatdate
@@ -3436,9 +3437,15 @@ def get_snps(directory):
                     line=re.sub('[0-9].*\.[0-9].*\n', '', line)
                     line=re.sub('root\n', '', line)
                     write_out.write(line)
-            os.rename("RAxML_bestTree.raxml", directory + "-RAxML-bestTree.tre")
+            best_raxml_tre = directory + "-RAxML-bestTree.tre"
+            os.rename("RAxML_bestTree.raxml", best_raxml)
             write_out.close()
-
+    
+        best_raxml_svg = directory + "-RAxML-bestTree.svg"
+        best_raxml_pdf = directory + "-RAxML-bestTree.pdf"
+        os.system("cat {} | nw_display -s -S -w 1300 -t -v 30 -i 'opacity:0' -b 'opacity:0' -l 'font-size:18;font-family:serif;font-style:italic' -d 'stroke-width:1;stroke:blue' - > {}" .format(best_raxml_tre, best_raxml_svg))
+        cairosvg.svg2pdf(url=best_raxml_svg, write_to=best_raxml_pdf)
+        
         out_org = outdir + directory + "-organized-table.txt"
 
         sort_table(out_table, ordered_list_from_tree, out_org) #function

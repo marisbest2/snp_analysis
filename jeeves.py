@@ -1556,7 +1556,7 @@ class script2():
 
 
         home = os.path.expanduser("~")
-
+        
         #os.environ["DISPLAY"]=":99"
         #xvfb = subprocess.Popen(['Xvfb', ':99']) # allows not needing to use -X flag when ssh'ing into session.
         #Manage headless displays with Xvfb (X virtual framebuffer
@@ -1577,7 +1577,6 @@ class script2():
                 vdisplay_status=False
                 time.sleep(3) # pause to see files will not be made
 
-        error_list = []
         global sys_raxml
         
         try:
@@ -1756,6 +1755,8 @@ class script2():
         global bioinfoVCF
         global filter_files
         global email_list
+        global malformed
+        malformed = []
 
         if args.species == "suis1":
 
@@ -2501,13 +2502,12 @@ class script2():
                     except FileNotFoundError:
                         print ("FileNotFoundError:")
 
-        #malformed_list = []
         print ("CHECKING FOR EMPTY FILES...")
         files = glob.glob('*vcf')
         for i in files:
             if os.stat(i).st_size == 0:
                 print ("### %s is an empty file and has been deleted" % i)
-                error_list.append("File was empty %s" % i)
+                malformed.append("File was empty %s" % i)
                 os.remove(i)
 
         all_starting_files = glob.glob('*vcf')
@@ -2539,17 +2539,17 @@ class script2():
         print ("Grouping files...")
         if args.debug_call:
             for i in files:
-                dict_amb, group_calls, malformed = group_files(i)
+                dict_amb, group_calls, mal = group_files(i)
                 all_list_amb.update(dict_amb)
                 group_calls_list.append(group_calls)
-                error_list.append(malformed)
+                malformed.append(mal)
         else:
             with futures.ProcessPoolExecutor() as pool:
-                for dict_amb, group_calls, malformed in pool.map(group_files, files):
+                for dict_amb, group_calls, mal in pool.map(group_files, files):
                     all_list_amb.update(dict_amb)
                     group_calls_list.append(group_calls) # make list of list
-                    error_list.append(malformed)
-        error_list = [x for x in error_list if x] # remove empty sets from list
+                    malformed.append(mal)
+        malformed = [x for x in malformed if x] # remove empty sets from list
 
         print ("Getting directory list\n")
         directory_list = next(os.walk('.'))[1] # get list of subdirectories
@@ -2585,12 +2585,12 @@ class script2():
         print ("Total run time: %s: </h4>" % runtime, file=htmlfile)
 
         # ERROR LIST
-        if len(error_list) < 1:
+        if len(malformed) < 1:
             print ("<h2>No corrupt VCF removed</h2>", file=htmlfile)
 
         else:
             print ("\n<h2>Corrupt VCF removed</h2>", file=htmlfile)
-            for i in error_list:
+            for i in malformed:
                 print ("%s <br>" % i, file=htmlfile)
             print ("<br>", file=htmlfile)
 
@@ -2725,21 +2725,15 @@ def read_aligner(directory):
     stat_summary = sample.align_reads()
     return(stat_summary)
 
-# Group files, map pooled from script 2
-def group_files(each_vcf):
-    list_pass = []
-    list_amb = []
-    dict_amb = {}
-    malformed = []
-    group_calls = []
-    passing = True
-    print("qual_gatk_threshold: %s " % qual_gatk_threshold)
+def fix_vcf(each_vcf):
+
     ###
     # Fix common VCF errors
     if args.debug_call:
         print ("FIXING FILE: " + each_vcf)
     temp_file = each_vcf + ".temp"
     write_out=open(temp_file, 'w') #r+ used for reading and writing to the same file
+    ###
 
     with open(each_vcf, 'r') as file:
         try:
@@ -2748,10 +2742,14 @@ def group_files(each_vcf):
                     line = line.rstrip() #remove right white space
                     line = re.sub('"AC=', 'AC=', line)
                     line = re.sub('""', '"', line)
+                    line = re.sub('""', '"', line)
+                    line = re.sub('""', '"', line)
                     line = re.sub('"$', '', line)
                     line = re.sub('GQ:PL\t"', 'GQ:PL\t', line)
                     line = re.sub('[0-9]+\tGT\t.\/.$', '999\tGT:AD:DP:GQ:PL\t1/1:0,80:80:99:2352,239,0', line)
                     line = re.sub('^"', '', line)
+                    if line.startswith('##') and line.endswith('"'):
+                        line = re.sub('"$', '', line)
                     if line.startswith('##'):
                         line = line.split('\t')
                         line = ''.join(line[0])
@@ -2764,17 +2762,27 @@ def group_files(each_vcf):
                         print(line, file=write_out)
         except IndexError:
             print ("##### IndexError: Deleting corrupt VCF file: " + each_vcf)
-            malformed = "##### IndexError: Deleting corrupt VCF file: " + each_vcf
+            malformed.append("##### IndexError: Deleting corrupt VCF file: " + each_vcf)
             os.remove(each_vcf)
         except UnicodeDecodeError:
             print ("##### UnicodeDecodeError: Deleting corrupt VCF file: " + each_vcf)
-            malformed = "##### UnicodeDecodeError: Deleting corrupt VCF file: " + each_vcf
+            malformed.append("##### UnicodeDecodeError: Deleting corrupt VCF file: " + each_vcf)
+            
             os.remove(each_vcf)
             
     write_out.close()
     os.rename(temp_file, each_vcf)
-    ###
-    
+
+# Group files, map pooled from script 2
+def group_files(each_vcf):
+    mal = ""
+    list_pass = []
+    list_amb = []
+    dict_amb = {}
+    group_calls = []
+    passing = True
+    print("qual_gatk_threshold: %s " % qual_gatk_threshold)
+
     try:
         vcf_reader = vcf.Reader(open(each_vcf, 'r'))
         ### PUT VCF NAME INTO LIST, capturing for htmlfile
@@ -2848,61 +2856,43 @@ def group_files(each_vcf):
             try:
                 os.remove(each_vcf)
             except FileNotFoundError:
-                print ("file deleted: %s " % each_vcf)
-                malformed.append(each_vcf)
+                pass
         #print (dict_amb, group_calls, malformed)
-        
-        try:
-            some_object_iterator = iter(group_calls)
-        except TypeError:
-            group_calls = []
-
-        try:
-            some_object_iterator = iter(dict_amb)
-        except TypeError:
-            dict_amb = {}
-
-        try:
-            some_object_iterator = iter(malformed)
-        except TypeError:
-            os.remove(each_vcf)
-            print ("TypeError: corrupt VCF, removed %s " % each_vcf)
-            malformed = "TypeError: corrupt VCF, removed %s " % each_vcf
 
     except ZeroDivisionError:
         os.remove(each_vcf)
         print ("ZeroDivisionError: corrupt VCF, removed %s " % each_vcf)
-        malformed = "ZeroDivisionError: corrupt VCF, removed %s " % each_vcf
+        mal = "ZeroDivisionError: corrupt VCF, removed %s " % each_vcf
     except ValueError:
         os.remove(each_vcf)
         print ("ValueError: corrupt VCF, removed %s " % each_vcf)
-        malformed = "ValueError: corrupt VCF, removed %s " % each_vcf
+        mal = "ValueError: corrupt VCF, removed %s " % each_vcf
     except UnboundLocalError:
         os.remove(each_vcf)
         print ("UnboundLocalError: corrupt VCF, removed %s " % each_vcf)
-        malformed = "UnboundLocalError: corrupt VCF, removed %s " % each_vcf
+        mal = "UnboundLocalError: corrupt VCF, removed %s " % each_vcf
     except TypeError:
         os.remove(each_vcf)
         print ("TypeError: corrupt VCF, removed %s " % each_vcf)
-        malformed = "TypeError: corrupt VCF, removed %s " % each_vcf
+        mal = "TypeError: corrupt VCF, removed %s " % each_vcf
     except SyntaxError:
         os.remove(each_vcf)
         print ("SyntaxError: corrupt VCF, removed %s " % each_vcf)
-        malformed = "SyntaxError: corrupt VCF, removed %s " % each_vcf
+        mal = "SyntaxError: corrupt VCF, removed %s " % each_vcf
     except KeyError:
         os.remove(each_vcf)
         print ("KeyError: corrupt VCF, removed %s " % each_vcf)
-        malformed = "KeyError: corrupt VCF, removed %s " % each_vcf
+        mal = "KeyError: corrupt VCF, removed %s " % each_vcf
     except StopIteration:
         print ("StopIteration: %s" % each_vcf)
-        malformed = "KeyError: corrupt VCF, removed %s " % each_vcf
+        mal = "KeyError: corrupt VCF, removed %s " % each_vcf
 
     a = group_calls[0:1]
     b = sorted(group_calls[1:]) # order the groups
     for i in b:
         a.append(i) # a is group_calls
         group_calls = a
-    return dict_amb, group_calls, malformed
+    return dict_amb, group_calls, mal
 
 # Group files, map pooled from script 2
 def find_positions(filename):
@@ -3942,6 +3932,7 @@ def get_species():
     species_cross_reference = {}
     species_cross_reference["bovis"] = ["002945", "00879"]
     species_cross_reference["h37"] = ["000962", "002755", "009525", "018143"]
+    species_cross_reference["para"] = ["NC_002944"]
     species_cross_reference["ab1"] = ["006932", "006933"]
     species_cross_reference["ab3"] = ["007682", "007683"]
     species_cross_reference["canis"] = ["010103", "010104"]
@@ -3959,17 +3950,21 @@ def get_species():
     vcf_list = glob.glob('*vcf')
     for each_vcf in vcf_list:
         print(each_vcf)
-        try:
-            vcf_reader = vcf.Reader(open(each_vcf, 'r'))
-            print("single_vcf %s" % each_vcf)
-            for record in vcf_reader:
-                header = record.CHROM
-                for k, vlist in species_cross_reference.items():
-                    for l in vlist:
-                        if l in header:
-                            return(k)
-        except ValueError:
-            pass
+        fix_vcf(each_vcf)
+    print("done fixing")
+    
+    vcf_list = glob.glob('*vcf')
+    for each_vcf in vcf_list:
+        print(each_vcf)
+#        try:
+        vcf_reader = vcf.Reader(open(each_vcf, 'r'))
+        print("single_vcf %s" % each_vcf)
+        for record in vcf_reader:
+            header = record.CHROM
+            for k, vlist in species_cross_reference.items():
+                for l in vlist:
+                    if l in header:
+                        return(k)
 
 global root_dir
 root_dir = str(os.getcwd())

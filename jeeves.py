@@ -49,6 +49,8 @@ except:
     xvfb_available = False
     pass
 
+malformed = []
+
 ###############################################
 ###############################################
 ##################script1######################
@@ -1756,7 +1758,6 @@ class script2():
         global filter_files
         global email_list
         global malformed
-        malformed = []
 
         if args.species == "suis1":
 
@@ -2726,7 +2727,7 @@ def read_aligner(directory):
     return(stat_summary)
 
 def fix_vcf(each_vcf):
-
+    global malformed
     ###
     # Fix common VCF errors
     if args.debug_call:
@@ -2734,8 +2735,8 @@ def fix_vcf(each_vcf):
     temp_file = each_vcf + ".temp"
     write_out=open(temp_file, 'w') #r+ used for reading and writing to the same file
     ###
-
     with open(each_vcf, 'r') as file:
+        print("opened --------")
         try:
             for line in file:
                 if line.rstrip(): # true if not empty line'^$'
@@ -3948,9 +3949,14 @@ def get_species():
     species_cross_reference["suis4"] = ["B-REF-BS4-40"]
 
     vcf_list = glob.glob('*vcf')
-    for each_vcf in vcf_list:
-        print(each_vcf)
-        fix_vcf(each_vcf)
+    if args.debug_call:
+        for each_vcf in vcf_list:
+            print(each_vcf)
+            fix_vcf(each_vcf)
+    else:
+        with futures.ProcessPoolExecutor() as pool:
+            pool.map(fix_vcf, vcf_list)
+
     print("done fixing")
     
     vcf_list = glob.glob('*vcf')

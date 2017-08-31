@@ -1618,19 +1618,6 @@ class script2():
         else:
             raxml_cpu = int(cpu_count/10)
         
-        #fix files
-        vcf_list = glob.glob('*vcf')
-        if args.debug_call:
-            for each_vcf in vcf_list:
-                print(each_vcf)
-                mal = fix_vcf(each_vcf)
-                malformed = malformed + list(mal)
-        else:
-            with futures.ProcessPoolExecutor() as pool:
-                mal = pool.map(fix_vcf, vcf_list)
-                malformed = malformed + list(mal)
-        print("done fixing")
-        
         def update_directory(dependents_dir): # UPDATE DIRECTORIES
             home = os.path.expanduser("~")
             print("dependents_dir %s\n" % dependents_dir)
@@ -1772,7 +1759,7 @@ class script2():
         global bioinfoVCF
         global filter_files
         global email_list
-        #global malformed
+        global malformed
 
 
         if args.species == "suis1":
@@ -4073,6 +4060,19 @@ if fastq_check:
             print("\n--> RUNNING LOOP/SCRIPT 1\n") #
             loop().run_loop()
 elif vcf_check:
+
+    #fix files
+    vcf_list = glob.glob('*vcf')
+    if args.debug_call:
+        for each_vcf in vcf_list:
+            print(each_vcf)
+            mal = fix_vcf(each_vcf)
+            malformed = malformed + list(mal)
+    else:
+        with futures.ProcessPoolExecutor() as pool:
+            mal = pool.map(fix_vcf, vcf_list)
+            malformed = malformed + list(mal)
+    print("done fixing")
 
     if not args.species:
         args.species = get_species()

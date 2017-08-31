@@ -50,6 +50,7 @@ except:
     pass
 
 # needs to be at the function level
+global malformed
 malformed = []
 
 ###############################################
@@ -1771,7 +1772,7 @@ class script2():
         global bioinfoVCF
         global filter_files
         global email_list
-        global malformed
+        #global malformed
 
 
         if args.species == "suis1":

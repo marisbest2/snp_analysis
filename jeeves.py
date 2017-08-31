@@ -4063,6 +4063,7 @@ elif vcf_check:
 
     #fix files
     vcf_list = glob.glob('*vcf')
+    print("Fixing files...\n")
     if args.debug_call:
         for each_vcf in vcf_list:
             print(each_vcf)

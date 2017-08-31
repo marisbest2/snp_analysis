@@ -49,6 +49,7 @@ except:
     xvfb_available = False
     pass
 
+# needs to be at the function level
 malformed = []
 
 ###############################################
@@ -1616,6 +1617,19 @@ class script2():
         else:
             raxml_cpu = int(cpu_count/10)
         
+        #fix files
+        vcf_list = glob.glob('*vcf')
+        if args.debug_call:
+            for each_vcf in vcf_list:
+                print(each_vcf)
+                mal = fix_vcf(each_vcf)
+                malformed = malformed + list(mal)
+        else:
+            with futures.ProcessPoolExecutor() as pool:
+                mal = pool.map(fix_vcf, vcf_list)
+                malformed = malformed + list(mal)
+        print("done fixing")
+        
         def update_directory(dependents_dir): # UPDATE DIRECTORIES
             home = os.path.expanduser("~")
             print("dependents_dir %s\n" % dependents_dir)
@@ -1758,6 +1772,7 @@ class script2():
         global filter_files
         global email_list
         global malformed
+
 
         if args.species == "suis1":
 
@@ -2727,7 +2742,7 @@ def read_aligner(directory):
     return(stat_summary)
 
 def fix_vcf(each_vcf):
-    global malformed
+    mal = []
     ###
     # Fix common VCF errors
     if args.debug_call:
@@ -2736,7 +2751,6 @@ def fix_vcf(each_vcf):
     write_out=open(temp_file, 'w') #r+ used for reading and writing to the same file
     ###
     with open(each_vcf, 'r') as file:
-        print("opened --------")
         try:
             for line in file:
                 if line.rstrip(): # true if not empty line'^$'
@@ -2763,16 +2777,16 @@ def fix_vcf(each_vcf):
                         print(line, file=write_out)
         except IndexError:
             print ("##### IndexError: Deleting corrupt VCF file: " + each_vcf)
-            malformed.append("##### IndexError: Deleting corrupt VCF file: " + each_vcf)
+            mal.append("##### IndexError: Deleting corrupt VCF file: " + each_vcf)
             os.remove(each_vcf)
         except UnicodeDecodeError:
             print ("##### UnicodeDecodeError: Deleting corrupt VCF file: " + each_vcf)
-            malformed.append("##### UnicodeDecodeError: Deleting corrupt VCF file: " + each_vcf)
-            
+            mal.append("##### UnicodeDecodeError: Deleting corrupt VCF file: " + each_vcf)
             os.remove(each_vcf)
-            
+
     write_out.close()
     os.rename(temp_file, each_vcf)
+    return mal
 
 # Group files, map pooled from script 2
 def group_files(each_vcf):
@@ -3947,22 +3961,10 @@ def get_species():
     species_cross_reference["suis1"] = ["017250", "017251"]
     species_cross_reference["suis3"] = ["007719", "007718"]
     species_cross_reference["suis4"] = ["B-REF-BS4-40"]
-
-    vcf_list = glob.glob('*vcf')
-    if args.debug_call:
-        for each_vcf in vcf_list:
-            print(each_vcf)
-            fix_vcf(each_vcf)
-    else:
-        with futures.ProcessPoolExecutor() as pool:
-            pool.map(fix_vcf, vcf_list)
-
-    print("done fixing")
     
     vcf_list = glob.glob('*vcf')
     for each_vcf in vcf_list:
         print(each_vcf)
-#        try:
         vcf_reader = vcf.Reader(open(each_vcf, 'r'))
         print("single_vcf %s" % each_vcf)
         for record in vcf_reader:

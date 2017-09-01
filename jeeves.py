@@ -3967,6 +3967,7 @@ def get_species():
     vcf_list = glob.glob('*vcf')
     for each_vcf in vcf_list:
         print(each_vcf)
+        mal = fix_vcf(each_vcf)
         vcf_reader = vcf.Reader(open(each_vcf, 'r'))
         print("single_vcf %s" % each_vcf)
         for record in vcf_reader:

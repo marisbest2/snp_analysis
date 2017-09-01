@@ -2363,6 +2363,7 @@ class script2():
 
         # Change file names
         def change_names():
+            global malformed
             code_dictionary = {}
             try:
                 wb = xlrd.open_workbook(genotypingcodes)

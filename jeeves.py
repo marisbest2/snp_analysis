@@ -2446,6 +2446,20 @@ class script2():
                     shutil.copy(each_vcf, root_dir)
                 all_starting_files = glob.glob('*vcf')
                 print (file_number)
+            
+            #fix files
+            vcf_list = glob.glob('*vcf')
+            print("Fixing files...\n")
+            if args.debug_call:
+                for each_vcf in vcf_list:
+                    print(each_vcf)
+                    mal = fix_vcf(each_vcf)
+                    malformed = malformed + list(mal)
+            else:
+                with futures.ProcessPoolExecutor() as pool:
+                    mal = pool.map(fix_vcf, vcf_list)
+                    malformed = malformed + list(mal)
+            print("done fixing")
 
             return names_not_changed
 
@@ -4060,20 +4074,6 @@ if fastq_check:
             print("\n--> RUNNING LOOP/SCRIPT 1\n") #
             loop().run_loop()
 elif vcf_check:
-
-    #fix files
-    vcf_list = glob.glob('*vcf')
-    print("Fixing files...\n")
-    if args.debug_call:
-        for each_vcf in vcf_list:
-            print(each_vcf)
-            mal = fix_vcf(each_vcf)
-            malformed = malformed + list(mal)
-    else:
-        with futures.ProcessPoolExecutor() as pool:
-            mal = pool.map(fix_vcf, vcf_list)
-            malformed = malformed + list(mal)
-    print("done fixing")
 
     if not args.species:
         args.species = get_species()

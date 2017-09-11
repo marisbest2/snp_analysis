@@ -3249,7 +3249,7 @@ def get_snps(directory):
                 
                 # check record.QUAL
                 # In GATK VCFs "!= None" not used.
-                if str(record.ALT[0]) != "None" and len(record.ALT[0]) == 1 and record.INFO['AC'][0] == 2:
+                if str(record.ALT[0]) != "None" and len(record.ALT[0]) == 1 and record.INFO['AC'][0] == 2 and record.QUAL > N_gatk_threshold:
                     sample_dict.update({record_position:record.ALT[0]})
                 # same as above but take into account Ambiguious call
                 #elif str(record.ALT[0]) != "None" and len(record.ALT[0]) == 1 and record.INFO['AC'][0] == 1 and record.QUAL >= N_gatk_threshold:
@@ -3282,7 +3282,7 @@ def get_snps(directory):
                     else:
                         sample_dict.update({record_position:"N"})
                     # Poor calls
-                elif str(record.ALT[0]) != "None" and record.QUAL < N_gatk_threshold:
+                elif str(record.ALT[0]) != "None" and record.QUAL <= N_gatk_threshold:
                     sample_dict.update({record_position:"N"})
                 # same as above but take into account Deletion call
                 elif str(record.ALT[0]) == "None":

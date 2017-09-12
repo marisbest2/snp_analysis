@@ -18,15 +18,10 @@ Did `gatk-register` run successfully?  See setup instructions.  After running co
 
 `samtools: error while loading shared libraries: libbz2.so.1.0: cannot open shared object file: No such file or directory`
 
-The Samtools Anaconda install is unable to access libraries.  Fix: uninstall conda installation.  Use installation available via package manager such as apt-get or yum, or via a systems module setup.
+The Samtools Anaconda install is unable to access libraries.  Fix: Install from different conda-forge channel
 
-`~$ conda uninstall samtools`
+`~$ conda install -c conda-forge -c bioconda samtools bzip2`
 
-restart terminal
-
-`~$ which samtools`
-
-`~$ samtools`
 
 The above should now print samtools list of commands.
 

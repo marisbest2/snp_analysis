@@ -53,7 +53,7 @@ Install specific versions and programs.
 
 When gatk is downloaded using Anacoda it still needs to be registered.  GATK has a way to do this.  Go to GATK's website, download the GATK package, unzip it, and run:
 
-    ~$ gatk-register /path/to/Downloads/GenomeAnalysisTK-3.7/GenomeAnalysisTK.jar.  
+    ~$ gatk-register /path/to/Downloads/GenomeAnalysisTK*/GenomeAnalysisTK.jar.  
     
 After `gatk-register` is ran, GATK just downloaded from the GATK website, can be deleted.  The download was only needed to register the Anaconda GATK package.
 

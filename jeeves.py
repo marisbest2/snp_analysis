@@ -2722,8 +2722,8 @@ class script2():
         print ("\n\tDONE\n")
         #xvfb.kill
 
-        if vdisplay_status:
-            vdisplay.stop()
+#        if vdisplay_status:
+#            vdisplay.stop()
 
 ###############################################
 ###############################################

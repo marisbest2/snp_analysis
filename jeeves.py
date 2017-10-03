@@ -36,18 +36,18 @@ from collections import OrderedDict
 from collections import Counter
 from Bio.SeqIO.QualityIO import FastqGeneralIterator
 from Bio import SeqIO
-try:
-    from ete3 import Tree, TreeStyle, NodeStyle, TextFace, faces, AttrFace
-    ete3_available = True
-except:
-    ete3_available = False
-    pass
-try:
-    from xvfbwrapper import Xvfb
-    xvfb_available = True
-except:
-    xvfb_available = False
-    pass
+#try:
+#    from ete3 import Tree, TreeStyle, NodeStyle, TextFace, faces, AttrFace
+#    ete3_available = True
+#except:
+#    ete3_available = False
+#    pass
+#try:
+#    from xvfbwrapper import Xvfb
+#    xvfb_available = True
+#except:
+#    xvfb_available = False
+#    pass
 
 # needs to be at the function level
 global malformed
@@ -1565,21 +1565,21 @@ class script2():
         #xvfb = subprocess.Popen(['Xvfb', ':99']) # allows not needing to use -X flag when ssh'ing into session.
         #Manage headless displays with Xvfb (X virtual framebuffer
 
-        if xvfb_available:
-            try:
-                vdisplay = Xvfb()
-                vdisplay.start()
-                vdisplay_status=True
-            except RuntimeError:
-                print("Xvfb did not start")
-                print("PDFs and SVGs will not be made\n")
-                vdisplay_status=False
-                time.sleep(3) # pause to see files will not be made
-            except OSError:
-                print("Xvfb did not start")
-                print("PDFs and SVGs will not be made\n")
-                vdisplay_status=False
-                time.sleep(3) # pause to see files will not be made
+#        if xvfb_available:
+#            try:
+#                vdisplay = Xvfb()
+#                vdisplay.start()
+#                vdisplay_status=True
+#            except RuntimeError:
+#                print("Xvfb did not start")
+#                print("PDFs and SVGs will not be made\n")
+#                vdisplay_status=False
+#                time.sleep(3) # pause to see files will not be made
+#            except OSError:
+#                print("Xvfb did not start")
+#                print("PDFs and SVGs will not be made\n")
+#                vdisplay_status=False
+#                time.sleep(3) # pause to see files will not be made
 
         global sys_raxml
         
@@ -3740,35 +3740,35 @@ def get_snps(directory):
 
     # ete3 used to make svg and pdf from trees
     # Anaconda 4.0 is needed to install ete3.  Shown to work with Anaconda 4.1.6, but getcwd error occurs.  Cannot install with Anaconda 4.3
-    try:
-        if vdisplay_status and ete3_available:
-            rooted_tree_pdf = directory + ".pdf"
-            rooted_tree_svg = directory + ".svg"
-            rooted_tree_path = "RAxML_bestTree.raxml.tre"
-            if os.path.isfile("RAxML_bestTree.raxml.tre"):
-                t = Tree(rooted_tree_path) #loads tree file
-                ts = TreeStyle()
-                for n in t.traverse():
-                    nstyle = NodeStyle()
-                    nstyle["size"] = 0 #removes dots from tree
-                    n.set_style(nstyle)
-                def mylayout(node):
-                    if node.is_leaf():
-                        nameFace = AttrFace("name", fsize=9) #sets font size of leaves
-                        faces.add_face_to_node(nameFace, node, 0, position="branch-right")
-                ts.layout_fn = mylayout #using custom layout above
-                ts.show_leaf_name = False #using custom leaf size, so this is disabled
-                ts.scale = 1000 #length of branches
-                ts.branch_vertical_margin = 5 #spacing between branches
-                ts.margin_left = 100
-                ts.margin_right = 100
-                ts.margin_top = 100
-                ts.margin_bottom = 100
-                t.render(rooted_tree_pdf, w=5000, tree_style=ts)
-                t.render(directory + ".svg", w=500, tree_style=ts)
-                os.rename(rooted_tree_path, directory + ".tre")
-    except:
-        pass
+#    try:
+#        if vdisplay_status and ete3_available:
+#            rooted_tree_pdf = directory + ".pdf"
+#            rooted_tree_svg = directory + ".svg"
+#            rooted_tree_path = "RAxML_bestTree.raxml.tre"
+#            if os.path.isfile("RAxML_bestTree.raxml.tre"):
+#                t = Tree(rooted_tree_path) #loads tree file
+#                ts = TreeStyle()
+#                for n in t.traverse():
+#                    nstyle = NodeStyle()
+#                    nstyle["size"] = 0 #removes dots from tree
+#                    n.set_style(nstyle)
+#                def mylayout(node):
+#                    if node.is_leaf():
+#                        nameFace = AttrFace("name", fsize=9) #sets font size of leaves
+#                        faces.add_face_to_node(nameFace, node, 0, position="branch-right")
+#                ts.layout_fn = mylayout #using custom layout above
+#                ts.show_leaf_name = False #using custom leaf size, so this is disabled
+#                ts.scale = 1000 #length of branches
+#                ts.branch_vertical_margin = 5 #spacing between branches
+#                ts.margin_left = 100
+#                ts.margin_right = 100
+#                ts.margin_top = 100
+#                ts.margin_bottom = 100
+#                t.render(rooted_tree_pdf, w=5000, tree_style=ts)
+#                t.render(directory + ".svg", w=500, tree_style=ts)
+#                os.rename(rooted_tree_path, directory + ".tre")
+#    except:
+#        pass
 
 ###############################################
 ###############################################

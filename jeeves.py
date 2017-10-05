@@ -3405,6 +3405,8 @@ def get_snps(directory):
 abc = row1.to_frame()
 abc = abc.drop('reference_pos')
 mytable.append(abc.T)
+http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.append.html
+http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.to_frame.html
 
             mytable = mytable.T
             mytable = mytable.sort_values(['snp_from_top', 'snp_per_column'], ascending=[True, False])

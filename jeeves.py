@@ -3164,11 +3164,11 @@ def get_snps(directory):
         write_out_positions.close()
         write_out_details.close()
 
-    def get_annotations(all_positions):
+    def get_annotations(parsimony_positions):
             print ("Getting annotations")
             dict_annotation = {}
             in_annotation_as_dict = SeqIO.to_dict(SeqIO.parse(gbk_file, "genbank"))
-            for each_absolute_pos in all_positions:
+            for each_absolute_pos in parsimony_positions:
                 pos_found = False
                 each_absolute_pos = each_absolute_pos.split("-")
                 chrom = each_absolute_pos[0]
@@ -3201,21 +3201,15 @@ def get_snps(directory):
                 #print ("myout %s" % myout)
             return (dict_annotation)
 
-    if mygbk:
-        dict_annotation = get_annotations(all_positions)
-        write_out=open('annotations.txt', 'w+')
-        print ('reference_pos\tannotations', file=write_out)
-        for k, v in dict_annotation.items():
-            print ('%s\t%s' % (k, v), file=write_out)
-        write_out.close()
-
-
-    out_table= outdir + directory + "-table.txt"
-    table=open(out_table, 'wt')
+    table_location = outdir + directory + "-table.txt"
+    table=open(table_location, 'wt')
 
     # write absolute positions to table
     # order before adding to file to match with ordering of individual samples below
+    # all_positions is abs_pos:REF
     all_positions=OrderedDict(sorted(all_positions.items()))
+    
+    # Add the positions to the table
     print ("reference_pos", end="\t", file=table)
     for k, v in all_positions.items():
         print(k, end="\t", file=table)
@@ -3293,56 +3287,44 @@ def get_snps(directory):
 
         # merge dictionaries and order
         merge_dict={}
-        merge_dict.update(all_positions)
-        merge_dict.update(sample_dict)
-        merge_dict=OrderedDict(sorted(merge_dict.items()))
+        merge_dict.update(all_positions) #abs_pos:REF
+        merge_dict.update(sample_dict) # abs_pos:ALT replacing all_positions, because keys must be unique
+        merge_dict=OrderedDict(sorted(merge_dict.items())) #OrderedDict of ('abs_pos', ALT_else_REF), looks like a list of lists
         for k, v in merge_dict.items():
             #print ("k %s, v %s" % (k, v))
             print (str(v) + "\t", file=table, end="")
-        print ("", file=table)
-    table.close()
+        print ("", file=table) # sample printed to file
+    table.close() #end of loop.  All files done
 
     ## Select parsimony informative SNPs
-    mytable = pd.read_csv(out_table, sep='\t')
-    mytable = mytable.set_index('reference_pos')
-
+    mytable = pd.read_csv(table_location, sep='\t')
     # drop NaN rows and columns
     mytable=mytable.dropna(axis=1)
 
     # SELECT PARISOMONY INFORMATIVE SNPSs
     # removes columns where all fields are the same
-    parsimony=mytable.loc[:, (mytable != mytable.ix[0]).any()]
+    parsimony=mytable.loc[:, (mytable != mytable.iloc[0]).any()]
     parsimony_positions=list(parsimony)
-
-    write_out=open("each_vcf-poslist.txt", 'wt')
-    for i in parsimony_positions:
-        write_out.write(i + "\n") # writing to each_vcf-poslist.txt
-    write_out.close()
-
-    parsimony.to_csv(out_table, sep="\t", index_label='reference_pos')
-    table=open(out_table, 'a')
-
+    #write over table (table_location) containing all snps
+    parsimony.to_csv(table_location, sep="\t", index=False)
+    
+    table=open(table_location, 'a')
+    # The reference calls are added after the parsimony positions are selected.
     # added corresponding reference to parsimony table
     print ("reference_call", end="\t", file=table)
-    all_positions_list=list(all_positions)
-    for l in parsimony_positions:
-        print(all_positions.get(l), end="\t", file=table)
-    print ("", file=table)
+    #all_positions_list=list(all_positions)
+    parsimony_positions.remove('reference_pos')
+    list_of_ref = []
+    for abs_pos in parsimony_positions:
+        list_of_ref.append(all_positions.get(abs_pos))
+    string_of_ref = "\t".join(list_of_ref)
+    print(string_of_ref, file=table)
     table.close()
-
-    # fix end, NEED TO REWRITE, WRITING TO NEW FILE IS CLUNKY FIX
-    write_table= outdir + directory + "-write.txt"
-    write_out=open(write_table, 'wt')
-    with open(out_table, 'rt') as f:
-        for line in f:
-            line = line.replace('\t\n', '\n')
-            print (line, file=write_out)
-    write_out.close()
 
     #Print out fasta alignment file from table
     alignment_file= outdir + directory + ".fasta"
     write_out=open(alignment_file, 'wt')
-    with open(out_table, 'rt') as f:
+    with open(table_location, 'rt') as f:
         count=0
         for line in f:
             if count > 0:
@@ -3354,18 +3336,14 @@ def get_snps(directory):
             count = count + 1
     write_out.close()
 
-    mytable = pd.read_csv(write_table, sep='\t')
-    mytable = mytable.set_index('reference_pos')
-    mytable=mytable.dropna(axis=1)
-
-    os.remove(write_table)
+    mytable = pd.read_csv(table_location, sep='\t')
 
     # move reference to top row
     myref=mytable[-1:]
     myother=mytable[:-1]
     frames = [myref, myother]
     mytable=pd.concat(frames)
-    mytable.to_csv(out_table, sep="\t", index_label='reference_pos')
+    mytable.to_csv(table_location, sep="\t", index=False)
 
     print ("\n%s table dimensions: %s" % (directory, str(mytable.shape)))
 
@@ -3373,23 +3351,22 @@ def get_snps(directory):
     rooted_tree = outdir + directory + "-rooted.tre"
     os.system("{} -s {} -n raxml -m GTRCATI -o root -p 12345 -T {} > /dev/null 2>&1" .format(sys_raxml, alignment_file, raxml_cpu))
 
-    def sort_table(intable, ordered, out_org):
-            mytable = pd.read_csv(intable, sep='\t')
-            mytable=mytable.set_index('reference_pos')
+    def sort_table(table_location, ordered, out_org):
+            mytable = pd.read_csv(table_location, sep='\t')
+            #mytable=mytable.set_index('reference_pos')
 
             # order list is from tree file
             # gives order for samples to be listed in table to be phylogenetically correct
             ordered_list = []
-            # ordered = ordered_list_from_tree
             with open(ordered) as infile:
                 for i in infile:
                     i = i.rstrip()
                     ordered_list.append(i)
-            # sinces this is set as the mytable index do not include in ordering
-            ordered_list.remove('reference_pos')
 
-            # reorder table based on order of list
-            mytable = mytable.reindex(ordered_list)
+            # Convert reference_pos-column to category and in set the ordered_list as categories hierarchy
+            mytable.reference_pos = mytable.reference_pos.astype("category")
+            mytable.reference_pos.cat.set_categories(ordered_list, inplace=True)
+            mytable = mytable.sort_values(["reference_pos"]) # 'sort' changed to 'sort_values'
 
             # count number of SNPs in each column
             snp_per_column = []
@@ -3403,6 +3380,7 @@ def get_snps(directory):
                 snp_per_column.append(count)
                 #print ("the count is: %s" % count)
             row1 = pd.Series (snp_per_column, mytable.columns, name="snp_per_column")
+            #row1 = row1.drop('reference_pos')
 
             # get the snp count per column
             # for each column in the table
@@ -3418,8 +3396,8 @@ def get_snps(directory):
                     else:
                         break
                 snp_from_top.append(count)
-                #print ("the count is: %s" % count)
             row2 = pd.Series (snp_from_top, mytable.columns, name="snp_from_top")
+            #row2 = row2.drop('reference_pos')
 
             mytable = mytable.append([row1])
             mytable = mytable.append([row2])
@@ -3430,7 +3408,7 @@ def get_snps(directory):
 
             # remove snp_per_column and snp_from_top rows
             mytable = mytable[:-2]
-            mytable.to_csv(out_org, sep='\t')
+            mytable.to_csv(out_org, sep='\t', index=False)
 
     try:
         ordered_list_from_tree = outdir + directory + "-cleanedAlignment.txt"
@@ -3456,7 +3434,7 @@ def get_snps(directory):
         
         out_org = outdir + directory + "-organized-table.txt"
 
-        sort_table(out_table, ordered_list_from_tree, out_org) #function
+        sort_table(table_location, ordered_list_from_tree, out_org) #function
 
         print ("%s Getting map quality..." % directory)
         average=lambda x: x.mean()
@@ -3472,13 +3450,11 @@ def get_snps(directory):
             for line in f:
                 write_out.write(line)
         write_out.close()
-        #os.remove('outfile.txt')
-
-        #add_map_qualities() #***FUNCTION CALL
+        
         #seemed pooling did not like a function with no parameters given
         quality = pd.read_csv('map_quality.txt', sep='\t')
 
-        mytable = pd.read_csv(out_table, sep='\t')
+        mytable = pd.read_csv(table_location, sep='\t')
         mytable=mytable.set_index('reference_pos')
 
         # order list is from tree file
@@ -3493,10 +3469,10 @@ def get_snps(directory):
 
         # reorder table based on order of list
         mytable = mytable.reindex(ordered_list)
-        mytable.to_csv(out_table, sep='\t')
+        mytable.to_csv(table_location, sep='\t')
 
         out_sort=str(os.getcwd()) + "/" + directory + "-sorted-table.txt" #sorted
-        mytable_sort = pd.read_csv(out_table, sep='\t') #sorted
+        mytable_sort = pd.read_csv(table_location, sep='\t') #sorted
         mytable_sort = mytable_sort.set_index('reference_pos') #sorted
         mytable_sort = mytable_sort.transpose() #sort
         mytable_sort.to_csv(out_sort, sep='\t', index_label='reference_pos') #sort
@@ -3508,6 +3484,13 @@ def get_snps(directory):
         mytable.to_csv(out_org, sep='\t', index_label='reference_pos') #org
 
         if mygbk:
+            dict_annotation = get_annotations(parsimony_positions)
+            write_out=open('annotations.txt', 'w+')
+            print ('reference_pos\tannotations', file=write_out)
+            for k, v in dict_annotation.items():
+                print ('%s\t%s' % (k, v), file=write_out)
+            write_out.close()
+        
             print ("%s gbk is present, getting annotation...\n" % directory)
             annotations = pd.read_csv('annotations.txt', sep='\t') #sort
             mytable_sort = pd.read_csv(out_sort, sep='\t') #sort
@@ -3588,110 +3571,110 @@ def get_snps(directory):
             formatambigous = wb.add_format({'font_color':'#C70039', 'bg_color':'#E2CFDD'})
             formatN = wb.add_format({'bg_color':'#E2CFDD'})
 
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                   'criteria':'containing',
                                   'value':60,
                                   'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':59,
                                 'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':58,
                                 'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':57,
                                 'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':56,
                                 'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':55,
                                 'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':54,
                                 'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':53,
                                 'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':52,
                                 'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':51,
                                 'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':50,
                                 'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                 'criteria':'not containing',
                                 'value':100,
                                 'format':formatlowqual})
 
-            ws.conditional_format(2,1,i-3,col-1, {'type':'cell',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'cell',
                                 'criteria':'==',
                                 'value':'B$2',
                                 'format':formatnormal})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'A',
                                 'format':formatA})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'G',
                                 'format':formatG})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'C',
                                 'format':formatC})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'T',
                                 'format':formatT})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'S',
                                 'format':formatambigous})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'Y',
                                 'format':formatambigous})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'R',
                                 'format':formatambigous})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'W',
                                 'format':formatambigous})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'K',
                                 'format':formatambigous})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'M',
                                 'format':formatambigous})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'N',
                                 'format':formatN})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'-',
                                 'format':formatN})
 
             ws.set_column(0, 0, 30)
-            ws.set_column(1, col-1, 2)
+            ws.set_column(1, col-2, 2)
             ws.freeze_panes(2, 1)
             format_rotation = wb.add_format({'rotation':'90'})
             ws.set_row(0, 140, format_rotation)
@@ -3712,14 +3695,13 @@ def get_snps(directory):
         return
     try:
         os.remove(ordered_list_from_tree)
-        os.remove('each_vcf-poslist.txt')
         os.remove('map_quality.txt')
         if mygbk:
             os.remove("annotations.txt")
         os.remove("outfile.txt")
         os.remove(out_sort)
         os.remove(out_org) # organized.txt table
-        os.remove(out_table) # unorganized table
+        os.remove(table_location) # unorganized table
         os.remove('RAxML_info.raxml')
         os.remove('RAxML_log.raxml')
         os.remove('RAxML_parsimonyTree.raxml')

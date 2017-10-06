@@ -3402,12 +3402,6 @@ def get_snps(directory):
             mytable = mytable.append([row1])
             mytable = mytable.append([row2])
 
-abc = row1.to_frame()
-abc = abc.drop('reference_pos')
-mytable.append(abc.T)
-http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.append.html
-http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.to_frame.html
-
             mytable = mytable.T
             mytable = mytable.sort_values(['snp_from_top', 'snp_per_column'], ascending=[True, False])
             mytable = mytable.T
@@ -3577,110 +3571,110 @@ http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.to_frame.htm
             formatambigous = wb.add_format({'font_color':'#C70039', 'bg_color':'#E2CFDD'})
             formatN = wb.add_format({'bg_color':'#E2CFDD'})
 
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                   'criteria':'containing',
                                   'value':60,
                                   'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':59,
                                 'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':58,
                                 'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':57,
                                 'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':56,
                                 'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':55,
                                 'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':54,
                                 'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':53,
                                 'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':52,
                                 'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':51,
                                 'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':50,
                                 'format':formathighqual})
-            ws.conditional_format(i-2,1,i-2,col-1, {'type':'text',
+            ws.conditional_format(i-2,1,i-2,col-2, {'type':'text',
                                 'criteria':'not containing',
                                 'value':100,
                                 'format':formatlowqual})
 
-            ws.conditional_format(2,1,i-3,col-1, {'type':'cell',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'cell',
                                 'criteria':'==',
                                 'value':'B$2',
                                 'format':formatnormal})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'A',
                                 'format':formatA})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'G',
                                 'format':formatG})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'C',
                                 'format':formatC})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'T',
                                 'format':formatT})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'S',
                                 'format':formatambigous})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'Y',
                                 'format':formatambigous})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'R',
                                 'format':formatambigous})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'W',
                                 'format':formatambigous})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'K',
                                 'format':formatambigous})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'M',
                                 'format':formatambigous})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'N',
                                 'format':formatN})
-            ws.conditional_format(2,1,i-3,col-1, {'type':'text',
+            ws.conditional_format(2,1,i-3,col-2, {'type':'text',
                                 'criteria':'containing',
                                 'value':'-',
                                 'format':formatN})
 
             ws.set_column(0, 0, 30)
-            ws.set_column(1, col-1, 2)
+            ws.set_column(1, col-2, 2)
             ws.freeze_panes(2, 1)
             format_rotation = wb.add_format({'rotation':'90'})
             ws.set_row(0, 140, format_rotation)

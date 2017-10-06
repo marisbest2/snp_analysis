@@ -21,12 +21,12 @@ Scripts are written in Python and must be ran using Python 3.
 
 Anaconda is a highly trusted Python package distrubution platform.  If running Python 2 a new environment can be set without disrupting your current Python environment.  See option below for installing an additional Anaconda environment.  
 
-Install Anaconda if not already installed.  Tested using Anaconda3-4.3.1.
+Install Anaconda if not already installed.  Tested using Anaconda3-5.0.0.
 
 On macOS
       
-    ~$ wget https://repo.continuum.io/archive/Anaconda3-4.3.1-MacOSX-x86_64.sh
-    ~$ bash Anaconda3-4.3.1-MacOSX-x86_64.sh
+    ~$ wget https://repo.continuum.io/archive/Anaconda3-5.0.0-MacOSX-x86_64.sh
+    ~$ bash Anaconda3-5.0.0-MacOSX-x86_64.sh
 
 If `wget` is unavailable Anaconda can be installed using the graphical installer for Python 3.  See the Anaconda download page.
 
@@ -51,11 +51,9 @@ Setup Bioconda channels.  Add them in the order shown below.  Order is important
     ~$ conda config --add channels r
     ~$ conda config --add channels bioconda
     
-Install specific versions and programs.
-
-    ~$ conda install python=3.5
-    
-    ~$ conda install pyvcf biopython bwa samtools picard abyss gatk raxml newick_utils xlrd xlsxwriter gitpython regex cairosvg pandas=0.18.1
+Install programs.
+ 
+    ~$ conda install pyvcf biopython bwa samtools picard abyss gatk raxml newick_utils xlrd xlsxwriter gitpython regex cairosvg pandas
 
 When gatk is downloaded using Anacoda it still needs to be registered.  GATK has a way to do this.  Go to GATK's website, download the GATK package, unzip it, and run:
 

@@ -23,7 +23,7 @@ Anaconda is a highly trusted Python package distrubution platform.  If running P
 
 Install Anaconda if not already installed.  Tested using Anaconda3-5.0.0.
 
-    ~$ wget https://repo.continuum.io/archive/Anaconda3-5.0.0-Linux-ppc64le.sh        
+    ~$ wget https://repo.continuum.io/archive/Anaconda3-5.0.0-Linux-x86_64.sh        
     ~$ bash Anaconda3-5.0.0-Linux-ppc64le.sh
     
 When installing from the command line use Anaconda's default installation except when asked to, "prepend to PATH", choose yes.

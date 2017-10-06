@@ -338,10 +338,10 @@ class script1():
                 upload_to, remote, script_dependents = script1.update_directory(dependents_dir) #***FUNCTION CALL
                 
                 spoligo_db = script_dependents + "/nospoligo.txt"
-                reference = script_dependents + "/NC_016855.fasta"
+                reference = script_dependents + "/NC_016856-NC_016855.fasta"
                 print("Reference being used: %s" % reference)
-                hqs = script_dependents + "/NC_016855HighestQualitySNPs.vcf"
-                gbk_file = script_dependents + "/NC_016855.gbk"
+                hqs = script_dependents + "/NC_016856-NC_016855HighestQualitySNPs.vcf"
+                gbk_file = script_dependents + "/NC_016856-NC_016855.gbk"
                 email_list = "tod.p.stuber@aphis.usda.gov"
                 
                 option_list=[dependents_dir, reference, hqs, gbk_file, email_list, upload_to, remote, script_dependents, spoligo_db]
@@ -1763,7 +1763,7 @@ class script2():
                 print ("will use previously used genotyping_codes.xlsx file")
 
             genotypingcodes = script_dependents + "/genotyping_codes.xlsx" # this may not be available if there is no access to f drive.  f drive record will not get cp to cut bioinfo list and then cp locally.  Can also manually put something in ~/dependencies on github.
-            gbk_file = script_dependents + "/NC_016855.gbk"
+            gbk_file = script_dependents + "/NC_016856-NC_016855.gbk"
             # This file tells the script how to cluster VCFs
             definingSNPs = script_dependents + "/DefiningSNPsGroupDesignations.xlsx"
             remove_from_analysis = script_dependents + "/RemoveFromAnalysis.xlsx"
@@ -3911,7 +3911,7 @@ def get_species():
 
     #species = corresponding NCBI accession
     species_cross_reference = {}
-    species_cross_reference["salmonella"] = ["NC_016855"]
+    species_cross_reference["salmonella"] = ["NC_016856, NC_016855"]
     species_cross_reference["bovis"] = ["002945", "00879"]
     species_cross_reference["h37"] = ["000962", "002755", "009525", "018143"]
     species_cross_reference["para"] = ["NC_002944"]

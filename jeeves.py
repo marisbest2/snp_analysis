@@ -2799,7 +2799,7 @@ def group_files(each_vcf):
     dict_amb = {}
     group_calls = []
     passing = True
-    print("qual_gatk_threshold: %s " % qual_gatk_threshold)
+    #print("qual_gatk_threshold: %s " % qual_gatk_threshold)
 
     try:
         vcf_reader = vcf.Reader(open(each_vcf, 'r'))

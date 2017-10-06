@@ -24,7 +24,7 @@ Anaconda is a highly trusted Python package distrubution platform.  If running P
 Install Anaconda if not already installed.  Tested using Anaconda3-5.0.0.
 
     ~$ wget https://repo.continuum.io/archive/Anaconda3-5.0.0-Linux-x86_64.sh        
-    ~$ bash Anaconda3-5.0.0-Linux-ppc64le.sh
+    ~$ bash Anaconda3-5.0.0-Linux-x86_64.sh
     
 When installing from the command line use Anaconda's default installation except when asked to, "prepend to PATH", choose yes.
     
@@ -46,6 +46,8 @@ Setup Bioconda channels.  Add them in the order shown below.  Order is important
     ~$ conda config --add channels bioconda
     
 Install programs.
+
+    ~$ conda install python=3.5 # at the time of testing (2017-10-06) cairosvg required python3.5
     
     ~$ conda install pyvcf biopython bwa samtools picard abyss gatk raxml newick_utils xlrd xlsxwriter gitpython regex cairosvg pandas
 

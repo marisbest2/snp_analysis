@@ -3414,6 +3414,12 @@ def get_snps(directory):
 
             mytable = mytable.append([row1])
             mytable = mytable.append([row2])
+            
+#In pandas=0.18.1 even this does not work:
+#    abc = row1.to_frame()
+#    abc = abc.T --> mytable.shape (5, 18), abc.shape (1, 18)
+#    mytable.append(abc)
+#Continue to get error: "*** ValueError: all the input arrays must have same number of dimensions"
 
             mytable = mytable.T
             mytable = mytable.sort_values(['snp_from_top', 'snp_per_column'], ascending=[True, False])

@@ -3911,7 +3911,7 @@ def get_species():
 
     #species = corresponding NCBI accession
     species_cross_reference = {}
-    species_cross_reference["salmonella"] = ["NC_016856, NC_016855"]
+    species_cross_reference["salmonella"] = ["016856, 016855"]
     species_cross_reference["bovis"] = ["002945", "00879"]
     species_cross_reference["h37"] = ["000962", "002755", "009525", "018143"]
     species_cross_reference["para"] = ["NC_002944"]

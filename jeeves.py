@@ -2965,6 +2965,7 @@ def find_positions(filename):
 
 def bruc_private_codes(upload_to):
 
+    found = False
     if os.path.isfile("/Volumes/MB/Brucella/Brucella Logsheets/ALL_WGS.xlsx"):
         private_location = "/Volumes/MB/Brucella/Brucella Logsheets/ALL_WGS.xlsx"
         print("private_location:  %s" % private_location)

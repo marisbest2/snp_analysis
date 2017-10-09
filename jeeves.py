@@ -2521,6 +2521,9 @@ class script2():
         if os.path.isfile(genotypingcodes):
             print ("\nChanging the VCF names")
             names_not_changed = change_names() # check if genotypingcodes exist.  if not skip.
+        else:
+            print("No mapping file for VCF names")
+            names_not_changed = glob.glob("*.vcf")
 
         files = glob.glob('*vcf')
         print ("REMOVING FROM ANALYSIS...")

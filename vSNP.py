@@ -2602,6 +2602,14 @@ class script2():
             with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool:
                 pool.map(get_snps, directory_list)
 
+        # Zip dependency files
+        dependents_dir = root_dir + "/dependents"
+        os.makedirs(dependents_dir)
+        shutil.copy(definingSNPs, dependents_dir)
+        shutil.copy(excelinfile, dependents_dir)
+        zip(dependents_dir, dependents_dir)
+        shutil.rmtree(dependents_dir)
+
         runtime = (datetime.now() - startTime)
         print ("\n\nruntime: %s:  \n" % runtime)
 

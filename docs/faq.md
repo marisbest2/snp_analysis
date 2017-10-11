@@ -45,7 +45,7 @@ Anaconda should have taken care of the your Java version.  There are different r
 
 No, the Anaconda package manager is not need, but it does make the setup much easier.  
 
-System programs such as: bwa, samtools, abyss, and raxml will be usable if they are in your PATH with the exact same name (remember Linux is case sensitive meaning capitalization counts).  This is why samtools above can be removed from your conda environment and replaced with the standard install.  Either way `samtools` is being found in your PATH.  However Picard and GATK are Java programs.  If running from a standard installation the call within jeeves.py needs to be changed.  For example, when ran from a standard installation the call is: `java -Xmx1g -jar ${picard} CreateSequenceDictionary ...`.  The `java -Xmx1g -jar` must be included.  However, Anaconda takes care of this, which allows jeeves to use only `picard CreateSequenceDictionary ...` when Picard and GATK are install using it.
+System programs such as: bwa, samtools, abyss, and raxml will be usable if they are in your PATH with the exact same name (remember Linux is case sensitive meaning capitalization counts).  This is why samtools above can be removed from your conda environment and replaced with the standard install.  Either way `samtools` is being found in your PATH.  However Picard and GATK are Java programs.  If running from a standard installation the call within vSNP.py needs to be changed.  For example, when ran from a standard installation the call is: `java -Xmx1g -jar ${picard} CreateSequenceDictionary ...`.  The `java -Xmx1g -jar` must be included.  However, Anaconda takes care of this, which allows vSNP to use only `picard CreateSequenceDictionary ...` when Picard and GATK are install using it.
 
 Also, the Anaconda package manager is not needed to install specific Python modules.  These can be installed using other tools such as pip or easy_install.  What is important is getting the correct version, i.e. Python 3.5 and pandas=0.18.1.
 
@@ -61,6 +61,6 @@ This may be caused by either an old version of pandas or the latest version of t
 
 History:  Pandas 0.18.1 contained a bug which required a work around.  This bug has been fixed and the script has been updated properly append tables.
 
-Fix:  Update to the latest verion of jeeves and pandas.  To update jeeves preform a git pull or re-clone the repo.  To update pandas: `~$ conda update pandas`.  Version must be > 0.18.1.  Tested with 0.20.3.
+Fix:  Update to the latest verion of vSNP and pandas.  To update vSNP preform a git pull or re-clone the repo.  To update pandas: `~$ conda update pandas`.  Version must be > 0.18.1.  Tested with 0.20.3.
 
 -----

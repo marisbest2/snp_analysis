@@ -12,10 +12,10 @@ weight: 1
 
 -----
 <br>
-USDA APHIS Veterinary Services (VS) pipeline, jeeves, for Mycobacterium tuberculosis complex, mainly M. bovis, and Brucella sp. genotyping from high throughput sequence, outputting BAM, VCF, SNP tables and phylogentic trees. 
+USDA APHIS Veterinary Services (VS) pipeline, vSNP, for Mycobacterium tuberculosis complex, mainly M. bovis, and Brucella sp. genotyping from high throughput sequence, outputting BAM, VCF, SNP tables and phylogentic trees. 
 
 
-Jeeves is written in Python 3 and relies on the Anaconda package manager.  It is called on a working directory containing either FASTQ or VCF files.  Step 1, jeeves, is called on a working directory containing FASTQ files.  BWA is used to align reads and SNPs are called using GATK's HaplotypeCaller outputing VCF files.  In step 2, those VCF files are gathered to produce SNP alignments, tables and phylogenetic trees of grouped isolates.  Jeeves is portable and can be ran with relatively little computer resources.  Because jeeves groups samples of similar isolates one is able to quickly validate SNP positions, and report sample comparisons as a high-quality validated SNP analysis.
+vSNP is written in Python 3 and relies on the Anaconda package manager.  It is called on a working directory containing either FASTQ or VCF files.  Step 1, vSNP, is called on a working directory containing FASTQ files.  BWA is used to align reads and SNPs are called using GATK's HaplotypeCaller outputing VCF files.  In step 2, those VCF files are gathered to produce SNP alignments, tables and phylogenetic trees of grouped isolates.  vSNP is portable and can be ran with relatively little computer resources.  Because vSNP groups samples of similar isolates one is able to quickly validate SNP positions, and report sample comparisons as a high-quality validated SNP analysis.
 
 Minimal computer requirements are 4 cores, and 8GB of memory, but more compute resources are advantageous when running multiple samples, FASTQ file sizes are excessively large or there are over 1,000 VCFs in a comparison.
 

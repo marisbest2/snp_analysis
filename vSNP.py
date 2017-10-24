@@ -3198,22 +3198,23 @@ def get_snps(directory):
             chrom = each_absolute_pos[0]
             pos = int(each_absolute_pos[1])
             pos_found = False
-            for each_value in gbk_dict.values():
-                for feature in each_value.features:
-                    if pos in feature and "CDS" in feature.type:
-                        myproduct = "none list"
-                        mylocus = "none list"
-                        mygene = "none list"
-                        myproduct = feature.qualifiers['product'][0]
-                        mylocus = feature.qualifiers['locus_tag'][0]
-                        if "gene" in feature.qualifiers:
-                            mygene = feature.qualifiers['gene'][0]
-                        myout = myproduct + ", gene: " + mygene + ", locus_tag: " + mylocus
-                        pos_found = True
-            if pos_found == False:
-                myout = "No annotated product"
-            dict_annotation.update({chrom + "-" + str(pos):myout})
-        return (dict_annotation)
+            for each_key, each_value in gbk_dict.items():
+                if chrom == each_key: # need to check chrom when multiple chroms present
+                    for feature in each_value.features:
+                        if pos in feature and "CDS" in feature.type:
+                            myproduct = "none list"
+                            mylocus = "none list"
+                            mygene = "none list"
+                            myproduct = feature.qualifiers['product'][0]
+                            mylocus = feature.qualifiers['locus_tag'][0]
+                            if "gene" in feature.qualifiers:
+                                mygene = feature.qualifiers['gene'][0]
+                            myout = myproduct + ", gene: " + mygene + ", locus_tag: " + mylocus
+                            pos_found = True
+                if pos_found == False:
+                    myout = "No annotated product"
+                dict_annotation.update({chrom + "-" + str(pos):myout})
+            return (dict_annotation)
 
     table_location = outdir + directory + "-table.txt"
     table=open(table_location, 'wt')

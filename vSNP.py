@@ -3189,42 +3189,42 @@ def get_snps(directory):
         write_out_positions.close()
         write_out_details.close()
 
-    def get_annotations(parsimony_positions):
-            print ("Getting annotations")
-            dict_annotation = {}
-            in_annotation_as_dict = SeqIO.to_dict(SeqIO.parse(gbk_file, "genbank"))
-            for each_absolute_pos in parsimony_positions:
-                pos_found = False
-                each_absolute_pos = each_absolute_pos.split("-")
-                chrom = each_absolute_pos[0]
-                chrom.rstrip()
-                #print ("chrom %s" % chrom)
-                pos = each_absolute_pos[1]
-                pos.rstrip()
-                pos = int(pos)
-                #print ("pos %s" % pos)
-                for each_key, each_value in in_annotation_as_dict.items():
-                    if chrom == each_key:
-                        for feature in each_value.features:
-                            if pos in feature and "CDS" in feature.type:
-                                myproduct = "none list"
-                                mylocus = "none list"
-                                mygene = "none list"
-                                for p in feature.qualifiers['product']:
-                                    myproduct = p
-                                for l in feature.qualifiers['locus_tag']:
-                                    mylocus = l
-                                if "gene" in feature.qualifiers:
-                                    gene = feature.qualifiers['gene']
-                                    for g in gene:
-                                        mygene = g
-                                myout = myproduct + ", gene: " + mygene + ", locus_tag: " + mylocus
-                                pos_found = True
-                if pos_found == False:
-                    myout = "No annotated product"
-                dict_annotation.update({chrom + "-" + str(pos):myout})
-                #print ("myout %s" % myout)
-            return (dict_annotation)
+    def get_annotations_table(parsimony_positions):
+        print ("Getting annotations")
+        dict_annotation = {}
+        in_annotation_as_dict = SeqIO.to_dict(SeqIO.parse(gbk_file, "genbank"))
+        for each_absolute_pos in parsimony_positions:
+            pos_found = False
+            each_absolute_pos = each_absolute_pos.split("-")
+            chrom = each_absolute_pos[0]
+            chrom.rstrip()
+            #print ("chrom %s" % chrom)
+            pos = each_absolute_pos[1]
+            pos.rstrip()
+            pos = int(pos)
+            #print ("pos %s" % pos)
+            for each_key, each_value in in_annotation_as_dict.items():
+                if chrom == each_key:
+                    for feature in each_value.features:
+                        if pos in feature and "CDS" in feature.type:
+                            myproduct = "none list"
+                            mylocus = "none list"
+                            mygene = "none list"
+                            for p in feature.qualifiers['product']:
+                                myproduct = p
+                            for l in feature.qualifiers['locus_tag']:
+                                mylocus = l
+                            if "gene" in feature.qualifiers:
+                                gene = feature.qualifiers['gene']
+                                for g in gene:
+                                    mygene = g
+                            myout = myproduct + ", gene: " + mygene + ", locus_tag: " + mylocus
+                            pos_found = True
+            if pos_found == False:
+                myout = "No annotated product"
+            dict_annotation.update({chrom + "-" + str(pos):myout})
+            #print ("myout %s" % myout)
+        return (dict_annotation)
 
     table_location = outdir + directory + "-table.txt"
     table=open(table_location, 'wt')
@@ -3515,7 +3515,7 @@ def get_snps(directory):
         mytable.to_csv(out_org, sep='\t', index_label='reference_pos') #org
 
         if mygbk:
-            dict_annotation = get_annotations(parsimony_positions)
+            dict_annotation = get_annotations_table(parsimony_positions)
             write_out=open('annotations.txt', 'w+')
             print ('reference_pos\tannotations', file=write_out)
             for k, v in dict_annotation.items():

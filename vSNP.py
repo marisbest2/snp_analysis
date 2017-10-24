@@ -3190,40 +3190,29 @@ def get_snps(directory):
         write_out_details.close()
 
     def get_annotations_table(parsimony_positions):
-        print ("Getting annotations")
+        print ("Getting annotations...")
         dict_annotation = {}
-        in_annotation_as_dict = SeqIO.to_dict(SeqIO.parse(gbk_file, "genbank"))
+        gbk_dict = SeqIO.to_dict(SeqIO.parse(gbk_file, "genbank"))
         for each_absolute_pos in parsimony_positions:
-            pos_found = False
             each_absolute_pos = each_absolute_pos.split("-")
             chrom = each_absolute_pos[0]
-            chrom.rstrip()
-            #print ("chrom %s" % chrom)
-            pos = each_absolute_pos[1]
-            pos.rstrip()
-            pos = int(pos)
-            #print ("pos %s" % pos)
-            for each_key, each_value in in_annotation_as_dict.items():
-                if chrom == each_key:
-                    for feature in each_value.features:
-                        if pos in feature and "CDS" in feature.type:
-                            myproduct = "none list"
-                            mylocus = "none list"
-                            mygene = "none list"
-                            for p in feature.qualifiers['product']:
-                                myproduct = p
-                            for l in feature.qualifiers['locus_tag']:
-                                mylocus = l
-                            if "gene" in feature.qualifiers:
-                                gene = feature.qualifiers['gene']
-                                for g in gene:
-                                    mygene = g
-                            myout = myproduct + ", gene: " + mygene + ", locus_tag: " + mylocus
-                            pos_found = True
+            pos = int(each_absolute_pos[1])
+            pos_found = False
+            for each_value in gbk_dict.values():
+                for feature in each_value.features:
+                    if pos in feature and "CDS" in feature.type:
+                        myproduct = "none list"
+                        mylocus = "none list"
+                        mygene = "none list"
+                        myproduct = feature.qualifiers['product'][0]
+                        mylocus = feature.qualifiers['locus_tag'][0]
+                        if "gene" in feature.qualifiers:
+                            mygene = feature.qualifiers['gene'][0]
+                        myout = myproduct + ", gene: " + mygene + ", locus_tag: " + mylocus
+                        pos_found = True
             if pos_found == False:
                 myout = "No annotated product"
             dict_annotation.update({chrom + "-" + str(pos):myout})
-            #print ("myout %s" % myout)
         return (dict_annotation)
 
     table_location = outdir + directory + "-table.txt"

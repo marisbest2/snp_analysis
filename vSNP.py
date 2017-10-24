@@ -3214,7 +3214,7 @@ def get_snps(directory):
                 if pos_found == False:
                     myout = "No annotated product"
                 dict_annotation.update({chrom + "-" + str(pos):myout})
-            return (dict_annotation)
+        return (dict_annotation)
 
     table_location = outdir + directory + "-table.txt"
     table=open(table_location, 'wt')

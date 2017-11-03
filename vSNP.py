@@ -3964,9 +3964,9 @@ if limited_cpu_count == 0:
 parser = argparse.ArgumentParser(prog='PROG', formatter_class=argparse.RawDescriptionHelpFormatter, description=textwrap.dedent('''\
 
 ---------------------------------------------------------
-jeeves --> get SNPs, group SNPs, verify SNPs
+vSNP --> get SNPs, group SNPs, verify SNPs
 
-jeeves is called on a working directory containing FASTQ or VCF files.
+vSNP is called on a working directory containing FASTQ or VCF files.
 
 See documentation at: https://usda-vs.github.io/snp_analysis/
 

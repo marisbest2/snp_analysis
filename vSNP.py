@@ -1498,7 +1498,6 @@ class script1():
                     print(os.popen('conda list bwa | grep -v "^#"; \
                         conda list abyss | grep -v "^#"; \
                         conda list picard | grep -v "^#"; \
-                        conda list picard | grep -v "^#"; \
                         conda list samtools | grep -v "^#"; \
                         conda list gatk | grep -v "^#"; \
                         conda list biopython | grep -v "^#"').read(), file=verison_out)

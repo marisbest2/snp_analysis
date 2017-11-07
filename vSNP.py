@@ -1491,6 +1491,20 @@ class script1():
                     sbcode = "N/A"
                     hexcode = "N/A"
                     binarycode = "N/A"
+                    
+                #Capture program versions for step 1
+                try:
+                    verison_out = open("version_capture.txt", 'w')
+                    print(os.popen('conda list bwa | grep -v "^#"; \
+                        conda list abyss | grep -v "^#"; \
+                        conda list picard | grep -v "^#"; \
+                        conda list picard | grep -v "^#"; \
+                        conda list samtools | grep -v "^#"; \
+                        conda list gatk | grep -v "^#"; \
+                        conda list biopython | grep -v "^#"').read(), file=verison_out)
+                    verison_out.close()
+                except:
+                    pass
 
                 sequence_count = 0
                 total_length = 0
@@ -2673,6 +2687,18 @@ class script2():
                 print ("<td>%s</td>" % x, end='\t', file=htmlfile)
             print ("</tr>", file=htmlfile)
         print ("</table>", file=htmlfile)
+        
+        #Capture program versions for step 2
+        try:
+            versions = os.popen('conda list biopython | grep -v "^#"; \
+            conda list numpy | grep -v "^#"; \
+            conda list pandas | grep -v "^#"; \
+            conda list raxml | grep -v "^#"').read()
+            versions.split('\n')
+            for i in versions:
+            print ("%s<br>" % i, file=htmlfile)
+        except:
+            pass
 
         #FILES NOT RENAMED
         if names_not_changed:

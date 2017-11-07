@@ -2694,7 +2694,7 @@ class script2():
             conda list numpy | grep -v "^#"; \
             conda list pandas | grep -v "^#"; \
             conda list raxml | grep -v "^#"').read()
-            versions.split('\n')
+            versions = versions.split('\n')
             for i in versions:
                 print ("%s<br>" % i, file=htmlfile)
         except:

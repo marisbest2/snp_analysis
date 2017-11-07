@@ -2692,7 +2692,7 @@ class script2():
         try:
             print ("\n<h2>Program versions:</h2>", file=htmlfile)
             versions = os.popen('conda list biopython | grep -v "^#"; \
-            conda list numpy | grep -v "^#"; \
+            conda list numpy | egrep -v "^#|numpydoc"; \
             conda list pandas | grep -v "^#"; \
             conda list raxml | grep -v "^#"').read()
             versions = versions.split('\n')

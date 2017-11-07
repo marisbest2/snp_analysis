@@ -2690,6 +2690,7 @@ class script2():
         
         #Capture program versions for step 2
         try:
+            print ("\n<h2>Program versions:</h2>", file=htmlfile)
             versions = os.popen('conda list biopython | grep -v "^#"; \
             conda list numpy | grep -v "^#"; \
             conda list pandas | grep -v "^#"; \

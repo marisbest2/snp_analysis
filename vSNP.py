@@ -2696,7 +2696,7 @@ class script2():
             conda list raxml | grep -v "^#"').read()
             versions.split('\n')
             for i in versions:
-            print ("%s<br>" % i, file=htmlfile)
+                print ("%s<br>" % i, file=htmlfile)
         except:
             pass
 

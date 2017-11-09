@@ -3896,11 +3896,11 @@ class loop():
             print("ERROR CLOSING STATS FILE")
             pass
 
-        if stats_lock: #if file was locked try to copy
-            try: #will not copy if path unavailable
+        try: #will not copy if path unavailable
+            if stats_lock: #if file was locked try to copy
                 shutil.copy2(summary_file, copy_to)
-            except:
-                pass
+        except:
+            pass
 
         ####send email:
 

@@ -1581,8 +1581,8 @@ class script2():
         global sys_raxml
         
         try:
-            subprocess.call("raxml", stdout=open(os.devnull, 'wb'))
-            sys_raxml = "raxml"
+            subprocess.call("raxmlHPC-PTHREADS-AVX2", stdout=open(os.devnull, 'wb'))
+            sys_raxml = "raxmlHPC-PTHREADS-AVX2"
             #print ("%s found" % sys_raxml)
         except OSError:
             print ("looking for RAxML")
@@ -1591,20 +1591,26 @@ class script2():
                 sys_raxml = "raxmlHPC-PTHREADS"
                 print ("%s found" % sys_raxml)
             except OSError:
+                print ("looking for RAxML")
                 try:
-                    subprocess.call("raxmlHPC-SSE3")
-                    sys_raxml = "raxmlHPC-SSE3"
+                    subprocess.call("raxmlHPC-AVX2")
+                    sys_raxml = "raxmlHPC-AVX2"
                     print ("%s found" % sys_raxml)
                 except OSError:
-                    print ("looking for RAxML")
                     try:
-                        subprocess.call("raxmlHPC-PTHREADS-AVX2")
-                        sys_raxml = "raxmlHPC-PTHREADS-AVX2"
-                        print ("RAxML found")
+                        subprocess.call("raxmlHPC-SSE3")
+                        sys_raxml = "raxmlHPC-SSE3"
+                        print ("%s found" % sys_raxml)
                     except OSError:
-                        print ("#####RAxML is not in you PATH")
-                        print ("#####See help page for support")
-                        sys.exit(0)
+                        print ("looking for RAxML")
+                        try:
+                            subprocess.call("raxmlHPC")
+                            sys_raxml = "raxmlHPC"
+                            print ("RAxML found")
+                        except OSError:
+                            print ("#####RAxML is not in you PATH")
+                            print ("#####See help page for support")
+                            sys.exit(0)
 
         print ("\n\n----> RAxML found in $PATH as: %s <-----" % sys_raxml)
 

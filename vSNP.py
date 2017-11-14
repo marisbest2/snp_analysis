@@ -1580,6 +1580,8 @@ class script2():
         
         global sys_raxml
         
+        # IF AVX2 IS AVAILABE (CHECK WITH `cat /proc/cpuinfo | grep -i "avx"`). CREATE A LINK TO: `ln -s path_to_raxmlHPC-PTHREADS-AVX2 raxml.  Place "raxml" in your path.  This will allow "raxml" to be found first which will call AVX2 version of RAxML
+        
         try:
             subprocess.call("raxml", stdout=open(os.devnull, 'wb'))
             sys_raxml = "raxml"
@@ -1598,8 +1600,8 @@ class script2():
                 except OSError:
                     print ("looking for RAxML")
                     try:
-                        subprocess.call("raxmlHPC-PTHREADS-AVX2")
-                        sys_raxml = "raxmlHPC-PTHREADS-AVX2"
+                        subprocess.call("raxmlHPC")
+                        sys_raxml = "raxmlHPC"
                         print ("RAxML found")
                     except OSError:
                         print ("#####RAxML is not in you PATH")

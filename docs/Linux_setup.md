@@ -41,7 +41,7 @@ If you are currently using Python 2, and wish to keep it as your default, a virt
 Setup Bioconda channels.  Add them in the order shown below.  Order is important.
 
     ~$ conda config --add channels conda-forge
-    ~$ conda config --add channels defaults # If warning, it can be ignored
+    ~$ conda config --add channels defaults # Can ignored warning
     ~$ conda config --add channels r
     ~$ conda config --add channels bioconda
     

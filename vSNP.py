@@ -4002,7 +4002,7 @@ See documentation at: https://usda-vs.github.io/snp_analysis/
 
         Step 2: VCFs --> Tables & Trees
 
--s <OPTIONAL SPECIES TYPES>: bovis, h37, ab1, ab3, suis1, mel1, mel2, mel3, canis, ceti1, ceti2, ovis, neo, para, salmonella
+-s <OPTIONAL SPECIES TYPES>: bovis, af, h37, ab1, ab3, suis1, mel1, mel2, mel3, canis, ceti1, ceti2, ovis, neo, para, salmonella
 
 '''), epilog='''---------------------------------------------------------''')
 

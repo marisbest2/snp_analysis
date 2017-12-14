@@ -1401,6 +1401,7 @@ class script1():
                     except AttributeError:
                         pass
 
+                os.remove(coverage_file)
                 os.remove(samfile)
                 os.remove(allbam)
                 os.remove(nodupbam)

@@ -170,14 +170,28 @@ class script1():
             return "%.1f%s%s" % (num, 'Yi', suffix)
 
         def unzipfiles(): # don't "self" if called from within
-            for zip_filename in R1, R2:
-                print("Unzipping... %s" % zip_filename)
-                name_nogz = os.path.splitext(zip_filename)[0]
-                write_out = open(name_nogz, 'wt')
-                with gzip.open(zip_filename, 'rt') as f:
-                    file_content = f.read()
-                    print(file_content, file=write_out)
-                write_out.close()
+            try:
+                for zip_filename in R1, R2:
+                    print("Unzipping... %s" % zip_filename)
+                    name_nogz = os.path.splitext(zip_filename)[0]
+                    write_out = open(name_nogz, 'wt')
+                    with gzip.open(zip_filename, 'rt') as f:
+                        file_content = f.read()
+                        print(file_content, file=write_out)
+                    write_out.close()
+            except OSError:
+                print("#### ZIP FILE APPEARS TO HAVE AN ERROR: %s" % zip_filename)
+                text = "ZIP FILE APPEARS TO HAVE AN ERROR: " + zip_filename
+                msg = MIMEMultipart()
+                msg['From'] = "tod.p.stuber@aphis.usda.gov"
+                msg['To'] = "tod.p.stuber@aphis.usda.gov"
+                msg['Date'] = formatdate(localtime = True)
+                msg['Subject'] = "###fastq.gz unzipping problem"
+                msg.attach(MIMEText(text))
+                smtp = smtplib.SMTP('10.10.8.12')
+                smtp.send_message(msg)
+                smtp.quit()
+                sys.exit(0)
 
         def update_directory(dependents_dir): # UPDATE DIRECTORIES
             home = os.path.expanduser("~")

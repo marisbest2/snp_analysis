@@ -1400,8 +1400,8 @@ class script1():
                     print("Getting Zero Coverage...\n")
                     zero_coverage_vcf, good_snp_count, ave_coverage, genome_coverage = script1.add_zero_coverage(coverage_file, hapall, loc_sam)
                 except FileNotFoundError:
-                    print("#### ALIGNMENT ERROR, NO COVERAGE FILE: %s" % zip_filename)
-                    text = "ZIP FILE APPEARS TO HAVE AN ERROR: " + zip_filename
+                    print("#### ALIGNMENT ERROR, NO COVERAGE FILE: %s" % sample_name)
+                    text = "ALIGNMENT ERROR, NO COVERAGE FILE " + sample_name
                     msg = MIMEMultipart()
                     msg['From'] = "tod.p.stuber@aphis.usda.gov"
                     msg['To'] = "tod.p.stuber@aphis.usda.gov"

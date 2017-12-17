@@ -191,7 +191,7 @@ class script1():
                 smtp = smtplib.SMTP('10.10.8.12')
                 smtp.send_message(msg)
                 smtp.quit()
-                sys.exit(0)
+                sys.exit(1)
 
         def update_directory(dependents_dir): # UPDATE DIRECTORIES
             home = os.path.expanduser("~")
@@ -1396,8 +1396,22 @@ class script1():
                 print("\n@@@ Calling SNPs with HaplotypeCaller")
                 os.system("gatk -R {} -T HaplotypeCaller -I {} -o {} -bamout {} -dontUseSoftClippedBases -allowNonUniqueKmersInRef" .format(sample_reference, qualitybam, hapall, bamout))
 
-                print("Getting Zero Coverage...\n")
-                zero_coverage_vcf, good_snp_count, ave_coverage, genome_coverage = script1.add_zero_coverage(coverage_file, hapall, loc_sam)
+                try: 
+                    print("Getting Zero Coverage...\n")
+                    zero_coverage_vcf, good_snp_count, ave_coverage, genome_coverage = script1.add_zero_coverage(coverage_file, hapall, loc_sam)
+                except FileNotFoundError:
+                    print("#### ALIGNMENT ERROR, NO COVERAGE FILE: %s" % zip_filename)
+                    text = "ZIP FILE APPEARS TO HAVE AN ERROR: " + zip_filename
+                    msg = MIMEMultipart()
+                    msg['From'] = "tod.p.stuber@aphis.usda.gov"
+                    msg['To'] = "tod.p.stuber@aphis.usda.gov"
+                    msg['Date'] = formatdate(localtime = True)
+                    msg['Subject'] = "### No coverage file"
+                    msg.attach(MIMEText(text))
+                    smtp = smtplib.SMTP('10.10.8.12')
+                    smtp.send_message(msg)
+                    smtp.quit()
+                    sys.exit(1)
 
                 ###
                 if gbk_file is not "None":

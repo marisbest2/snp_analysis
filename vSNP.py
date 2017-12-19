@@ -20,6 +20,7 @@ import git
 import csv
 import argparse
 import textwrap
+import signal
 from cairosvg import svg2pdf
 from numpy import mean
 from functools import partial
@@ -191,7 +192,10 @@ class script1():
                 smtp = smtplib.SMTP('10.10.8.12')
                 smtp.send_message(msg)
                 smtp.quit()
-                sys.exit(1)
+
+                for zip_filename in R1, R2:
+                    os.remove(zip_filename)
+                os.rename("zips", "zips_currupt")
 
         def update_directory(dependents_dir): # UPDATE DIRECTORIES
             home = os.path.expanduser("~")
@@ -1411,7 +1415,9 @@ class script1():
                     smtp = smtplib.SMTP('10.10.8.12')
                     smtp.send_message(msg)
                     smtp.quit()
-                    sys.exit(1)
+
+                    # process_id = os.getpid()
+                    # os.kill(process_id, signal.SIGKILL)
 
                 ###
                 if gbk_file is not "None":
@@ -2822,8 +2828,12 @@ def read_aligner(directory):
         sample = script1(R1[0], R2[0], args.species) #force species
     else:
         sample = script1(R1[0], R2[0]) #no species give, will find best
-    stat_summary = sample.align_reads()
-    return(stat_summary)
+    try:
+        stat_summary = sample.align_reads()
+        return(stat_summary)
+    except:
+        return #(stat_summary)
+        pass
 
 def fix_vcf(each_vcf):
     mal = []
@@ -3890,32 +3900,35 @@ class loop():
             else: # run all in run_list in parallel
                 print("SAMPLES RAN IN PARALLEL")
                 with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool: #max_workers=cpu_count
-                    for stat_summary in pool.map(read_aligner, run_list): #run in parallel run_list in read_aligner (script1)
-                        print("statsummary")
-                        print(stat_summary) #stat_summary returned from script 1
-                        col = 0
-                        row += 1
-                        #run stats
-                        for v in stat_summary.values():
-                            worksheet.write(row, col, v) #stat summary to be attached in email and left in working directory
-                            col += 1
-                        stats_lock = False
-                        if not args.quiet and path_found:
-                            try: #try to open cumulative stats file
-                                mytable=pd.read_excel(summary_cumulative_file)
-                                top=mytable[0:0]
-                                stat_summary_list = list(stat_summary.values())
-                                stat_summary_list.insert(0, st)
-                                while len(stat_summary_list) < 18:
-                                    stat_summary_list.append("-")
-                                in_dict_stats=OrderedDict(zip(top, stat_summary_list))
-                                df_dict_stats=pd.DataFrame(in_dict_stats, index=[0])
-                                frames = [mytable, df_dict_stats]
-                                df_cum_stat = pd.concat(frames)
-                                df_cum_stat.to_excel(summary_cumulative_file)
-                            except: # if cannot open cumulative stats file place a copy of run stats in the stats folder
-                                print("Cumulative stats file is locked")
-                                stats_lock = True
+                    try:
+                        for stat_summary in pool.map(read_aligner, run_list): #run in parallel run_list in read_aligner (script1)
+                            print("statsummary")
+                            print(stat_summary) #stat_summary returned from script 1
+                            col = 0
+                            row += 1
+                            #run stats
+                            for v in stat_summary.values():
+                                worksheet.write(row, col, v) #stat summary to be attached in email and left in working directory
+                                col += 1
+                            stats_lock = False
+                            if not args.quiet and path_found:
+                                try: #try to open cumulative stats file
+                                    mytable=pd.read_excel(summary_cumulative_file)
+                                    top=mytable[0:0]
+                                    stat_summary_list = list(stat_summary.values())
+                                    stat_summary_list.insert(0, st)
+                                    while len(stat_summary_list) < 18:
+                                        stat_summary_list.append("-")
+                                    in_dict_stats=OrderedDict(zip(top, stat_summary_list))
+                                    df_dict_stats=pd.DataFrame(in_dict_stats, index=[0])
+                                    frames = [mytable, df_dict_stats]
+                                    df_cum_stat = pd.concat(frames)
+                                    df_cum_stat.to_excel(summary_cumulative_file)
+                                except: # if cannot open cumulative stats file place a copy of run stats in the stats folder
+                                    print("Cumulative stats file is locked")
+                                    stats_lock = True
+                    except:
+                        pass
 
         try:
             runtime = (datetime.now() - startTime)

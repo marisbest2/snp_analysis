@@ -3256,6 +3256,33 @@ def get_snps(directory):
         write_out_positions.close()
         write_out_details.close()
 
+    def get_annotations_table(parsimony_positions):
+        print ("Getting annotations...")
+        dict_annotation = {}
+        gbk_dict = SeqIO.to_dict(SeqIO.parse(gbk_file, "genbank"))
+        for each_absolute_pos in parsimony_positions:
+            each_absolute_pos = each_absolute_pos.split("-")
+            chrom = each_absolute_pos[0]
+            pos = int(each_absolute_pos[1])
+            pos_found = False
+            for each_key, each_value in gbk_dict.items():
+                if chrom == each_key: # need to check chrom when multiple chroms present
+                    for feature in each_value.features:
+                        if pos in feature and "CDS" in feature.type:
+                            myproduct = "none list"
+                            mylocus = "none list"
+                            mygene = "none list"
+                            myproduct = feature.qualifiers['product'][0]
+                            mylocus = feature.qualifiers['locus_tag'][0]
+                            if "gene" in feature.qualifiers:
+                                mygene = feature.qualifiers['gene'][0]
+                            myout = myproduct + ", gene: " + mygene + ", locus_tag: " + mylocus
+                            pos_found = True
+                if pos_found == False:
+                    myout = "No annotated product"
+                dict_annotation.update({chrom + "-" + str(pos):myout})
+        return (dict_annotation)
+
     table_location = outdir + directory + "-table.txt"
     table=open(table_location, 'wt')
 
@@ -3545,56 +3572,29 @@ def get_snps(directory):
         mytable.to_csv(out_org, sep='\t', index_label='reference_pos') #org
 
         if mygbk:
-            print ("Getting annotations...")
-            strung_out_annotation_dictionary = {}
-            gbk_dict = SeqIO.to_dict(SeqIO.parse(gbk_file, "genbank"))
-            for each_key, each_value in gbk_dict.items():
-                for feature in each_value.features:
-                    try:
-                        gene_call = feature.qualifiers['gene'][0]
-                    except:
-                        gene_call = None
-                    try:
-                        gi_call = feature.qualifiers['db_xref'][0]
-                    except:
-                        gi_call = None
-                    try:
-                        product_call = feature.qualifiers['product'][0]
-                        strung_out_annotation_dictionary[tuple(each_key + "-" + str(x) for x in tuple(range(feature.location.start.position,feature.location.end.position)))] = "{}, {}, {}". format(gene_call, product_call, gi_call)
-                    except:
-                        product_call = None
-
-            parsimony_positions_annotations = {}
-
-            for p in parsimony_positions:
-                #k -> absolute position
-                #v -> annotation 
-                for k, v in strung_out_annotation_dictionary.items():
-                    # p -> absolute position
-                    # v -> annotation
-                    if p in k:
-                        parsimony_positions_annotations[p] = v
-
-            annotations = pd.Series(parsimony_positions_annotations, name="Annotation")
-            annotations = pd.DataFrame(annotations)
-            annotations.index.name = 'reference_pos'
-
-            quality = quality.set_index('reference_pos')
+            dict_annotation = get_annotations_table(parsimony_positions)
+            write_out=open('annotations.txt', 'w+')
+            print ('reference_pos\tannotations', file=write_out)
+            for k, v in dict_annotation.items():
+                print ('%s\t%s' % (k, v), file=write_out)
+            write_out.close()
         
             print ("%s gbk is present, getting annotation...\n" % directory)
-            mytable_sort = pd.read_csv(out_sort, sep='\t', index_col='reference_pos') #sort
-            mytable_sort = pd.concat([mytable_sort, quality], axis=1, join='inner') #sort
-            mytable_sort = pd.concat([mytable_sort, annotations], axis=1) #sort
-            mytable_sort = mytable_sort.fillna("No annotated product") #sort
+            annotations = pd.read_csv('annotations.txt', sep='\t') #sort
+            mytable_sort = pd.read_csv(out_sort, sep='\t') #sort
+            mytable_sort = mytable_sort.merge(quality, on='reference_pos', how='inner') #sort
+            mytable_sort = mytable_sort.merge(annotations, on='reference_pos', how='inner') #sort
+            mytable_sort = mytable_sort.set_index('reference_pos') #sort
             mytable_sort = mytable_sort.transpose() #sort
             mytable_sort.to_csv(out_sort, sep='\t', index_label='reference_pos') #sort
 
-            mytable_org = pd.read_csv(out_org, sep='\t', index_col='reference_pos') #org
-            mytable_org = pd.concat([mytable_org, quality], axis=1, join='inner') #sort #org
-            mytable_org = pd.concat([mytable_org, annotations], axis=1, join_axes=[mytable_org.index]) #org, join_axes keep index order for ordered table
-            mytable_org = mytable_org.fillna("No annotated product") #org
-            mytable_org = mytable_org.transpose() #org
-            mytable_org.to_csv(out_org, sep='\t', index_label='reference_pos') #org
+            #annotations = pd.read_csv('annotations.txt', sep='\t') #org
+            mytable = pd.read_csv(out_org, sep='\t') #org
+            mytable = mytable.merge(quality, on='reference_pos', how='inner') #org
+            mytable = mytable.merge(annotations, on='reference_pos', how='inner') #org
+            mytable = mytable.set_index('reference_pos') #org
+            mytable = mytable.transpose() #org
+            mytable.to_csv(out_org, sep='\t', index_label='reference_pos') #org
 
         else:
             print ("No gbk file or no table to annotate")
@@ -3784,6 +3784,8 @@ def get_snps(directory):
     try:
         os.remove(ordered_list_from_tree)
         os.remove('map_quality.txt')
+        if mygbk:
+            os.remove("annotations.txt")
         os.remove("outfile.txt")
         os.remove(out_sort)
         os.remove(out_org) # organized.txt table

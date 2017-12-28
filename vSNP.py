@@ -3577,22 +3577,23 @@ def get_snps(directory):
             annotations = pd.Series(parsimony_positions_annotations, name="Annotation")
             annotations = pd.DataFrame(annotations)
             annotations.index.name = 'reference_pos'
+
+            quality = quality.set_index('reference_pos')
         
             print ("%s gbk is present, getting annotation...\n" % directory)
             mytable_sort = pd.read_csv(out_sort, sep='\t', index_col='reference_pos') #sort
-            quality = quality.set_index('reference_pos')
             mytable_sort = pd.concat([mytable_sort, quality], axis=1, join='inner') #sort
             mytable_sort = pd.concat([mytable_sort, annotations], axis=1) #sort
             mytable_sort = mytable_sort.fillna("No annotated product") #sort
             mytable_sort = mytable_sort.transpose() #sort
             mytable_sort.to_csv(out_sort, sep='\t', index_label='reference_pos') #sort
 
-            mytable_sort = pd.read_csv(out_org, sep='\t', index_col='reference_pos') #org
-            mytable_sort = pd.concat([mytable_sort, quality], axis=1, join='inner') #sort #org
-            mytable_sort = pd.concat([mytable_sort, annotations], axis=1) #org
-            mytable_sort = mytable_sort.fillna("No annotated product") #org
-            mytable_sort = mytable_sort.transpose() #org
-            mytable_sort.to_csv(out_org, sep='\t', index_label='reference_pos') #org
+            mytable_org = pd.read_csv(out_org, sep='\t', index_col='reference_pos') #org
+            mytable_org = pd.concat([mytable_org, quality], axis=1, join='inner') #sort #org
+            mytable_org = pd.concat([mytable_org, annotations], axis=1, join_axes=[mytable_org.index]) #org, join_axes keep index order for ordered table
+            mytable_org = mytable_org.fillna("No annotated product") #org
+            mytable_org = mytable_org.transpose() #org
+            mytable_org.to_csv(out_org, sep='\t', index_label='reference_pos') #org
 
         else:
             print ("No gbk file or no table to annotate")
@@ -3782,8 +3783,6 @@ def get_snps(directory):
     try:
         os.remove(ordered_list_from_tree)
         os.remove('map_quality.txt')
-        if mygbk:
-            os.remove("annotations.txt")
         os.remove("outfile.txt")
         os.remove(out_sort)
         os.remove(out_org) # organized.txt table

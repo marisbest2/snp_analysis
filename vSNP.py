@@ -3565,6 +3565,7 @@ def get_snps(directory):
                         product_call = None
 
             parsimony_positions_annotations = {}
+
             for p in parsimony_positions:
                 #k -> absolute position
                 #v -> annotation 

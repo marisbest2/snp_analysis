@@ -2861,25 +2861,23 @@ def fix_vcf(each_vcf):
     write_out.close()
     os.rename(temp_file, each_vcf)
     return mal
-
-def find_filter_dict(each_vcf):
-    dict_qual = {}
-    dict_map = {}
-    vcf_reader = vcf.Reader(open(each_vcf, 'r'))
-    for record in vcf_reader:
-        absolute_positon = str(record.CHROM) + "-" + str(record.POS)
-        if record.QUAL:
-            returned_qual = []
-            returned_qual.append(record.QUAL)
-        try:
-            returned_map = []
-            returned_map.append(record.INFO['MQ'])
-        except KeyError:
-            pass
-        
-        dict_qual[absolute_positon] = returned_qual
-        dict_map[absolute_positon] = returned_map
-    return dict_qual, dict_map
+    def find_filter_dict(each_vcf):
+        dict_qual = {}
+        dict_map = {}
+        vcf_reader = vcf.Reader(open(each_vcf, 'r'))
+        for record in vcf_reader:
+            absolute_positon = str(record.CHROM) + "-" + str(record.POS)
+            try:
+                returned_qual = []
+                returned_qual.append(record.QUAL)
+                returned_map = []
+                returned_map.append(record.INFO['MQ'])
+            except KeyError:
+                pass
+            
+            dict_qual[absolute_positon] = returned_qual
+            dict_map[absolute_positon] = returned_map
+        return dict_qual, dict_map
 
 # Group files, map pooled from script 2
 def group_files(each_vcf):

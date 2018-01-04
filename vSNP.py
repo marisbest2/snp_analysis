@@ -21,6 +21,7 @@ import csv
 import argparse
 import textwrap
 import signal
+from collections import defaultdict
 from cairosvg import svg2pdf
 from numpy import mean
 from functools import partial
@@ -2531,27 +2532,6 @@ class script2():
 
             return names_not_changed
 
-        # Table to Excel file
-        
-        def find_filter_dict(each_vcf):
-            dict_qual = {}
-            dict_map = {}
-            vcf_reader = vcf.Reader(open(each_vcf, 'r'))
-            for record in vcf_reader:
-                absolute_positon = str(record.CHROM) + "-" + str(record.POS)
-                if record.QUAL:
-                    returned_qual = []
-                    returned_qual.append(record.QUAL)
-                try:
-                    returned_map = []
-                    returned_map.append(record.INFO['MQ'])
-                except KeyError:
-                    pass
-                
-                dict_qual[absolute_positon] = returned_qual
-                dict_map[absolute_positon] = returned_qual
-            return dict_qual, dict_map
-
         test_duplicate() #***FUNCTION CALL
         
         global mygbk
@@ -2882,6 +2862,25 @@ def fix_vcf(each_vcf):
     os.rename(temp_file, each_vcf)
     return mal
 
+def find_filter_dict(each_vcf):
+    dict_qual = {}
+    dict_map = {}
+    vcf_reader = vcf.Reader(open(each_vcf, 'r'))
+    for record in vcf_reader:
+        absolute_positon = str(record.CHROM) + "-" + str(record.POS)
+        if record.QUAL:
+            returned_qual = []
+            returned_qual.append(record.QUAL)
+        try:
+            returned_map = []
+            returned_map.append(record.INFO['MQ'])
+        except KeyError:
+            pass
+        
+        dict_qual[absolute_positon] = returned_qual
+        dict_map[absolute_positon] = returned_qual
+    return dict_qual, dict_map
+
 # Group files, map pooled from script 2
 def group_files(each_vcf):
     mal = ""
@@ -3151,7 +3150,6 @@ def get_snps(directory):
     print ("Possible positions filtered %s" % format(len(filter_list), ",d"))
     print ("Positions after filtering %s\n" % format(len(all_positions), ",d"))
 
-    # NEEDS TO BE FIXED
     if args.filter:
         #write to files
         positions_to_filter = "positions_to_filter.txt"
@@ -3162,7 +3160,6 @@ def get_snps(directory):
         files = glob.glob('*vcf')
 
         #calculate mean/max qual and map at all possible positions
-        from collections import defaultdict
         dd_qual = {}
         dd_map = {}
         if args.debug_call:

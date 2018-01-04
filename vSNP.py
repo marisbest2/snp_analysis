@@ -11,6 +11,7 @@ import smtplib,ssl
 import shutil
 import regex
 import re
+import numpy as np
 import pandas as pd
 import os
 import multiprocessing
@@ -2861,23 +2862,24 @@ def fix_vcf(each_vcf):
     write_out.close()
     os.rename(temp_file, each_vcf)
     return mal
-    def find_filter_dict(each_vcf):
-        dict_qual = {}
-        dict_map = {}
-        vcf_reader = vcf.Reader(open(each_vcf, 'r'))
-        for record in vcf_reader:
-            absolute_positon = str(record.CHROM) + "-" + str(record.POS)
-            try:
-                returned_qual = []
+
+def find_filter_dict(each_vcf):
+    dict_qual = {}
+    dict_map = {}
+    vcf_reader = vcf.Reader(open(each_vcf, 'r'))
+    for record in vcf_reader:
+        absolute_positon = str(record.CHROM) + "-" + str(record.POS)
+        try:
+            returned_qual = []
+            returned_map = []
+            if int(record.QUAL) > 0:
                 returned_qual.append(record.QUAL)
-                returned_map = []
                 returned_map.append(record.INFO['MQ'])
-            except KeyError:
-                pass
-            
-            dict_qual[absolute_positon] = returned_qual
-            dict_map[absolute_positon] = returned_map
-        return dict_qual, dict_map
+                dict_qual[absolute_positon] = returned_qual
+                dict_map[absolute_positon] = returned_map
+        except Exception:
+            pass
+    return dict_qual, dict_map
 
 # Group files, map pooled from script 2
 def group_files(each_vcf):
@@ -3166,6 +3168,7 @@ def get_snps(directory):
                 dict_qual, dict_map = find_filter_dict(each_vcf)
                 keys = set(dd_qual).union(dict_qual)
                 no = []
+                #make position (key) and qual/maps list (value)
                 dd_qual = dict((k, dd_qual.get(k, no) + dict_qual.get(k, no)) for k in keys)
                 keys = set(dd_map).union(dict_map)
                 no = []
@@ -3191,6 +3194,7 @@ def get_snps(directory):
                 ave_qual[k]=np.mean(v)
                 max_qual[k]=np.max(v)
 
+        #provides dictionary as key -> absolute poisiton, value -> average qual/map
         ave_map = {}
         max_map = {}
         for k, v in dd_map.items():

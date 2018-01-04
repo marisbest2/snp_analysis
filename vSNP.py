@@ -2878,7 +2878,7 @@ def find_filter_dict(each_vcf):
             pass
         
         dict_qual[absolute_positon] = returned_qual
-        dict_map[absolute_positon] = returned_qual
+        dict_map[absolute_positon] = returned_map
     return dict_qual, dict_map
 
 # Group files, map pooled from script 2

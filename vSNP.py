@@ -2295,7 +2295,7 @@ class script2():
             # This file tells the script how to cluster VCFs
             definingSNPs = script_dependents + "/DefiningSNPsGroupDesignations.xlsx"
             remove_from_analysis = script_dependents + "/RemoveFromAnalysis.xlsx"
-            bioinfoVCF = upload_to + "/mycobacterium/tbc/af/script2"
+            bioinfoVCF = upload_to + "/mycobacterium/tbc/af2122/script2"
             excelinfile = script_dependents + "/Filtered_Regions.xlsx"
             filter_files = script_dependents + "/filter_files"
             print ("filter_files %s" % filter_files)

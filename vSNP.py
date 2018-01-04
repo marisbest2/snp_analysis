@@ -572,21 +572,21 @@ class script1():
                 option_list=[dependents_dir, reference, hqs, gbk_file, email_list, upload_to, remote, script_dependents, spoligo_db]
                 return option_list, found
 
-            if give_option == "bovis":
-                found=True
-                #Remove network path at and left of "Results"
-                dependents_dir="/mycobacterium/tbc/tbbov/script_dependents/script1"
-                upload_to, remote, script_dependents = script1.update_directory(dependents_dir) #***FUNCTION CALL
+            # if give_option == "bovis":
+            #     found=True
+            #     #Remove network path at and left of "Results"
+            #     dependents_dir="/mycobacterium/tbc/tbbov/script_dependents/script1"
+            #     upload_to, remote, script_dependents = script1.update_directory(dependents_dir) #***FUNCTION CALL
                 
-                spoligo_db = script_dependents + "/spoligotype_db.txt"
-                reference = script_dependents + "/NC_002945.fasta"
-                print("Reference being used: %s" % reference)
-                hqs = script_dependents + "/HighestQualitySNPs.vcf"
-                gbk_file = script_dependents + "/NC_002945.gbk"
-                email_list = "tod.p.stuber@aphis.usda.gov"
+            #     spoligo_db = script_dependents + "/spoligotype_db.txt"
+            #     reference = script_dependents + "/NC_002945.fasta"
+            #     print("Reference being used: %s" % reference)
+            #     hqs = script_dependents + "/HighestQualitySNPs.vcf"
+            #     gbk_file = script_dependents + "/NC_002945.gbk"
+            #     email_list = "tod.p.stuber@aphis.usda.gov"
                 
-                option_list=[dependents_dir, reference, hqs, gbk_file, email_list, upload_to, remote, script_dependents, spoligo_db]
-                return option_list, found
+            #     option_list=[dependents_dir, reference, hqs, gbk_file, email_list, upload_to, remote, script_dependents, spoligo_db]
+            #     return option_list, found
                 
             if give_option == "af":
                 found=True
@@ -1041,9 +1041,9 @@ class script1():
             bovis_identifications["11111111"] = "h37" #tb5
             bovis_identifications["11001111"] = "h37" #tb6
             bovis_identifications["10101110"] = "h37" #tb7
-            bovis_identifications["11001110"] = "bovis" #bovis
-            bovis_identifications["11011110"] = "bovis" #bovis
-            bovis_identifications["11001100"] = "bovis" #bovis
+            bovis_identifications["11001110"] = "af" #bovis
+            bovis_identifications["11011110"] = "af" #bovis
+            bovis_identifications["11001100"] = "af" #bovis
             
             para_identifications = {}
             para_identifications["1"] = "para"
@@ -1257,7 +1257,7 @@ class script1():
                 if self.species in ["ab1", "ab3", "suis1", "suis3", "suis4", "mel1", "mel2", "mel3", "canis", "ceti1", "ceti2"]:
                     print("Brucella")
                     self.mlst()
-                elif self.species in ["bovis", "h37", "af"]:
+                elif self.species in ["h37", "af"]: #removed bovis
                     print("TB")
                     self.spoligo()
                 
@@ -4045,7 +4045,7 @@ See documentation at: https://usda-vs.github.io/snp_analysis/
 
         Step 2: VCFs --> Tables & Trees
 
--s <OPTIONAL SPECIES TYPES>: bovis, af, h37, ab1, ab3, suis1, mel1, mel2, mel3, canis, ceti1, ceti2, ovis, neo, para, salmonella
+-s <OPTIONAL SPECIES TYPES>: af, h37, ab1, ab3, suis1, mel1, mel2, mel3, canis, ceti1, ceti2, ovis, neo, para, salmonella
 
 '''), epilog='''---------------------------------------------------------''')
 

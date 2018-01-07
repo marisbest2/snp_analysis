@@ -3430,7 +3430,12 @@ def get_snps(directory):
 
     print ("%s RAxML running..." % directory)
     rooted_tree = outdir + directory + "-rooted.tre"
-    os.system("{} -s {} -n raxml -m GTRCATI -o root -p 12345 -T {} > /dev/null 2>&1" .format(sys_raxml, alignment_file, raxml_cpu))
+    try:
+        os.system("{} -s {} -n raxml -m GTRCATI -o root -p 12345 -T {} > /dev/null 2>&1" .format(sys_raxml, alignment_file, raxml_cpu))
+    except:
+        write_out=open('RAXML_FAILED', 'w+')
+        write_out.close()
+        pass
 
     def sort_table(table_location, ordered, out_org):
             mytable = pd.read_csv(table_location, sep='\t')

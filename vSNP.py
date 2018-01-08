@@ -3154,8 +3154,10 @@ def get_snps(directory):
         #write to files
         positions_to_filter = "positions_to_filter.txt"
         positions_to_filter_details = "positions_to_filter_details.txt"
+        good_snps = "good_snps_details.txt"
         write_out_positions=open(positions_to_filter, 'w')
         write_out_details=open(positions_to_filter_details, 'w')
+        write_out_good_snps=open(good_snps, 'w')
 
         files = glob.glob('*vcf')
 
@@ -3249,11 +3251,14 @@ def get_snps(directory):
             ave_map_value = ave_map[absolute_positon]
             max_map_value = max_map[absolute_positon]
             print ("%s, max_qual_value: %s, ave_qual_value: %s, max_map_value: %s, ave_map_value: %s" % (absolute_positon, max_qual_value, ave_qual_value, max_map_value, ave_map_value))
-            if max_qual_value < 1300 and ave_qual_value < 800 and ave_map_value < 40 or max_map_value < 56:
+            if max_qual_value < 1300 and ave_qual_value < 800 or ave_map_value < 56:
                 print ("%s, max_qual_value: %s, ave_qual_value: %s, max_map_value: %s, ave_map_value: %s" % (absolute_positon, max_qual_value, ave_qual_value, max_map_value, ave_map_value), file=write_out_details)
                 print (absolute_positon, file=write_out_positions)
+            else:
+                print ("%s, max_qual_value: %s, ave_qual_value: %s, max_map_value: %s, ave_map_value: %s" % (absolute_positon, max_qual_value, ave_qual_value, max_map_value, ave_map_value), file=write_out_good_snps)
         write_out_positions.close()
         write_out_details.close()
+        write_out_good_snps.close()
 
     def get_annotations_table(parsimony_positions):
         print ("Getting annotations...")

@@ -4089,7 +4089,7 @@ elif args.email == "tod":
 elif args.email == "jess":
     email_list = "Jessica.A.Hicks@aphis.usda.gov"
 elif args.email == "suelee":
-    email_list = "tod.p.stuber@aphis.usda.gov, Jessica.A.Hicks@aphis.usda.gov, Suelee.Robbe-Austerman@aphis.usda.gov"
+    email_list = "tod.p.stuber@aphis.usda.gov, Jessica.A.Hicks@aphis.usda.gov, Suelee.Robbe-Austerman@aphis.usda.gov, Doris.M.Bravo@aphis.usda.gov"
 elif args.email == "chris":
     email_list = "tod.p.stuber@aphis.usda.gov, Jessica.A.Hicks@aphis.usda.gov, Christine.R.Quance@aphis.usda.gov, Suelee.Robbe-Austerman@aphis.usda.gov, eto3@cdc.gov"
 elif args.email == "doris":

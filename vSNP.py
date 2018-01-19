@@ -3002,11 +3002,11 @@ def group_files(each_vcf):
         mal = "KeyError: corrupt VCF, removed %s " % each_vcf
         group_calls.append("error")
 
-    a = group_calls[0:1]
-    b = sorted(group_calls[1:]) # order the groups
-    for i in b:
-        a.append(i) # a is group_calls
-        group_calls = a
+    the_sample_name = group_calls[0:1]
+    list_of_groups = sorted(group_calls[1:]) # order the groups
+    for i in list_of_groups:
+        the_sample_name.append(i) # a is group_calls
+        group_calls = the_sample_name
     return dict_amb, group_calls, mal
 
 # Group files, map pooled from script 2

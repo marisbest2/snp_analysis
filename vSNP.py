@@ -2971,29 +2971,36 @@ def group_files(each_vcf):
         os.remove(each_vcf)
         print ("ZeroDivisionError: corrupt VCF, removed %s " % each_vcf)
         mal = "ZeroDivisionError: corrupt VCF, removed %s " % each_vcf
+        group_calls.append("error")
     except ValueError:
         os.remove(each_vcf)
         print ("ValueError: corrupt VCF, removed %s " % each_vcf)
         mal = "ValueError: corrupt VCF, removed %s " % each_vcf
+        group_calls.append("error")
     except UnboundLocalError:
         os.remove(each_vcf)
         print ("UnboundLocalError: corrupt VCF, removed %s " % each_vcf)
         mal = "UnboundLocalError: corrupt VCF, removed %s " % each_vcf
+        group_calls.append("error")
     except TypeError:
         os.remove(each_vcf)
         print ("TypeError: corrupt VCF, removed %s " % each_vcf)
         mal = "TypeError: corrupt VCF, removed %s " % each_vcf
+        group_calls.append("error")
     except SyntaxError:
         os.remove(each_vcf)
         print ("SyntaxError: corrupt VCF, removed %s " % each_vcf)
         mal = "SyntaxError: corrupt VCF, removed %s " % each_vcf
+        group_calls.append("error")
     except KeyError:
         os.remove(each_vcf)
         print ("KeyError: corrupt VCF, removed %s " % each_vcf)
         mal = "KeyError: corrupt VCF, removed %s " % each_vcf
+        group_calls.append("error")
     except StopIteration:
         print ("StopIteration: %s" % each_vcf)
         mal = "KeyError: corrupt VCF, removed %s " % each_vcf
+        group_calls.append("error")
 
     a = group_calls[0:1]
     b = sorted(group_calls[1:]) # order the groups

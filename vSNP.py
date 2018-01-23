@@ -2563,10 +2563,14 @@ class script2():
         for each_sample in ws.col_values(0):
             each_sample = str(each_sample)
             each_sample = re.sub(r'(.*?)[._].*', r'\1', each_sample)
+            #print("each sample %s" % each_sample)
             myregex = re.compile(each_sample + '.*') # create regular expression to search for in VCF list
+            #print("myregex %s" % myregex)
             for i in files:
                 if myregex.search(i):
                     print ("### --> %s removed from the analysis" % i)
+                    print (files)
+                    #print ("\n<h4>### --> %s removed from the analysis</h4>" % i, file=htmlfile)
                     try:
                         os.remove(i)
                     except FileNotFoundError:

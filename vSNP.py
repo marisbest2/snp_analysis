@@ -2453,6 +2453,7 @@ class script2():
                     except IndexError:
                         #print ("except IndexError: when changing names")
                         elite_test = ""
+                    print("newname %s" % newname)
                     if new_name[-1] != "_":
                         new_name = new_name + "_"
                     code_dictionary.update({new_name:elite_test})

@@ -2445,7 +2445,7 @@ class script2():
                     new_name = re.sub('_-', '_', new_name)
                     new_name = re.sub('-_', '_', new_name)
                     new_name = re.sub('__+', '_', new_name)
-                    new_name = re.sub('_$', '', new_name)
+                    #new_name = re.sub('_$', '', new_name)
                     new_name = re.sub('-$', '', new_name)
                     new_name = re.sub(',', '', new_name)
                     try:
@@ -2461,16 +2461,17 @@ class script2():
             list_of_files = glob.glob('*vcf')
             for each_vcf in list_of_files:
                 vcf_found = False
-                vcf_pretext = re.sub(r'(.*?)[._].*', r'\1', each_vcf) # ? was needed to make greedy, in my view the regex was searching right to left without it.
-                vcf_pretext = vcf_pretext.rstrip()
+                #vcf_pretext = re.sub(r'(.*?)[._].*', r'\1', each_vcf) # ? was needed to make greedy, in my view the regex was searching right to left without it.
+                vcf_pretext = re.sub(r'(^.*?_).*\.vcf', r'\1', each_vcf).rstrip()
                 #if vcf_pretext[-1].isdigit():
-                if len(vcf_pretext) < 8: # will catch all TB numbers
-                    myregex = re.compile(vcf_pretext + '_.*') #if number require a underscore at end (writen with 16-0338, both TB and acc number, in mind)
-                else:
-                    myregex = re.compile(vcf_pretext + '.*') #if letter do not put a underscore at end (writen with MI in mind)
+                # if len(vcf_pretext) < 8: # will catch all TB numbers
+                #     myregex = re.compile(vcf_pretext + '_.*') #if number require a underscore at end (writen with 16-0338, both TB and acc number, in mind)
+                # else:
+                #     myregex = re.compile(vcf_pretext + '.*') #if letter do not put a underscore at end (writen with MI in mind)
                 for k, v in code_dictionary.items():
                     try:
                         if myregex.search(k):
+                            print("VCF: %s, FileMaker match: k")
                             os.rename(each_vcf, k + ".vcf")
                             vcf_found = True
                     except FileNotFoundError:

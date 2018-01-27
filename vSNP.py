@@ -2453,9 +2453,12 @@ class script2():
                     except IndexError:
                         #print ("except IndexError: when changing names")
                         elite_test = ""
-                    print("newname %s" % newname)
-                    if new_name[-1] != "_":
-                        new_name = new_name + "_"
+                    #print("newname %s" % new_name)
+                    try:
+                        if new_name[-1] != "_":
+                            new_name = new_name + "_"
+                    except IndexError:
+                        pass
                     code_dictionary.update({new_name:elite_test})
             except FileNotFoundError:
                 print ("\n#### except: FileNotFoundError, there was not a \"genotypingcodes\" file given to change names\n")
@@ -2466,15 +2469,12 @@ class script2():
                 vcf_found = False
                 vcf_pretext = re.sub(r'(.*?)[._].*', r'\1', each_vcf) # ? was needed to make greedy, in my view the regex was searching right to left without it.
                 vcf_pretext = vcf_pretext.rstrip()
-                #if vcf_pretext[-1].isdigit():
-                # if len(vcf_pretext) < 8: # will catch all TB numbers
-                myregex = re.compile(vcf_pretext + '_.*') #if number require a underscore at end (writen with 16-0338, both TB and acc number, in mind)
-                # else:
-                #     myregex = re.compile(vcf_pretext + '.*') #if letter do not put a underscore at end (writen with MI in mind)
+                myregex = re.compile(vcf_pretext + '_.*') #underscore required to make myregex.search below greedy.  so it finds exact match and not all matches. ex: 10-01 must match 10-01 not 10-010 also
                 for k, v in code_dictionary.items():
                     try:
                         if myregex.search(k):
-                            print("myregex %s, matches %s" % (myregex, k))
+                            k= k.strip('_')
+                            #print("myregex %s, matches %s" % (myregex, k))
                             os.rename(each_vcf, k + ".vcf")
                             vcf_found = True
                     except FileNotFoundError:

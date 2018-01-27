@@ -2463,6 +2463,7 @@ class script2():
                 vcf_found = False
                 #vcf_pretext = re.sub(r'(.*?)[._].*', r'\1', each_vcf) # ? was needed to make greedy, in my view the regex was searching right to left without it.
                 vcf_pretext = re.sub(r'(^.*?_).*\.vcf', r'\1', each_vcf).rstrip()
+                myregex = re.compile(vcf_pretext + '.*')
                 #if vcf_pretext[-1].isdigit():
                 # if len(vcf_pretext) < 8: # will catch all TB numbers
                 #     myregex = re.compile(vcf_pretext + '_.*') #if number require a underscore at end (writen with 16-0338, both TB and acc number, in mind)

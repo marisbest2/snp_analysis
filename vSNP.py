@@ -2455,7 +2455,7 @@ class script2():
                         elite_test = ""
                     if new_name[-1] != "_":
                         new_name = new_name + "_"
-                        code_dictionary.update({new_name:elite_test})
+                    code_dictionary.update({new_name:elite_test})
             except FileNotFoundError:
                 print ("\n#### except: FileNotFoundError, there was not a \"genotypingcodes\" file given to change names\n")
 

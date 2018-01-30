@@ -2644,7 +2644,7 @@ class script2():
         else:
             with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool:
                 samples_in_fasta = pool.map(get_snps, directory_list)
-                samples_in_output += samples_in_fasta
+                samples_in_output.append(samples_in_fasta)
 
         def flatten( items, ignore_types =( str, bytes)): 
             for x in items: 
@@ -2976,7 +2976,7 @@ def group_files(each_vcf):
             if key not in list_pass:
                 print ("key %s not in list_pass" % key)
                 directory = inverted_position[key]
-                print("*** INVERTED POSITION FOUND *** PASSING POSTION FOUND: \t%s\t\t%s" % (each_vcf, directory))
+                print("*** INVERTED POSITION FOUND *** PASSING POSITION FOUND: \t%s\t\t%s" % (each_vcf, directory))
                 if not os.path.exists(directory):
                     try:
                         os.makedirs(directory)
@@ -2992,7 +2992,7 @@ def group_files(each_vcf):
             # normal grouping
             if passing_position in defining_snps:
                 directory = defining_snps[passing_position]
-                print("PASSING POSTION FOUND: \t%s\t\t%s" % (each_vcf, directory))
+                print("PASSING POSITION FOUND: \t%s\t\t%s" % (each_vcf, directory))
                 if not os.path.exists(directory):
                     try:
                         os.makedirs(directory)

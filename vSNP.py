@@ -932,8 +932,10 @@ class script1():
                     binarycode = line.split()[2]
                     if bovis_string == '0000000000000000000000000000000000000000000':
                         found=True
-                        print("%s %s %s %s" % (octalcode, sbcode, hexadecimal, binarycode))
-                        print("%s %s %s %s" % (octalcode, sbcode, hexadecimal, binarycode), file=write_out)
+                        octalcode = "spoligo not found"
+                        sbcode = "spoligo not found"
+                        hexadecimal = "SB2277 ???"
+                        binarycode = "0000000000000000000000000000000000000000000"
                         print("CHECK SAMPLE!  NO SPACERS FOUND.  LIKELY NOT TB COMPLEX.  ALTHOUGH SB2277 IS A ZERO STRING BINARY\n")
                         print("CHECK SAMPLE!  NO SPACERS FOUND.  LIKELY NOT TB COMPLEX.  ALTHOUGH SB2277 IS A ZERO STRING BINARY", file=write_out)
                         print("\nOne mismatch allowed spacers search against both R1 and R2 reads.\n", file=write_out)
@@ -2574,7 +2576,7 @@ class script2():
             for i in files:
                 if myregex.search(i):
                     print ("### --> %s removed from the analysis" % i)
-                    print (files)
+                    #print (files)
                     #print ("\n<h4>### --> %s removed from the analysis</h4>" % i, file=htmlfile)
                     try:
                         os.remove(i)

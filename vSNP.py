@@ -2642,18 +2642,26 @@ class script2():
         if args.debug_call:
             for i in directory_list:
                 samples_in_fasta = get_snps(i)
-                samples_in_output += samples_in_fasta
+                samples_in_output.append(samples_in_fasta)
         else:
             with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool:
                 samples_in_fasta = pool.map(get_snps, directory_list)
                 samples_in_output.append(samples_in_fasta)
 
-        def flatten( items, ignore_types =( str, bytes)): 
-            for x in items: 
-                if isinstance( x, Iterable) and not isinstance( x, ignore_types): 
-                    yield from flatten( x, ignore_types)
-                else: 
-                    yield x
+        # def flatten( items, ignore_types =( str, bytes)): 
+        #     for x in items: 
+        #         if isinstance( x, Iterable) and not isinstance( x, ignore_types): 
+        #             yield from flatten( x, ignore_types)
+        #         else: 
+        #             yield x
+
+        def flatten(l):
+            for el in l:
+                if isinstance(el, Iterable) and not isinstance(el, (str, bytes)):
+                    yield from flatten(el)
+                else:
+                    yield el
+
         flattened_list = []
         for i in flatten(samples_in_output):
             flattened_list.append(i)

@@ -23,6 +23,7 @@ import argparse
 import textwrap
 import signal
 from collections import defaultdict
+from collections import Iterable
 from cairosvg import svg2pdf
 from numpy import mean
 from functools import partial
@@ -2579,6 +2580,7 @@ class script2():
                         os.remove(i)
                     except FileNotFoundError:
                         print ("FileNotFoundError:")
+        vcf_starting_list = glob.glob("*.vcf")
 
         print ("CHECKING FOR EMPTY FILES...")
         files = glob.glob('*vcf')
@@ -2633,13 +2635,45 @@ class script2():
         directory_list = next(os.walk('.'))[1] # get list of subdirectories
         directory_list.remove('starting_files')
 
+        samples_in_output = []
         print ("Getting SNPs in each directory")
         if args.debug_call:
             for i in directory_list:
-                get_snps(i)
+                samples_in_fasta = get_snps(i)
+                samples_in_output += samples_in_fasta
         else:
             with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool:
-                pool.map(get_snps, directory_list)
+                samples_in_fasta = pool.map(get_snps, directory_list)
+                samples_in_output += samples_in_fasta
+
+        def flatten( items, ignore_types =( str, bytes)): 
+            for x in items: 
+                if isinstance( x, Iterable) and not isinstance( x, ignore_types): 
+                    yield from flatten( x, ignore_types)
+                else: 
+                    yield x
+        flattened_list = []
+        for i in flatten(samples_in_output):
+            flattened_list.append(i)
+        flattened_list = set(flattened_list)
+        flattened_list.remove('root')
+
+        def get_pretext_list(in_list):
+            outlist = []
+            for i in in_list:
+                pretext  = re.sub('[_.].*', '', i)
+                outlist.append(pretext)
+            return outlist
+
+        count_flattened_list = len(flattened_list)
+        count_vcf_starting_list = len(vcf_starting_list)
+        start_end_file_diff_count = count_vcf_starting_list - count_flattened_list
+
+        pretext_flattened_list = get_pretext_list(flattened_list)
+        pretext_vcf_starting_list = get_pretext_list(vcf_starting_list)
+        pretext_vcf_starting_list = set(pretext_vcf_starting_list)
+        difference_start_end_file = pretext_vcf_starting_list.symmetric_difference(pretext_flattened_list)
+
 
         # Zip dependency files
         dependents_dir = root_dir + "/dependents"
@@ -2712,6 +2746,18 @@ class script2():
                 print ("<td>%s</td>" % x, end='\t', file=htmlfile)
             print ("</tr>", file=htmlfile)
         print ("</table>", file=htmlfile)
+
+        # REPORT DIFFERENCES BETWEEN STARTING FILES AND ENDING FILES REPRESENTED IN ALIGNMENTS AND TABLES
+        if start_end_file_diff_count < 1:
+            print ("\n<h2>No files dropped from the analysis.  Input files are equal to those represented in output.</h2>", file=htmlfile)
+        else:
+            print ("\n<h2>{} files have been dropped.  They may be mixed isolates.</h2>" .format(start_end_file_diff_count), file=htmlfile)
+            print ("<table>", file=htmlfile)
+            print ("<tr align=\"left\"><th>Sample Name</th><tr>", file=htmlfile)
+            for i in difference_start_end_file:
+                print ("<tr><td>{}}</td></tr>" .format(i), file=htmlfile)
+            print ("</table>", file=htmlfile)
+            print ("<br>", file=htmlfile)
         
         #Capture program versions for step 2
         try:
@@ -3422,6 +3468,7 @@ def get_snps(directory):
     print(string_of_ref, file=table)
     table.close()
 
+    samples_in_fasta = []
     #Print out fasta alignment file from table
     alignment_file= outdir + directory + ".fasta"
     write_out=open(alignment_file, 'wt')
@@ -3432,6 +3479,7 @@ def get_snps(directory):
                 line=re.sub('^', '>', line)
                 line=line.replace('reference_call', 'root')
                 line=line.replace('\t', '\n', 1)
+                samples_in_fasta.append(line.split('\n')[0].replace('>', ''))
                 line=line.replace('\t', '')
                 print (line, end="", file=write_out)
             count = count + 1
@@ -3836,6 +3884,8 @@ def get_snps(directory):
     # values: mytable.values, SNPs - series
     # strip off the bottom row: mytable[:-1]
     # get the bottom row: mytable[-1:]
+
+    return samples_in_fasta
 
 ###############################################
 ###############################################

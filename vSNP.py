@@ -2645,8 +2645,8 @@ class script2():
                 samples_in_output.append(samples_in_fasta)
         else:
             with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool:
-                samples_in_fasta = pool.map(get_snps, directory_list)
-                samples_in_output.append(samples_in_fasta)
+                for samples_in_fasta in pool.map(get_snps, directory_list):
+                    samples_in_output.append(samples_in_fasta)
 
         # def flatten( items, ignore_types =( str, bytes)): 
         #     for x in items: 

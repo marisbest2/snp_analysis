@@ -2646,18 +2646,8 @@ class script2():
                 samples_in_output.append(samples_in_fasta)
         else:
             with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool:
-                try:
-                    for samples_in_fasta in pool.map(get_snps, directory_list):
-                        samples_in_output.append(samples_in_fasta)
-                except ValueError:
-                    pass
-
-        # def flatten( items, ignore_types =( str, bytes)): 
-        #     for x in items: 
-        #         if isinstance( x, Iterable) and not isinstance( x, ignore_types): 
-        #             yield from flatten( x, ignore_types)
-        #         else: 
-        #             yield x
+                for samples_in_fasta in pool.map(get_snps, directory_list):
+                    samples_in_output.append(samples_in_fasta)
 
         def flatten(l):
             for el in l:
@@ -2670,7 +2660,6 @@ class script2():
         for i in flatten(samples_in_output):
             flattened_list.append(i)
         flattened_list = set(flattened_list)
-        flattened_list.remove('root')
 
         def get_pretext_list(in_list):
             outlist = []
@@ -2686,6 +2675,7 @@ class script2():
         pretext_flattened_list = get_pretext_list(flattened_list)
         pretext_vcf_starting_list = get_pretext_list(vcf_starting_list)
         pretext_vcf_starting_list = set(pretext_vcf_starting_list)
+        pretext_flattened_list.remove('root')
         difference_start_end_file = pretext_vcf_starting_list.symmetric_difference(pretext_flattened_list)
 
 
@@ -2769,7 +2759,7 @@ class script2():
             print ("<table>", file=htmlfile)
             print ("<tr align=\"left\"><th>Sample Name</th><tr>", file=htmlfile)
             for i in difference_start_end_file:
-                print ("<tr><td>{}}</td></tr>" .format(i), file=htmlfile)
+                print ("<tr><td>{}</td></tr>" .format(i), file=htmlfile)
             print ("</table>", file=htmlfile)
             print ("<br>", file=htmlfile)
         
@@ -3474,7 +3464,12 @@ def get_snps(directory):
     # added corresponding reference to parsimony table
     print ("reference_call", end="\t", file=table)
     #all_positions_list=list(all_positions)
-    parsimony_positions.remove('reference_pos')
+    try: #if there is only one file in the group exception is needed to return a value
+        parsimony_positions.remove('reference_pos')
+    except ValueError:
+        samples_in_fasta = []
+        return(samples_in_fasta)
+
     list_of_ref = []
     for abs_pos in parsimony_positions:
         list_of_ref.append(all_positions.get(abs_pos))

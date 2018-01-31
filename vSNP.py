@@ -466,6 +466,22 @@ class script1():
                 option_list=[dependents_dir, reference, hqs, gbk_file, email_list, upload_to, remote, script_dependents, spoligo_db]
                 return option_list, found
 
+            if give_option == "mel1b":
+                found=True
+                #Remove network path at and left of "Results"
+                dependents_dir="/brucella/melitensis-bv1b/script_dependents/script1"
+                upload_to, remote, script_dependents = script1.update_directory(dependents_dir) #***FUNCTION CALL
+                
+                spoligo_db = script_dependents + "/nospoligo.txt"
+                reference = script_dependents + "/mel-bv1b-CP018508.fasta"
+                print("Reference being used: %s" % reference)
+                hqs = script_dependents + "/mel-bv1b-CP018508-highqualitysnps.vcf"
+                gbk_file = script_dependents + "/mel-bv1b-CP018508.gbk"
+                email_list = "tod.p.stuber@aphis.usda.gov"
+                
+                option_list=[dependents_dir, reference, hqs, gbk_file, email_list, upload_to, remote, script_dependents, spoligo_db]
+                return option_list, found
+
             if give_option == "mel2":
                 found=True
                 #Remove network path at and left of "Results"
@@ -1010,29 +1026,32 @@ class script1():
             oligo_dictionary["23_tb6"] = "ACGGTGATTCGGGTGGTCGACACCGATGGTTCAGA"
             oligo_dictionary["24_para"] = "CCTTTCTTGAAGGGTGTTCG"
             oligo_dictionary["25_para2"] = "CGAACACCCTTCAAGAAAGG"
+            oligo_dictionary["26_mel1b"] = "TCTGTCCAAACCCCGTGACCGAACAATAGA" #added 2018-01-30
 
             brucella_identifications = {}
-            brucella_identifications["111111111111111"] = "odd" #Unexpected findings
-            brucella_identifications["011111111111111"] = "ab1" #Brucella abortus bv 1, 2 or 4
-            brucella_identifications["101111111111111"] = "ab3" #Brucella abortus bv 3
-            brucella_identifications["110111111111111"] = "ab1" #Brucella abortus bv 5, 6 or 9
-            brucella_identifications["111011111111110"] = "mel1"
-            brucella_identifications["000001010110110"] = "mel1"
-            brucella_identifications["111011111111101"] = "mel2"
-            brucella_identifications["000001010110100"] = "mel2"
-            brucella_identifications["010001010110100"] = "mel2"
-            brucella_identifications["111001111110101"] = "mel2"
-            brucella_identifications["111011111111011"] = "mel3"
-            brucella_identifications["111001111110011"] = "mel3"
-            brucella_identifications["111101111111111"] = "suis1"
-            brucella_identifications["111110111111111"] = "suis2"
-            brucella_identifications["111111011111110"] = "suis3"
-            brucella_identifications["111111101111111"] = "ceti1"
-            brucella_identifications["111111100111111"] = "ceti1"
-            brucella_identifications["111111110111111"] = "ceti2"
-            brucella_identifications["111111111011110"] = "suis4"
-            brucella_identifications["111111111001110"] = "canis"
-            brucella_identifications["111111111110111"] = "ovis"
+            brucella_identifications["1111111111111111"] = "odd" #Unexpected findings
+            brucella_identifications["0111111111111111"] = "ab1" #Brucella abortus bv 1, 2 or 4
+            brucella_identifications["1011111111111111"] = "ab3" #Brucella abortus bv 3
+            brucella_identifications["1101111111111111"] = "ab1" #Brucella abortus bv 5, 6 or 9
+            brucella_identifications["1110111111111101"] = "mel1"
+            brucella_identifications["0000010101101101"] = "mel1"
+            brucella_identifications["1110111111111100"] = "mel1b" #added 2018-01-30
+            brucella_identifications["0000010101101100"] = "mel1b" #added 2018-01-30
+            brucella_identifications["1110111111111011"] = "mel2"
+            brucella_identifications["0000010101101001"] = "mel2"
+            brucella_identifications["0100010101101001"] = "mel2"
+            brucella_identifications["1110011111101011"] = "mel2"
+            brucella_identifications["1110111111110111"] = "mel3"
+            brucella_identifications["1110011111100111"] = "mel3"
+            brucella_identifications["1111011111111111"] = "suis1"
+            brucella_identifications["1111101111111111"] = "suis2"
+            brucella_identifications["1111110111111101"] = "suis3"
+            brucella_identifications["1111111011111111"] = "ceti1"
+            brucella_identifications["1111111001111111"] = "ceti1"
+            brucella_identifications["1111111101111111"] = "ceti2"
+            brucella_identifications["1111111110111101"] = "suis4"
+            brucella_identifications["1111111110011101"] = "canis"
+            brucella_identifications["1111111111101111"] = "ovis"
 
             bovis_identifications = {}
             bovis_identifications["11101111"] = "h37" #tb1
@@ -1260,7 +1279,7 @@ class script1():
                 hqs=glob.glob(directory + '/*vcf')
                 
                 print("self.species: %s" % self.species)
-                if self.species in ["ab1", "ab3", "suis1", "suis3", "suis4", "mel1", "mel2", "mel3", "canis", "ceti1", "ceti2"]:
+                if self.species in ["ab1", "ab3", "suis1", "suis3", "suis4", "mel1", "mel1b", "mel2", "mel3", "canis", "ceti1", "ceti2"]:
                     print("Brucella")
                     self.mlst()
                 elif self.species in ["h37", "af"]: #removed bovis
@@ -2028,6 +2047,38 @@ class script2():
             if args.email == "s":
                 email_list = "tod.p.stuber@aphis.usda.gov, jessica.a.hicks@aphis.usda.gov, christine.r.quance@aphis.usda.gov, suelee.robbe-austerman@aphis.usda.gov"
 
+        elif args.species == "mel1b":
+
+            qual_gatk_threshold = 300
+            N_gatk_threshold = 350
+            
+            #Remove network path at and left of "Results"
+            dependents_dir="/brucella/melitensis-bv1b/script_dependents/script2"
+            
+            upload_to, remote, script_dependents = update_directory(dependents_dir) #***FUNCTION CALL
+            bruc_private_codes(upload_to)
+            try:
+                shutil.copy(upload_to + "/brucella/genotyping_codes.xlsx", script_dependents)
+            except FileNotFoundError:
+                print ("will use previously used genotyping_codes.xlsx file")
+
+            genotypingcodes = script_dependents + "/genotyping_codes.xlsx"
+            gbk_file = script_dependents + "/mel-bv1b-CP018508.gbk"
+            # This file tells the script how to cluster VCFs
+            definingSNPs = script_dependents + "/DefiningSNPsGroupDesignations.xlsx"
+            remove_from_analysis = script_dependents + "/RemoveFromAnalysis.xlsx"
+            bioinfoVCF = upload_to + "/brucella/melitensis-bv1b/vcfs"
+            excelinfile = script_dependents + "/Filtered_Regions.xlsx"
+            print(excelinfile)
+            filter_files = script_dependents + "/filter_files"
+            if os.path.isdir(filter_files):
+                shutil.rmtree(filter_files)
+                os.mkdir(filter_files)
+            else:        os.mkdir(filter_files)
+            get_filters(excelinfile, filter_files) #***FUNCTION CALL
+            if args.email == "s":
+                email_list = "tod.p.stuber@aphis.usda.gov, jessica.a.hicks@aphis.usda.gov, christine.r.quance@aphis.usda.gov, suelee.robbe-austerman@aphis.usda.gov"
+
         elif args.species == "mel2":
 
             qual_gatk_threshold = 300
@@ -2755,7 +2806,7 @@ class script2():
         if start_end_file_diff_count < 1:
             print ("\n<h2>No files dropped from the analysis.  Input files are equal to those represented in output.</h2>", file=htmlfile)
         else:
-            print ("\n<h2>{} files have been dropped.  They may be mixed isolates.</h2>" .format(start_end_file_diff_count), file=htmlfile)
+            print ("\n<h2>{} files have been dropped.  They either need a group, mixed and not finding a group or an error occured.</h2>" .format(start_end_file_diff_count), file=htmlfile)
             print ("<table>", file=htmlfile)
             print ("<tr align=\"left\"><th>Sample Name</th><tr>", file=htmlfile)
             for i in difference_start_end_file:
@@ -4091,6 +4142,7 @@ def get_species():
     species_cross_reference["ceti1"] = ["Bceti1Cudo"]
     species_cross_reference["ceti2"] = ["022905", "022906"]
     species_cross_reference["mel1"] = ["003317", "003318"]
+    species_cross_reference["mel1b"] = ["CP018508", "CP018509"]
     species_cross_reference["mel2"] = ["012441", "012442"]
     species_cross_reference["mel3"] = ["007760", "007761"]
     species_cross_reference["ovis"] = ["009504", "009505"]
@@ -4136,7 +4188,7 @@ See documentation at: https://usda-vs.github.io/snp_analysis/
 
         Step 2: VCFs --> Tables & Trees
 
--s <OPTIONAL SPECIES TYPES>: af, h37, ab1, ab3, suis1, mel1, mel2, mel3, canis, ceti1, ceti2, ovis, neo, para, salmonella
+-s <OPTIONAL SPECIES TYPES>: af, h37, ab1, ab3, suis1, mel1, mel1b, mel2, mel3, canis, ceti1, ceti2, ovis, neo, para, salmonella
 
 '''), epilog='''---------------------------------------------------------''')
 

@@ -22,6 +22,7 @@ import csv
 import argparse
 import textwrap
 import signal
+import json
 from collections import defaultdict
 from collections import Iterable
 from cairosvg import svg2pdf
@@ -3897,6 +3898,9 @@ def get_snps(directory):
     # values: mytable.values, SNPs - series
     # strip off the bottom row: mytable[:-1]
     # get the bottom row: mytable[-1:]
+
+    with open(directory + "samples_in_fasta.json", 'w') as outfile:
+        json.dump(samples_in_fasta, outfile)
 
     return(samples_in_fasta)
 

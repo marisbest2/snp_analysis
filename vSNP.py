@@ -1087,20 +1087,20 @@ class script1():
             count_list=[]
             for v in count_summary.values():
                 count_list.append(v)
-            brucella_sum=sum(count_list[:15])
-            bovis_sum=sum(count_list[15:23])
-            para_sum=sum(count_list[23:])
+            brucella_sum=sum(count_list[:16])
+            bovis_sum=sum(count_list[16:24])
+            para_sum=sum(count_list[24:])
             
             print("Best reference Brucella counts:", file=write_out)
-            for i in count_list[:15]:
+            for i in count_list[:16]:
                 print(i,  end=',', file=write_out)
                 
             print("\nBest reference TB counts:", file=write_out)
-            for i in count_list[15:23]:
+            for i in count_list[16:24]:
                 print(i,  end=',', file=write_out)
 
             print("\nBest reference Para counts:", file=write_out)
-            for i in count_list[23:]:
+            for i in count_list[24:]:
                 print(i,  end=',', file=write_out)
 
             #Binary dictionary

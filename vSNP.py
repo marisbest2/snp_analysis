@@ -1115,11 +1115,11 @@ class script1():
             binary_list=[]
             for v in binary_dictionary.values():
                 binary_list.append(v)
-            brucella_binary=binary_list[:15]
+            brucella_binary=binary_list[:16]
             brucella_string=''.join(str(e) for e in brucella_binary)
-            bovis_binary=binary_list[15:23]
+            bovis_binary=binary_list[16:24]
             bovis_string=''.join(str(e) for e in bovis_binary)
-            para_binary=binary_list[23:]
+            para_binary=binary_list[24:]
             para_string=''.join(str(e) for e in para_binary)
 
             if brucella_sum > 3:

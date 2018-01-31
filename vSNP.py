@@ -2649,6 +2649,7 @@ class script2():
                     for samples_in_fasta in pool.map(get_snps, directory_list):
                         samples_in_output.append(samples_in_fasta)
                 except ValueError:
+                    pass
 
         # def flatten( items, ignore_types =( str, bytes)): 
         #     for x in items: 

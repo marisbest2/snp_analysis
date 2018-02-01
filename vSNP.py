@@ -2728,7 +2728,8 @@ class script2():
         pretext_vcf_starting_list = set(pretext_vcf_starting_list)
         pretext_flattened_list.remove('root')
         difference_start_end_file = pretext_vcf_starting_list.symmetric_difference(pretext_flattened_list)
-
+        difference_start_end_file = list(difference_start_end_file)
+        difference_start_end_file.sort()
 
         # Zip dependency files
         dependents_dir = root_dir + "/dependents"

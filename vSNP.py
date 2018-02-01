@@ -3545,7 +3545,11 @@ def get_snps(directory):
             count = count + 1
     write_out.close()
 
-    mytable = pd.read_csv(table_location, sep='\t')
+    try: #if there are no SNP is the table
+        mytable = pd.read_csv(table_location, sep='\t')
+    except:
+        samples_in_fasta = []
+        return(samples_in_fasta)
 
     # move reference to top row
     myref=mytable[-1:]

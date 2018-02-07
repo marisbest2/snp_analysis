@@ -1259,13 +1259,13 @@ class script1():
                 R1size = script1.sizeof_fmt(os.path.getsize(R1))
                 R2size = script1.sizeof_fmt(os.path.getsize(R2))
                 stat_summary = {}
-                stat_summary["01"] = sample_name
-                stat_summary["02"] = "NOT_FOUND"
-                stat_summary["03"] = "N/A"
-                stat_summary["04"] = R1size
-                stat_summary["05"] = R2size
-                stat_summary["06"] = "CHECK SAMPLE *****************************************"
-                stat_summary=OrderedDict(sorted(stat_summary.items()))
+                stat_summary["time_stamp"] = st
+                stat_summary["sample_name"] = sample_name
+                stat_summary["self.species"] = "NOT_FOUND"
+                stat_summary["reference_sequence_name"] = "N/A"
+                stat_summary["R1size"] = R1size
+                stat_summary["R2size"] = R2size
+                stat_summary["allbam_mapped_reads"] = "CHECK SAMPLE *****************************************"
                 return(stat_summary)
             else:
                 startTime = datetime.now()
@@ -1575,25 +1575,24 @@ class script1():
                 ave_read_length = "{:0.1f}".format(float(ave_read_length))
 
                 stat_summary={}
-                stat_summary["01-sample_name"] = sample_name
-                stat_summary["02-self.species"] = self.species
-                stat_summary["03-reference_sequence_name"] = reference_sequence_name
-                stat_summary["04-R1size"] = R1size
-                stat_summary["05-R2size"] = R2size
-                stat_summary["06-allbam_mapped_reads"] = allbam_mapped_reads
-                stat_summary["07-genome_coverage"] = genome_coverage
-                stat_summary["08-ave_coverage"] = ave_coverage
-                stat_summary["09-ave_read_length"] = ave_read_length
-                stat_summary["10-unmapped_reads"] = unmapped_reads
-                stat_summary["11-abyss_contig_count"] = abyss_contig_count
-                stat_summary["12-good_snp_count"] = good_snp_count
-                stat_summary["13-mlst_type"] = mlst_type
-                stat_summary["14-octalcode"] = octalcode
-                stat_summary["15-sbcode"] = sbcode
-                stat_summary["16-hexcode"] = hexcode
-                stat_summary["17-binarycode"] = binarycode
-
-                stat_summary=OrderedDict(sorted(stat_summary.items()))
+                stat_summary["time_stamp"] = st
+                stat_summary["sample_name"] = sample_name
+                stat_summary["self.species"] = self.species
+                stat_summary["reference_sequence_name"] = reference_sequence_name
+                stat_summary["R1size"] = R1size
+                stat_summary["R2size"] = R2size
+                stat_summary["allbam_mapped_reads"] = allbam_mapped_reads
+                stat_summary["genome_coveragee"] = genome_coverage
+                stat_summary["ave_coverage"] = ave_coverage
+                stat_summary["ave_read_length"] = ave_read_length
+                stat_summary["unmapped_reads"] = unmapped_reads
+                stat_summary["unmapped_assembled_contigs"] = abyss_contig_count
+                stat_summary["good_snp_count"] = good_snp_count
+                stat_summary["mlst_type"] = mlst_type
+                stat_summary["octalcode"] = octalcode
+                stat_summary["sbcode"] = sbcode
+                stat_summary["hexadecimal_code"] = hexcode
+                stat_summary["binarycode"] = binarycode
 
                 for k, v in stat_summary.items():
                     print("%s: %s" % (k, v))
@@ -1608,7 +1607,7 @@ class script1():
                 row = 0
                 col = 0
 
-                top_row_header = ["sample_name", "self.species", "reference_sequence_name", "R1size", "R2size", "allbam_mapped_reads", "genome_coverage", "ave_coverage", "ave_read_length", "unmapped_reads", "unmapped_assembled_contigs", "good_snp_count", "mlst_type", "octalcode", "sbcode", "hexadecimal_code", "binarycode"]
+                top_row_header = ["time", "sample_name", "self.species", "reference_sequence_name", "R1size", "R2size", "allbam_mapped_reads", "genome_coverage", "ave_coverage", "ave_read_length", "unmapped_reads", "unmapped_assembled_contigs", "good_snp_count", "mlst_type", "octalcode", "sbcode", "hexadecimal_code", "binarycode"]
                 for header in top_row_header:
                     worksheet.write(row, col, header)
                     col += 1
@@ -4015,6 +4014,8 @@ class loop():
 
         if path_found:
             summary_cumulative_file = copy_to + '/stat_alignment_culmulative_summary' + '.xlsx'
+            summary_cumulative_file_temp = copy_to + '/stat_alignment_culmulative_summary' + st + '.xlsx'
+            temp_folder = copy_to + '/temp'
         ###
 
         directory_list=[]
@@ -4046,55 +4047,38 @@ class loop():
                     os.chdir(root_dir)
             else: # run all in run_list in parallel
                 print("SAMPLES RAN IN PARALLEL")
+                frames = []
                 with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool: #max_workers=cpu_count
                     try:
                         for stat_summary in pool.map(read_aligner, run_list): #run in parallel run_list in read_aligner (script1)
                             print("statsummary")
                             print(stat_summary) #stat_summary returned from script 1
-                            col = 0
-                            row += 1
-                            #run stats
-                            for v in stat_summary.values():
-                                worksheet.write(row, col, v) #stat summary to be attached in email and left in working directory
-                                col += 1
-                            stats_lock = False
-                            if not args.quiet and path_found:
-                                try: #try to open cumulative stats file
-                                    mytable=pd.read_excel(summary_cumulative_file)
-                                    top=mytable[0:0]
-                                    stat_summary_list = list(stat_summary.values())
-                                    stat_summary_list.insert(0, st)
-                                    while len(stat_summary_list) < 18:
-                                        stat_summary_list.append("-")
-                                    in_dict_stats=OrderedDict(zip(top, stat_summary_list))
-                                    df_dict_stats=pd.DataFrame(in_dict_stats, index=[0])
-                                    frames = [mytable, df_dict_stats]
-                                    df_cum_stat = pd.concat(frames)
-                                    df_cum_stat.to_excel(summary_cumulative_file)
-                                except: # if cannot open cumulative stats file place a copy of run stats in the stats folder
-                                    print("Cumulative stats file is locked")
-                                    stats_lock = True
+                            df_stat_summary = pd.DataFrame.from_dict(stat_summary, orient='index') #convert stat_summary to df
+                            frames.append(df_stat_summary) #frames to concatenate
+
                     except:
                         pass
 
-        try:
-            runtime = (datetime.now() - startTime)
-            col = 0
-            row += 1
-            worksheet.write(row, col, "runtime: %s: " % runtime)
-            workbook.close()
-        except:
-            print("ERROR CLOSING STATS FILE")
-            pass
-
-        try: #will not copy if path unavailable
-            if stats_lock: #if file was locked try to copy
-                shutil.copy2(summary_file, copy_to)
-        except:
-            pass
-
-        ####send email:
-
+                if not args.quiet and path_found:
+                    df_all=pd.read_excel(summary_cumulative_file)
+                    df_all_trans = df_all.T #indexed on column headers
+                    try:
+                        #can we write to the file
+                        open_check = open(summary_cumulative_file, 'a') #'a' is very important, 'w' will leave you with an empty file
+                        open_check.close()
+                        # save back the old and remake the working stats file
+                        shutil.move(summary_cumulative_file, '{}' .format(temp_folder + '/stat_backup' + st + '.xlsx'))
+                        sorter = list(df_all_trans.index) #list of original column order
+                        frames.insert(0, df_all_trans) #put as first item in list
+                        df_concat = pd.concat(frames, axis=1) #cat frames
+                        df_sorted = df_concat.loc[sorter] #sort based on sorter order
+                        df_sorted.T.to_excel(summary_cumulative_file, index=False) #transpose before writing to excel, numerical index not needed
+                    except (OSError, BlockingIOError) as error:
+                        sorter = list(df_stat_summary.index) #list of original column order
+                        df_concat = pd.concat(frames, axis=1) #cat frames
+                        df_sorted = df_concat.loc[sorter] #sort based on sorter order
+                        df_sorted.T.to_excel(summary_cumulative_file_temp, index=False)
+####send email:
         def send_email(email_list):
             text = "See attached:  "
             send_from = "tod.p.stuber@aphis.usda.gov"

@@ -4062,6 +4062,8 @@ class loop():
                 if not args.quiet and path_found:
                     df_all=pd.read_excel(summary_cumulative_file)
                     df_all_trans = df_all.T #indexed on column headers
+                    for k, v in stat_summary.items():
+                        print("k: %s, v: %s" % (k, v))
                     try:
                         #can we write to the file
                         open_check = open(summary_cumulative_file, 'a') #'a' is very important, 'w' will leave you with an empty file
@@ -4110,7 +4112,7 @@ class loop():
         if args.email:
             send_email(email_list)
 
-
+        runtime = (datetime.now() - startTime)
         print ("\n\nruntime: %s:  \n" % runtime)
 
 ################################################################################################################################################

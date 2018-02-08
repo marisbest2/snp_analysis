@@ -1574,6 +1574,9 @@ class script1():
                 ave_read_length = total_length/sequence_count
                 ave_read_length = "{:0.1f}".format(float(ave_read_length))
 
+                ts = time.time()
+                st = datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H-%M-%S')
+
                 stat_summary={}
                 stat_summary["time_stamp"] = st
                 stat_summary["sample_name"] = sample_name
@@ -1599,8 +1602,6 @@ class script1():
                 
                 ###
                 # Create a sample stats file in the sample's script1 directory
-                ts = time.time()
-                st = datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H-%M-%S')
                 summary_file = loc_sam + "_" + st + '.xlsx'
                 workbook = xlsxwriter.Workbook(summary_file)
                 worksheet = workbook.add_worksheet()
@@ -4049,37 +4050,34 @@ class loop():
                 print("SAMPLES RAN IN PARALLEL")
                 frames = []
                 with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool: #max_workers=cpu_count
-                    try:
-                        for stat_summary in pool.map(read_aligner, run_list): #run in parallel run_list in read_aligner (script1)
-                            print("statsummary")
-                            print(stat_summary) #stat_summary returned from script 1
-                            df_stat_summary = pd.DataFrame.from_dict(stat_summary, orient='index') #convert stat_summary to df
-                            frames.append(df_stat_summary) #frames to concatenate
-
-                    except:
-                        pass
-
-                if not args.quiet and path_found:
-                    df_all=pd.read_excel(summary_cumulative_file)
-                    df_all_trans = df_all.T #indexed on column headers
-                    for k, v in stat_summary.items():
-                        print("k: %s, v: %s" % (k, v))
-                    try:
-                        #can we write to the file
-                        open_check = open(summary_cumulative_file, 'a') #'a' is very important, 'w' will leave you with an empty file
-                        open_check.close()
-                        # save back the old and remake the working stats file
-                        shutil.move(summary_cumulative_file, '{}' .format(temp_folder + '/stat_backup' + st + '.xlsx'))
-                        sorter = list(df_all_trans.index) #list of original column order
-                        frames.insert(0, df_all_trans) #put as first item in list
-                        df_concat = pd.concat(frames, axis=1) #cat frames
-                        df_sorted = df_concat.loc[sorter] #sort based on sorter order
-                        df_sorted.T.to_excel(summary_cumulative_file, index=False) #transpose before writing to excel, numerical index not needed
-                    except (OSError, BlockingIOError) as error:
-                        sorter = list(df_stat_summary.index) #list of original column order
-                        df_concat = pd.concat(frames, axis=1) #cat frames
-                        df_sorted = df_concat.loc[sorter] #sort based on sorter order
-                        df_sorted.T.to_excel(summary_cumulative_file_temp, index=False)
+                    for stat_summary in pool.map(read_aligner, run_list): #run in parallel run_list in read_aligner (script1)
+                        print("statsummary")
+                        print(stat_summary) #stat_summary returned from script 1
+                        df_stat_summary = pd.DataFrame.from_dict(stat_summary, orient='index') #convert stat_summary to df
+                        frames.append(df_stat_summary) #frames to concatenate
+                        if not args.quiet and path_found:
+                            df_all=pd.read_excel(summary_cumulative_file)
+                            df_all_trans = df_all.T #indexed on column headers
+                            # for k, v in stat_summary.items():
+                            #     print("k: %s, v: %s" % (k, v))
+                            try:
+                                #can we write to the file
+                                open_check = open(summary_cumulative_file, 'a') #'a' is very important, 'w' will leave you with an empty file
+                                open_check.close()
+                                # save back the old and remake the working stats file
+                                shutil.move(summary_cumulative_file, '{}' .format(temp_folder + '/stat_backup' + st + '.xlsx'))
+                                sorter = list(df_all_trans.index) #list of original column order
+                                frames.insert(0, df_all_trans) #put as first item in list
+                                df_concat = pd.concat(frames, axis=1) #cat frames
+                                df_sorted = df_concat.loc[sorter] #sort based on sorter order
+                                df_sorted.T.to_excel(summary_cumulative_file, index=False) #transpose before writing to excel, numerical index not needed
+                            except (OSError, BlockingIOError) as error:
+                                sorter = list(df_stat_summary.index) #list of original column order
+                                df_concat = pd.concat(frames, axis=1) #cat frames
+                                df_sorted = df_concat.loc[sorter] #sort based on sorter order
+                                df_sorted.T.to_excel(summary_cumulative_file_temp, index=False)
+                        else:
+                            print("Path to cumulative stat summary file not found")
 ####send email:
         def send_email(email_list):
             text = "See attached:  "

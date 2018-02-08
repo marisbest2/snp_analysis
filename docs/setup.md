@@ -1,38 +1,29 @@
 ---
 layout: "default"
-title: Mac setup
-weight : 3
-#permalink: /mac_setup/
+title: Setup
+weight : 2
+#permalink: /Setup/
 ---
 
-<h1><p style="text-align: center">Mac setup</p></h1>
+<h1><p style="text-align: center">Setup</p></h1>
 
 -----
 <br>
 
-INSTALLATION
+vSNP INSTALLATION
 =================
 
 ## Python environment setup
 
-Instructions shown are to install without root privileges.  Use root privileges if available or with another user PATH setup if desired.
+Script is written in Python and must be ran using Python 3.  Currently tested with Python 3.6. 
 
-Scripts are written in Python and must be ran using Python 3.  
+Anaconda is a highly trusted Python package distrubution platform.  
 
-Anaconda is a highly trusted Python package distrubution platform.  If running Python 2 a new environment can be set without disrupting your current Python environment.  See option below for installing an additional Anaconda environment.  
+If Anaconda is not yet installed follow the Anaconda instructions to install on your platform.
 
-Install Anaconda if not already installed.  Tested using Anaconda3-5.0.0.
-
-On macOS
-      
-    ~$ wget https://repo.continuum.io/archive/Anaconda3-5.0.0-MacOSX-x86_64.sh
-    ~$ bash Anaconda3-5.0.0-MacOSX-x86_64.sh
-
-If `wget` is unavailable Anaconda can be installed using the graphical installer for Python 3.  See the Anaconda download page.
-
-    https://www.continuum.io/downloads
-
-When installing from the command line use Anaconda's default installation except when asked to, "prepend to PATH", choose yes.
+    https://www.anaconda.com/download/#macos        
+    
+When installing from the command line use Anaconda's default installation except... when asked to, "prepend to PATH", choose yes.
     
 Once Anaconda is installed close and reopen terminal.
 
@@ -47,12 +38,12 @@ If you are currently using Python 2, and wish to keep it as your default, a virt
 Setup Bioconda channels.  Add them in the order shown below.  Order is important.
 
     ~$ conda config --add channels conda-forge
-    ~$ conda config --add channels defaults # If warning, it can be ignored
+    ~$ conda config --add channels defaults # Can ignored warning
     ~$ conda config --add channels r
     ~$ conda config --add channels bioconda
     
 Install programs.
- 
+    
     ~$ conda install pyvcf biopython bwa samtools picard abyss gatk raxml newick_utils xlrd xlsxwriter gitpython regex cairosvg pandas
 
 When gatk is downloaded using Anacoda it still needs to be registered.  GATK has a way to do this.  Go to GATK's website, download the GATK package, unzip it, and run:
@@ -62,7 +53,7 @@ When gatk is downloaded using Anacoda it still needs to be registered.  GATK has
 After `gatk-register` is ran, GATK just downloaded from the GATK website, can be deleted.  The download was only needed to register the Anaconda GATK package.
 
 ## Script and dependents
-Clone script: 
+Clone script to home directory: 
 
     ~$ git clone https://github.com/USDA-VS/snp_analysis.git
     
@@ -100,9 +91,9 @@ If an error occurs it may have to do with running multiple samples and downloadi
 
 ## Test step 2
 
-In step 1 vSNP saw there were FASTQ files in the working directory and ran appropriately.  In step 2 it will look for VCF files.  `vSNP.py` must only see `*vcf` files in the working directory.  It will exit if any other file type is found.  
+In step 1 vSNP saw FASTQ files in the working directory and ran appropriately.  In step 2 it looks for VCF files.  `vSNP.py` must only see `*vcf` files in the working directory.  It will exit if any other file type is found.  
 
-Test using VCF test files, or better yet use the VCFs you just produced from step 1 above.  Use VCF files in the `alignment` directory ending in *-zc.vcf.  Make a working directory containing only those VCFs and call `vSNP.py`.  
+Test using VCF test files, or better yet use the VCFs you just produced from step 1 above.  From script 1 output use VCF files in the `alignment` directory ending in *-zc.vcf.  Make a working directory containing only those VCFs and call `vSNP.py`.  
     
 If using VCF test files
 
@@ -129,7 +120,7 @@ If you are currently using Python 2, and wish to keep it as your default, a virt
 
 To setup virtual environment:
 
-    ~$ conda create -n snp_analysis python=3.5 # Optional:  skip if wanting to use your current environment
+    ~$ conda create -n snp_analysis python=3.6 # Optional:  skip if wanting to use your current environment
     ~$ source activate snp_analysis # Optional:  skip if wanting to use your current environment
 
 Proceed to setting up channels...

@@ -4084,6 +4084,7 @@ class loop():
                                 df_sorted.T.to_excel(summary_cumulative_file_temp, index=False)
                         else:
                             print("Path to cumulative stat summary file not found")
+        workbook.close()
 ####send email:
         def send_email(email_list):
             text = "See attached:  "

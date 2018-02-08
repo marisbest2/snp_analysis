@@ -1585,7 +1585,7 @@ class script1():
                 stat_summary["R1size"] = R1size
                 stat_summary["R2size"] = R2size
                 stat_summary["allbam_mapped_reads"] = allbam_mapped_reads
-                stat_summary["genome_coveragee"] = genome_coverage
+                stat_summary["genome_coverage"] = genome_coverage
                 stat_summary["ave_coverage"] = ave_coverage
                 stat_summary["ave_read_length"] = ave_read_length
                 stat_summary["unmapped_reads"] = unmapped_reads
@@ -1608,7 +1608,7 @@ class script1():
                 row = 0
                 col = 0
 
-                top_row_header = ["time", "sample_name", "self.species", "reference_sequence_name", "R1size", "R2size", "allbam_mapped_reads", "genome_coverage", "ave_coverage", "ave_read_length", "unmapped_reads", "unmapped_assembled_contigs", "good_snp_count", "mlst_type", "octalcode", "sbcode", "hexadecimal_code", "binarycode"]
+                top_row_header = ["time_stamp", "sample_name", "self.species", "reference_sequence_name", "R1size", "R2size", "allbam_mapped_reads", "genome_coverage", "ave_coverage", "ave_read_length", "unmapped_reads", "unmapped_assembled_contigs", "good_snp_count", "mlst_type", "octalcode", "sbcode", "hexadecimal_code", "binarycode"]
                 for header in top_row_header:
                     worksheet.write(row, col, header)
                     col += 1
@@ -3995,7 +3995,7 @@ class loop():
         row = 0
         col = 0
 
-        top_row_header = ["sample_name", "self.species", "reference_sequence_name", "R1size", "R2size", "allbam_mapped_reads", "genome_coverage", "ave_coverage", "ave_read_length", "unmapped_reads", "unmapped_assembled_contigs", "good_snp_count", "mlst_type", "octalcode", "sbcode", "hexadecimal_code", "binarycode"]
+        top_row_header = ["time_stamp", "sample_name", "self.species", "reference_sequence_name", "R1size", "R2size", "allbam_mapped_reads", "genome_coverage", "ave_coverage", "ave_read_length", "unmapped_reads", "unmapped_assembled_contigs", "good_snp_count", "mlst_type", "octalcode", "sbcode", "hexadecimal_code", "binarycode"]
 
         for header in top_row_header:
             worksheet.write(row, col, header)
@@ -4055,6 +4055,12 @@ class loop():
                         print(stat_summary) #stat_summary returned from script 1
                         df_stat_summary = pd.DataFrame.from_dict(stat_summary, orient='index') #convert stat_summary to df
                         frames.append(df_stat_summary) #frames to concatenate
+                        col = 0
+                        row += 1
+                        #run stats
+                        for v in stat_summary.values():
+                            worksheet.write(row, col, v) #stat summary to be attached in email and left in working directory
+                            col += 1
                         if not args.quiet and path_found:
                             df_all=pd.read_excel(summary_cumulative_file)
                             df_all_trans = df_all.T #indexed on column headers

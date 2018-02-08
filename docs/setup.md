@@ -21,11 +21,11 @@ Anaconda is a highly trusted Python package distrubution platform.
 
 If Anaconda is not yet installed follow the Anaconda instructions to install on your platform.
 
-    https://www.anaconda.com/download/#macos        
+    https://www.anaconda.com/download/     
     
 When installing from the command line use Anaconda's default installation except... when asked to, "prepend to PATH", choose yes.
     
-Once Anaconda is installed close and reopen terminal.
+Once Anaconda is installed close and reopen your terminal.
 
 ---
 

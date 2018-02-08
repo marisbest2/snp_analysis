@@ -4062,11 +4062,11 @@ class loop():
                             worksheet.write(row, col, v) #stat summary to be attached in email and left in working directory
                             col += 1
                 if not args.quiet and path_found:
-                    df_all=pd.read_excel(summary_cumulative_file)
-                    df_all_trans = df_all.T #indexed on column headers
-                    # for k, v in stat_summary.items():
-                    #     print("k: %s, v: %s" % (k, v))
                     try:
+                        df_all=pd.read_excel(summary_cumulative_file)
+                        df_all_trans = df_all.T #indexed on column headers
+                        # for k, v in stat_summary.items():
+                        #     print("k: %s, v: %s" % (k, v))
                         #can we write to the file
                         open_check = open(summary_cumulative_file, 'a') #'a' is very important, 'w' will leave you with an empty file
                         open_check.close()

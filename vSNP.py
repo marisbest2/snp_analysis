@@ -4063,13 +4063,11 @@ class loop():
                             col += 1
                 if not args.quiet and path_found:
                     try:
-                        df_all=pd.read_excel(summary_cumulative_file)
-                        df_all_trans = df_all.T #indexed on column headers
-                        # for k, v in stat_summary.items():
-                        #     print("k: %s, v: %s" % (k, v))
                         #can we write to the file
                         open_check = open(summary_cumulative_file, 'a') #'a' is very important, 'w' will leave you with an empty file
                         open_check.close()
+                        df_all=pd.read_excel(summary_cumulative_file)
+                        df_all_trans = df_all.T #indexed on column headers
                         # save back the old and remake the working stats file
                         shutil.move(summary_cumulative_file, '{}' .format(temp_folder + '/stat_backup' + st + '.xlsx'))
                         sorter = list(df_all_trans.index) #list of original column order

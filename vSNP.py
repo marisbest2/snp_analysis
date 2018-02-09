@@ -4061,31 +4061,31 @@ class loop():
                             worksheet.write(row, col, v) #stat summary to be attached in email and left in root directory
                             col += 1
                 workbook.close()
-            if not args.quiet and path_found:
-                try:
-                    open_check = open(summary_cumulative_file, 'a') #'a' is very important, 'w' will leave you with an empty file
-                    open_check.close()
-                    df_all=pd.read_excel(summary_cumulative_file)
-                    df_all_trans = df_all.T #indexed on column headers
-                    # save back the old and remake the working stats file
-                    shutil.move(summary_cumulative_file, '{}' .format(temp_folder + '/stat_backup' + st + '.xlsx'))
-                    sorter = list(df_all_trans.index) #list of original column order
-                    frames.insert(0, df_all_trans) #put as first item in list
-                    df_concat = pd.concat(frames, axis=1) #cat frames
-                    df_sorted = df_concat.loc[sorter] #sort based on sorter order
-                    df_sorted.T.to_excel(summary_cumulative_file, index=False) #transpose before writing to excel, numerical index not needed
-                except BlockingIOError:
-                    sorter = list(df_stat_summary.index) #list of original column order
-                    df_concat = pd.concat(frames, axis=1) #cat frames
-                    df_sorted = df_concat.loc[sorter] #sort based on sorter order
-                    df_sorted.T.to_excel(summary_cumulative_file_temp, index=False)
-                except OSError:
-                    sorter = list(df_stat_summary.index) #list of original column order
-                    df_concat = pd.concat(frames, axis=1) #cat frames
-                    df_sorted = df_concat.loc[sorter] #sort based on sorter order
-                    df_sorted.T.to_excel(summary_cumulative_file_temp, index=False)
-            else:
-                print("Path to cumulative stat summary file not found")
+                if not args.quiet and path_found:
+                    try:
+                        open_check = open(summary_cumulative_file, 'a') #'a' is very important, 'w' will leave you with an empty file
+                        open_check.close()
+                        df_all=pd.read_excel(summary_cumulative_file)
+                        df_all_trans = df_all.T #indexed on column headers
+                        # save back the old and remake the working stats file
+                        shutil.move(summary_cumulative_file, '{}' .format(temp_folder + '/stat_backup' + st + '.xlsx'))
+                        sorter = list(df_all_trans.index) #list of original column order
+                        frames.insert(0, df_all_trans) #put as first item in list
+                        df_concat = pd.concat(frames, axis=1) #cat frames
+                        df_sorted = df_concat.loc[sorter] #sort based on sorter order
+                        df_sorted.T.to_excel(summary_cumulative_file, index=False) #transpose before writing to excel, numerical index not needed
+                    except BlockingIOError:
+                        sorter = list(df_stat_summary.index) #list of original column order
+                        df_concat = pd.concat(frames, axis=1) #cat frames
+                        df_sorted = df_concat.loc[sorter] #sort based on sorter order
+                        df_sorted.T.to_excel(summary_cumulative_file_temp, index=False)
+                    except OSError:
+                        sorter = list(df_stat_summary.index) #list of original column order
+                        df_concat = pd.concat(frames, axis=1) #cat frames
+                        df_sorted = df_concat.loc[sorter] #sort based on sorter order
+                        df_sorted.T.to_excel(summary_cumulative_file_temp, index=False)
+                else:
+                    print("Path to cumulative stat summary file not found")
         
 ####send email:
         def send_email(email_list):

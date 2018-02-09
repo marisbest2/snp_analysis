@@ -3986,20 +3986,20 @@ class loop():
         #Run stats
         ts = time.time()
         st = datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H-%M-%S')
-        summary_file = root_dir+ '/stat_alignment_summary_' + st + '.xlsx'
 
+        #placed at root
+        #get file opened and give a header
+        summary_file = root_dir+ '/stat_alignment_summary_' + st + '.xlsx'
         workbook = xlsxwriter.Workbook(summary_file)
         worksheet = workbook.add_worksheet()
-
         row = 0
         col = 0
-
         top_row_header = ["time_stamp", "sample_name", "self.species", "reference_sequence_name", "R1size", "R2size", "allbam_mapped_reads", "genome_coverage", "ave_coverage", "ave_read_length", "unmapped_reads", "unmapped_assembled_contigs", "good_snp_count", "mlst_type", "octalcode", "sbcode", "hexadecimal_code", "binarycode"]
-
         for header in top_row_header:
             worksheet.write(row, col, header)
             col += 1
         ###
+
         #Cumulative stats
         path_found = False
         if os.path.isdir("/bioinfo11/TStuber/Results/stats"): #check bioinfo from server
@@ -4014,7 +4014,7 @@ class loop():
 
         if path_found:
             summary_cumulative_file = copy_to + '/stat_alignment_culmulative_summary' + '.xlsx'
-            summary_cumulative_file_temp = copy_to + '/stat_alignment_culmulative_summary' + st + '.xlsx'
+            summary_cumulative_file_temp = copy_to + '/stat_alignment_culmulative_summary-' + st + '-temp.xlsx'
             temp_folder = copy_to + '/temp'
         ###
 
@@ -4058,8 +4058,9 @@ class loop():
                         row += 1
                         #run stats
                         for v in stat_summary.values():
-                            worksheet.write(row, col, v) #stat summary to be attached in email and left in working directory
+                            worksheet.write(row, col, v) #stat summary to be attached in email and left in root directory
                             col += 1
+                workbook.close()
                 if not args.quiet and path_found:
                     try:
                         open_check = open(summary_cumulative_file, 'a') #'a' is very important, 'w' will leave you with an empty file
@@ -4085,7 +4086,7 @@ class loop():
                         df_sorted.T.to_excel(summary_cumulative_file_temp, index=False)
                 else:
                     print("Path to cumulative stat summary file not found")
-        workbook.close()
+        
 ####send email:
         def send_email(email_list):
             text = "See attached:  "

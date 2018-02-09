@@ -4035,6 +4035,7 @@ class loop():
             print(run_list)
 
             print("Iterating directories")
+            frames = []
             if args.debug_call: #run just one sample at a time to debug
                 for d in run_list:
                     print("DEBUGGING, SAMPLES RAN INDIVIDUALLY")
@@ -4049,7 +4050,6 @@ class loop():
                     os.chdir(root_dir)
             else: # run all in run_list in parallel
                 print("SAMPLES RAN IN PARALLEL")
-                frames = []
                 with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool: #max_workers=cpu_count
                     for stat_summary in pool.map(read_aligner, run_list): #run in parallel run_list in read_aligner (script1)
                         df_stat_summary = pd.DataFrame.from_dict(stat_summary, orient='index') #convert stat_summary to df

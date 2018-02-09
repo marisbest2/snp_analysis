@@ -35,7 +35,6 @@ from email.mime.base import MIMEBase
 from email import encoders
 from distutils.dir_util import copy_tree
 from datetime import datetime
-from datetime import datetime
 from concurrent import futures
 from collections import OrderedDict
 from collections import Counter
@@ -4063,7 +4062,6 @@ class loop():
                             col += 1
                 if not args.quiet and path_found:
                     try:
-                        #can we write to the file
                         open_check = open(summary_cumulative_file, 'a') #'a' is very important, 'w' will leave you with an empty file
                         open_check.close()
                         df_all=pd.read_excel(summary_cumulative_file)
@@ -4075,7 +4073,12 @@ class loop():
                         df_concat = pd.concat(frames, axis=1) #cat frames
                         df_sorted = df_concat.loc[sorter] #sort based on sorter order
                         df_sorted.T.to_excel(summary_cumulative_file, index=False) #transpose before writing to excel, numerical index not needed
-                    except (OSError, BlockingIOError) as error:
+                    except BlockingIOError:
+                        sorter = list(df_stat_summary.index) #list of original column order
+                        df_concat = pd.concat(frames, axis=1) #cat frames
+                        df_sorted = df_concat.loc[sorter] #sort based on sorter order
+                        df_sorted.T.to_excel(summary_cumulative_file_temp, index=False)
+                    except OSError:
                         sorter = list(df_stat_summary.index) #list of original column order
                         df_concat = pd.concat(frames, axis=1) #cat frames
                         df_sorted = df_concat.loc[sorter] #sort based on sorter order

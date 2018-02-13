@@ -46,6 +46,16 @@ Install programs.
     
     ~$ conda install pyvcf biopython bwa samtools picard abyss gatk raxml newick_utils xlrd xlsxwriter gitpython regex cairosvg pandas
 
+If cairosvg prevents installtion remove it and install with pip.
+
+    ~$ pip install cairosvg
+
+For cairosvg to run cairo must be installed.  https://www.cairographics.org/download/
+
+Alternatively, install using conda.
+
+    ~$ conda install cairo
+
 When gatk is downloaded using Anacoda it still needs to be registered.  GATK has a way to do this.  Go to GATK's website, download the GATK package, unzip it, and run:
 
     ~$ gatk-register /path/to/Downloads/GenomeAnalysisTK*/GenomeAnalysisTK.jar.  
@@ -59,7 +69,7 @@ Clone script to home directory:
     
 If git is unavailable, `~$ conda install git` will make it available.
 
-Put `snp_analysis` in your $PYTHONPATH, or easier run lines below to put script in your anaconda PATH.
+Put `snp_analysis` in your $PATH, or easier run lines below to put script in your anaconda PATH.
 
     ~$ ln -s ~/snp_analysis/vSNP.py ~/anaconda*/bin/
 

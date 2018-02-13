@@ -1374,6 +1374,7 @@ class script1():
                     allbam_unmapped_reads = "{:,}".format(int(first_line[3]))
 
                 print("\n@@@ Find duplicate reads")
+                #os.system("gatk-launch MarkDuplicatesGATK --input={} --output {} --METRICS_FILE {}" .format(sortedbam, nodupbam, metrics))
                 os.system("picard MarkDuplicates INPUT={} OUTPUT={} METRICS_FILE={} ASSUME_SORTED=true REMOVE_DUPLICATES=true" .format(sortedbam, nodupbam, metrics))
                 os.system("samtools index {}" .format(nodupbam))
                 
@@ -1396,33 +1397,34 @@ class script1():
                 allbam_mapped_reads = "{:,}".format(allbam_mapped_reads)
                 print(unmapped_reads)
 
-                print("\n@@@  Realign indels")
-                os.system("gatk-launch RealignerTargetCreator -I {} -R {} -o {}" .format(nodupbam, sample_reference, indel_realigner))
-                if not os.path.isfile(indel_realigner):
-                    os.system("gatk-launch RealignerTargetCreator --fix_misencoded_quality_scores -I {} -R {} -o {}" .format(nodupbam, sample_reference, indel_realigner))
-                os.system("gatk-launch IndelRealigner -I {} -R {} -targetIntervals {} -o {}" .format(nodupbam, sample_reference, indel_realigner, realignedbam))
-                if not os.path.isfile(realignedbam):
-                    os.system("gatk-launch IndelRealigner --fix_misencoded_quality_scores -I {} -R {} -targetIntervals {} -o {}" .format(nodupbam, sample_reference, indel_realigner, realignedbam))
+                # print("\n@@@  Realign indels")
+                # os.system("gatk-launch RealignerTargetCreator -I {} -R {} -o {}" .format(nodupbam, sample_reference, indel_realigner))
+                # if not os.path.isfile(indel_realigner):
+                #     os.system("gatk-launch RealignerTargetCreator --fix_misencoded_quality_scores -I {} -R {} -o {}" .format(nodupbam, sample_reference, indel_realigner))
+                # os.system("gatk-launch IndelRealigner -I {} -R {} -targetIntervals {} -o {}" .format(nodupbam, sample_reference, indel_realigner, realignedbam))
+                # if not os.path.isfile(realignedbam):
+                #     os.system("gatk-launch IndelRealigner --fix_misencoded_quality_scores -I {} -R {} -targetIntervals {} -o {}" .format(nodupbam, sample_reference, indel_realigner, realignedbam))
 
                 print("\n@@@ Base recalibration")
-                os.system("gatk-launch BaseRecalibrator -I {} -R {} -knownSites {} -o {}". format(realignedbam, sample_reference, hqs, recal_group))
+                os.system("gatk-launch IndexFeatureFile -F {}" .format(hqs))
+                os.system("gatk-launch BaseRecalibrator -I {} -R {} --known-sites {} -O {}". format(nodupbam, sample_reference, hqs, recal_group))
                 if not os.path.isfile(realignedbam):
-                    os.system("gatk-launch BaseRecalibrator  --fix_misencoded_quality_scores -I {} -R {} -knownSites {} -o {}". format(realignedbam, sample_reference, hqs, recal_group))
+                    os.system("gatk-launch BaseRecalibrator -I {} -R {} --known-sites {} -O {}". format(nodupbam, sample_reference, hqs, recal_group))
 
                 print("\n@@@ Make realigned BAM")
-                os.system("gatk-launch PrintReads -R {} -I {} -BQSR {} -o {}" .format (sample_reference, realignedbam, recal_group, prebam))
+                os.system("gatk-launch ApplyBQSR -R {} -I {} --bqsr-recal-file {} -O {}" .format (sample_reference, nodupbam, recal_group, prebam))
                 if not os.path.isfile(prebam):
-                    os.system("gatk-launch PrintReads  --fix_misencoded_quality_scores -R {} -I {} -BQSR {} -o {}" .format (sample_reference, realignedbam, recal_group, prebam))
+                    os.system("gatk-launch ApplyBQSR -R {} -I {} --bqsr-recal-file {} -O {}" .format (sample_reference, nodupbam, recal_group, prebam))
 
-                print("\n@@@ Clip reads")
-                os.system("gatk-launch ClipReads -R {} -I {} -o {} -filterNoBases -dcov 10" .format(sample_reference, prebam, qualitybam))
-                os.system("samtools index {}" .format(qualitybam))
+                # print("\n@@@ Clip reads")
+                # os.system("gatk-launch ClipReads -R {} -I {} -o {} -filterNoBases -dcov 10" .format(sample_reference, prebam, qualitybam))
+                # os.system("samtools index {}" .format(qualitybam))
 
                 print("\n@@@ Depth of coverage using GATK")
-                os.system("gatk-launch DepthOfCoverage -R {} -I {} -o {} -omitIntervals --omitLocusTable --omitPerSampleStats -nt 8" .format(sample_reference, prebam, coverage_file))
+                os.system("gatk -T DepthOfCoverage -R {} -I {} -o {} -omitIntervals --omitLocusTable --omitPerSampleStats -nt 8" .format(sample_reference, prebam, coverage_file))
 
                 print("\n@@@ Calling SNPs with HaplotypeCaller")
-                os.system("gatk-launch HaplotypeCaller -R {} -T HaplotypeCaller -I {} -o {} -bamout {} -dontUseSoftClippedBases -allowNonUniqueKmersInRef" .format(sample_reference, qualitybam, hapall, bamout))
+                os.system("gatk-launch HaplotypeCaller -R {} -I {} -O {} -bamout {}" .format(sample_reference, prebam, hapall, bamout))
 
                 try: 
                     print("Getting Zero Coverage...\n")

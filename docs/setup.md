@@ -50,7 +50,7 @@ If cairosvg prevents installtion remove it and install with pip.
 
     ~$ pip install cairosvg
 
-To run cairosvg requires cairo.  Follow instructions at: https://www.cairographics.org/download/
+Cairosvg requires cairo.  It needed follow instructions at: https://www.cairographics.org/download/
 
 Or, install using conda.
 

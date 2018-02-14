@@ -122,7 +122,7 @@ For list of options:
 <br>
 
 <strong>Optional:</strong>
-If you are currently using Python 2, and wish to keep it as your default, a virtual environment can be built.  `vSNP.py` can run in this virtual environment.  Skip this step, however, if you are not concerned with the Python version you are running.
+If you are currently using Python 2, and wish to keep it as your default, a virtual environment can be built.  `vSNP.py` can run in this virtual environment.
 
 To setup virtual environment:
 
@@ -131,7 +131,7 @@ To setup virtual environment:
 
 Proceed to setting up channels...
 
-When optional environment is used:  To deactivate virtual environment, use:
+To deactivate virtual environment, use:
     
     > source deactivate <env name> # skip if new environment was not activated
     

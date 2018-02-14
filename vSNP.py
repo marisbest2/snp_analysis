@@ -1408,13 +1408,13 @@ class script1():
                 print("\n@@@ Base recalibration")
                 os.system("gatk-launch IndexFeatureFile -F {}" .format(hqs))
                 os.system("gatk-launch BaseRecalibrator -I {} -R {} --known-sites {} -O {}". format(nodupbam, sample_reference, hqs, recal_group))
-                if not os.path.isfile(realignedbam):
-                    os.system("gatk-launch BaseRecalibrator -I {} -R {} --known-sites {} -O {}". format(nodupbam, sample_reference, hqs, recal_group))
+                # if not os.path.isfile(realignedbam):
+                #     os.system("gatk-launch BaseRecalibrator -I {} -R {} --known-sites {} -O {}". format(nodupbam, sample_reference, hqs, recal_group))
 
                 print("\n@@@ Make realigned BAM")
                 os.system("gatk-launch ApplyBQSR -R {} -I {} --bqsr-recal-file {} -O {}" .format (sample_reference, nodupbam, recal_group, prebam))
-                if not os.path.isfile(prebam):
-                    os.system("gatk-launch ApplyBQSR -R {} -I {} --bqsr-recal-file {} -O {}" .format (sample_reference, nodupbam, recal_group, prebam))
+                # if not os.path.isfile(prebam):
+                #     os.system("gatk-launch ApplyBQSR -R {} -I {} --bqsr-recal-file {} -O {}" .format (sample_reference, nodupbam, recal_group, prebam))
 
                 # print("\n@@@ Clip reads")
                 # os.system("gatk-launch ClipReads -R {} -I {} -o {} -filterNoBases -dcov 10" .format(sample_reference, prebam, qualitybam))
@@ -1469,12 +1469,12 @@ class script1():
                 os.remove(unmapsam)
                 os.remove(sortedbam)
                 os.remove(sortedbam + ".bai")
-                os.remove(indel_realigner)
-                os.remove(realignedbam)
-                os.remove(loc_sam + "-realigned.bai")
+                #os.remove(indel_realigner)
+                #os.remove(realignedbam)
+                #os.remove(loc_sam + "-realigned.bai")
                 os.remove(recal_group)
-                os.remove(prebam)
-                os.remove(loc_sam + "-pre.bai")
+                #os.remove(prebam)
+                #os.remove(loc_sam + "-pre.bai")
                 os.remove(hqs)
                 os.remove(hqs + ".idx")
                 os.remove(sample_reference + ".amb")

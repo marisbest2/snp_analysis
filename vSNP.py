@@ -723,7 +723,8 @@ class script1():
 
             print("\n@@@ Calling SNPs with UnifiedGenotyper")
             vcf_mlst = directory + "/" + sample_name + "_mlst" + ".vcf"
-            os.system("gatk -T UnifiedGenotyper -R {} -T UnifiedGenotyper -glm BOTH -out_mode EMIT_ALL_SITES -I {} -o {} -nct 8" .format(sample_reference_mlst_location, sortedbam, vcf_mlst))
+            #os.system("gatk -T UnifiedGenotyper -R {} -T UnifiedGenotyper -glm BOTH -out_mode EMIT_ALL_SITES -I {} -o {} -nct 8" .format(sample_reference_mlst_location, sortedbam, vcf_mlst))
+            os.system("gatk-launch HaplotypeCaller -ERC BP_RESOLUTION -R {} -I {} -O {}" .format(sample_reference_mlst_location, sortedbam, vcf_mlst))
 
             # Position 1629 was too close to the end of glk sequence.  Reads would not assemble properly to call possilbe SNP, therefore 100 bases of the gene were added.  Because of this all positions beyond this point are 100 more.  Same with position 1645 and 2693.
 
@@ -1283,7 +1284,7 @@ class script1():
                     self.mlst()
                 elif self.species in ["h37", "af"]: #removed bovis
                     print("TB")
-                    self.spoligo()
+                    #self.spoligo()
                 
                 print ("reference: %s" % sample_reference)
                 ref=re.sub('\.fasta', '', os.path.basename(sample_reference[0]))
@@ -1307,7 +1308,7 @@ class script1():
                 loc_sam=directory + "/" + sample_name
                 
                 os.system("samtools faidx {}" .format(sample_reference))
-                os.system("picard CreateSequenceDictionary REFERENCE={} OUTPUT={}" .format(sample_reference, directory + "/" + ref + ".dict"))
+                os.system("gatk-launch CreateSequenceDictionary -R {}" .format(sample_reference))
                 os.system("bwa index {}" .format(sample_reference))
                 samfile = loc_sam + ".sam"
                 allbam = loc_sam + "-all.bam"
@@ -1323,10 +1324,11 @@ class script1():
                 indel_realigner = loc_sam + ".intervals"
                 realignedbam = loc_sam + "-realigned.bam"
                 recal_group = loc_sam + "-recal_group"
-                prebam=loc_sam + "-pre.bam"
+                #prebam=loc_sam + "-pre.bam"
                 qualitybam = loc_sam + "-quality.bam"
                 coverage_file=loc_sam + "-coverage.txt"
                 hapall = loc_sam + "-hapall.vcf"
+                hapall_bp = loc_sam + "-hapall.gvcf"
                 bamout = loc_sam + "-bamout.bam"
                 
                 print("\n@@@ BWA mem")
@@ -1374,8 +1376,8 @@ class script1():
                     allbam_unmapped_reads = "{:,}".format(int(first_line[3]))
 
                 print("\n@@@ Find duplicate reads")
-                #os.system("gatk-launch MarkDuplicatesGATK --input={} --output {} --METRICS_FILE {}" .format(sortedbam, nodupbam, metrics))
-                os.system("picard MarkDuplicates INPUT={} OUTPUT={} METRICS_FILE={} ASSUME_SORTED=true REMOVE_DUPLICATES=true" .format(sortedbam, nodupbam, metrics))
+                os.system("gatk-launch MarkDuplicatesGATK --input={} --output {} --METRICS_FILE {}" .format(sortedbam, nodupbam, metrics))
+                #os.system("picard MarkDuplicates INPUT={} OUTPUT={} METRICS_FILE={} ASSUME_SORTED=true REMOVE_DUPLICATES=true" .format(sortedbam, nodupbam, metrics))
                 os.system("samtools index {}" .format(nodupbam))
                 
                 duplicate_stat_file = "duplicate_stat_align.txt"
@@ -1408,23 +1410,20 @@ class script1():
                 print("\n@@@ Base recalibration")
                 os.system("gatk-launch IndexFeatureFile -F {}" .format(hqs))
                 os.system("gatk-launch BaseRecalibrator -I {} -R {} --known-sites {} -O {}". format(nodupbam, sample_reference, hqs, recal_group))
-                # if not os.path.isfile(realignedbam):
-                #     os.system("gatk-launch BaseRecalibrator -I {} -R {} --known-sites {} -O {}". format(nodupbam, sample_reference, hqs, recal_group))
 
                 print("\n@@@ Make realigned BAM")
-                os.system("gatk-launch ApplyBQSR -R {} -I {} --bqsr-recal-file {} -O {}" .format (sample_reference, nodupbam, recal_group, prebam))
-                # if not os.path.isfile(prebam):
-                #     os.system("gatk-launch ApplyBQSR -R {} -I {} --bqsr-recal-file {} -O {}" .format (sample_reference, nodupbam, recal_group, prebam))
+                os.system("gatk-launch ApplyBQSR -R {} -I {} --bqsr-recal-file {} -O {}" .format (sample_reference, nodupbam, recal_group, qualitybam))
 
                 # print("\n@@@ Clip reads")
-                # os.system("gatk-launch ClipReads -R {} -I {} -o {} -filterNoBases -dcov 10" .format(sample_reference, prebam, qualitybam))
+                # os.system("gatk-launch ClipReads -R {} -I {} -o {} -filterNoBases -dcov 10" .format(sample_reference, qualitybam, qualitybam))
                 # os.system("samtools index {}" .format(qualitybam))
 
                 print("\n@@@ Depth of coverage using GATK")
-                os.system("gatk -T DepthOfCoverage -R {} -I {} -o {} -omitIntervals --omitLocusTable --omitPerSampleStats -nt 8" .format(sample_reference, prebam, coverage_file))
-
+                os.system("gatk -T DepthOfCoverage -R {} -I {} -o {} -omitIntervals --omitLocusTable --omitPerSampleStats -nt 8" .format(sample_reference, qualitybam, coverage_file))
+                
                 print("\n@@@ Calling SNPs with HaplotypeCaller")
-                os.system("gatk-launch HaplotypeCaller -R {} -I {} -O {} -bamout {}" .format(sample_reference, prebam, hapall, bamout))
+                os.system("gatk-launch HaplotypeCaller -R {} -I {} -O {} -bamout {}" .format(sample_reference, qualitybam, hapall, bamout))
+                os.system("gatk-launch HaplotypeCaller -ERC BP_RESOLUTION -R {} -I {} -O {} -bamout {}" .format(sample_reference, qualitybam, hapall_bp, bamout))
 
                 try: 
                     print("Getting Zero Coverage...\n")
@@ -1461,7 +1460,7 @@ class script1():
                     except AttributeError:
                         pass
 
-                os.remove(coverage_file)
+                #os.remove(coverage_file)
                 os.remove(samfile)
                 os.remove(allbam)
                 os.remove(nodupbam)

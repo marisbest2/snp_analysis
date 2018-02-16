@@ -804,12 +804,11 @@ class script1():
         def finding_sp(v):
             total=0
             total_finds=0
-            sequence_list = []
             #if total < 6: # doesn't make a big different.  Might as well get full counts
 #                    total += sum(seq.count(x) for x in (v)) #v=list of for and rev spacer
-            for spacer in v:
-                total_finds = len(regex.findall("(" + spacer + "){s<=1}", seq_string))
-                total += total_finds
+            total_finds = [len(regex.findall("(" + spacer + "){s<=1}", seq_string)) for spacer in v]
+            for number in total_finds:
+                total += number
             return(v, total)
 
         def binary_to_octal(binary):

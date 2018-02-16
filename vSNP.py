@@ -1330,6 +1330,7 @@ class script1():
                 hapall = loc_sam + "-hapall.vcf"
                 zero_coverage_vcf = loc_sam + "_zc.vcf"
                 hapall_bp = loc_sam + "-hapall.gvcf"
+                annotation_vcf = loc_sam + "-nozero.vcf"
                 bamout = loc_sam + "-bamout.bam"
                 
                 print("\n@@@ BWA mem")
@@ -1470,6 +1471,18 @@ class script1():
                         pass
                 vcf_zc_writer.close()
 
+                vcf_reader = vcf.Reader(open(hapall), 'r')
+                vcf_annotation_nozero = vcf.Writer(open(annotation_vcf, 'w'), vcf_reader)
+                print("Making nozero.vcf...\n")
+                for record in vcf_reader:
+                    try:
+                        if record.genotype(sample_name)['DP'] != 0:
+                            vcf_annotation_nozero.write_record(record)
+                    except:
+                        pass
+                vcf_annotation_nozero.close()
+
+
                 # try: 
                 #     print("Getting Zero Coverage...\n")
                 #     zero_coverage_vcf, good_snp_count, ave_coverage, genome_coverage = script1.add_zero_coverage(coverage_file, hapall, loc_sam)
@@ -1496,7 +1509,7 @@ class script1():
                         annotated_vcf = loc_sam + "-annotated.vcf"
                         write_out=open(annotated_vcf, 'w')
                         
-                        with open(zero_coverage_vcf) as vfile:
+                        with open(annotation_vcf) as vfile:
                             print("finding annotations...\n")
                             for line in vfile:
                                 annotated_line = script1.get_annotations(line, in_annotation_as_dict)
@@ -1526,7 +1539,7 @@ class script1():
                 os.remove(sample_reference + ".bwt")
                 os.remove(sample_reference + ".pac")
                 os.remove(sample_reference + ".sa")
-                os.remove(ref + ".dict")
+                #os.remove(ref + ".dict")
                 os.remove(duplicate_stat_file)
                 os.remove(stat_file)
 
@@ -3065,10 +3078,10 @@ def group_files(each_vcf):
             except TypeError:
                 record_alt_length = 0
             try:
-                if str(record.ALT[0]) != "None" and record_ref_length == 1 and record_alt_length == 1 and record.INFO['AC'][0] == 2 and record.QUAL > qual_gatk_threshold and record.INFO['MQ'] > 45:
+                if str(record.ALT[0]) != "None" and record_ref_length == 1 and record_alt_length == 1 and record.genotype(vcf_reader.samples[0])['GT'] == '1/1' and record.QUAL > qual_gatk_threshold and record.INFO['MQ'] > 45:
                     list_pass.append(absolute_positon)
                 # capture ambigous defining SNPs in htmlfile
-                elif str(record.ALT[0]) != "None" and record.INFO['AC'][0] == 1:
+                elif str(record.ALT[0]) != "None" and record.genotype(vcf_reader.samples[0])['GT'] != '1/1':
                     list_amb.append(absolute_positon)
             except ZeroDivisionError:
                 print ("bad line in %s at %s" % (each_vcf, absolute_positon))
@@ -3188,7 +3201,7 @@ def find_positions(filename):
             # record.QUAL > 150 --> filter poor quality
             # record.INFO['MQ'] --> filter low map quality
             try:
-                if str(record.ALT[0]) != "None" and record.INFO['AC'][0] == 2 and len(record.REF) == 1 and record.QUAL > qual_gatk_threshold:
+                if str(record.ALT[0]) != "None" and record.genotype(vcf_reader.samples[0])['GT'] == '1/1' and len(record.REF) == 1 and record.QUAL > qual_gatk_threshold:
                     found_positions.update({absolute_positon:record.REF})
             except KeyError:
                 pass
@@ -3491,11 +3504,11 @@ def get_snps(directory):
                 
                 # check record.QUAL
                 # In GATK VCFs "!= None" not used.
-                if str(record.ALT[0]) != "None" and len(record.ALT[0]) == 1 and record.INFO['AC'][0] == 2 and record.QUAL > N_gatk_threshold:
+                if str(record.ALT[0]) != "None" and len(record.ALT[0]) == 1 and record.genotype(vcf_reader.samples[0])['GT'] == '1/1' and record.QUAL > N_gatk_threshold:
                     sample_dict.update({record_position:record.ALT[0]})
                 # same as above but take into account Ambiguious call
-                #elif str(record.ALT[0]) != "None" and len(record.ALT[0]) == 1 and record.INFO['AC'][0] == 1 and record.QUAL >= N_gatk_threshold:
-                elif str(record.ALT[0]) != "None" and len(record.ALT[0]) == 1 and record.INFO['AC'][0] == 1:
+                #elif str(record.ALT[0]) != "None" and len(record.ALT[0]) == 1 and record.genotype(vcf_reader.samples[0])['GT'] != '1/1' and record.QUAL >= N_gatk_threshold:
+                elif str(record.ALT[0]) != "None" and len(record.ALT[0]) == 1 and record.genotype(vcf_reader.samples[0])['GT'] != '1/1':
                     ref_alt = str(record.ALT[0]) + str(record.REF[0])
                     if ref_alt == "AG":
                         sample_dict.update({record_position:"R"})

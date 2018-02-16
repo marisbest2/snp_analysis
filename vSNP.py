@@ -804,15 +804,12 @@ class script1():
         def finding_sp(v):
             total=0
             total_finds=0
-            for fastq in R1unzip, R2unzip:
-                with open(fastq) as in_handle:
-                    # all 3, title and seq and qual, were needed
-                    for title, seq, qual in FastqGeneralIterator(in_handle):
-                        #if total < 6: # doesn't make a big different.  Might as well get full counts
-    #                    total += sum(seq.count(x) for x in (v)) #v=list of for and rev spacer
-                        for spacer in v:
-                            total_finds = len(regex.findall("(" + spacer + "){s<=1}", seq, overlapped=True))
-                            total += total_finds
+            sequence_list = []
+            #if total < 6: # doesn't make a big different.  Might as well get full counts
+#                    total += sum(seq.count(x) for x in (v)) #v=list of for and rev spacer
+            for spacer in v:
+                total_finds = len(regex.findall("(" + spacer + "){s<=1}", seq_string))
+                total += total_finds
             return(v, total)
 
         def binary_to_octal(binary):
@@ -917,12 +914,22 @@ class script1():
 
             count_summary={}
 
+            global seq_string
+            sequence_list = []
+            for fastq in R1unzip, R2unzip:
+                with open(fastq) as in_handle:
+                    # all 3, title and seq and qual, were needed
+                    for title, seq, qual in FastqGeneralIterator(in_handle):
+                        sequence_list.append(seq)
+            seq_string = "".join(sequence_list)
+
             with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool: #max_workers=4
                 for v, count in pool.map(script1.finding_sp, spoligo_dictionary.values()):
                     for k, value in spoligo_dictionary.items():
                         if v == value:
                             count_summary.update({k:count})
                             count_summary=OrderedDict(sorted(count_summary.items()))
+            seq_string = ""
 
             spoligo_binary_dictionary={}
             for k, v in count_summary.items():
@@ -1284,7 +1291,7 @@ class script1():
                     self.mlst()
                 elif self.species in ["h37", "af"]: #removed bovis
                     print("TB")
-                    #self.spoligo()
+                    self.spoligo()
                 
                 print ("reference: %s" % sample_reference)
                 ref=re.sub('\.fasta', '', os.path.basename(sample_reference[0]))

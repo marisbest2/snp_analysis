@@ -1488,7 +1488,7 @@ class script1():
 
                 with open(zero_coverage_vcf, 'r') as file:
                     entire_file = file.read()
-                entire_file = re.sub(r'N\t.\t.\t.', r'N\t.\t.\t.\t.\tGT\t./.', entire_file)
+                entire_file = re.sub(r'N\t.\t.\t.', r'N\t.\t.\t.\tGT\t./.', entire_file)
                 with open(zero_coverage_vcf, 'w') as file:
                     file.write(entire_file)
 
@@ -3099,7 +3099,7 @@ def group_files(each_vcf):
             except TypeError:
                 record_alt_length = 0
             try:
-                if str(record.ALT[0]) != "None" and record_ref_length == 1 and record_alt_length == 1 and record.genotype(vcf_reader.samples[0])['GT'] == '1/1' and record.QUAL > qual_gatk_threshold and record.INFO['MQ'] > 45:
+                if str(record.ALT[0]) != "None" and record_ref_length == 1 and record_alt_length == 1 and record.INFO['AC'][0] == 2 and record.QUAL > qual_gatk_threshold and record.INFO['MQ'] > 45:
                     list_pass.append(absolute_positon)
                 # capture ambigous defining SNPs in htmlfile
                 elif str(record.ALT[0]) != "None" and record.genotype(vcf_reader.samples[0])['GT'] != '1/1':
@@ -3222,7 +3222,7 @@ def find_positions(filename):
             # record.QUAL > 150 --> filter poor quality
             # record.INFO['MQ'] --> filter low map quality
             try:
-                if str(record.ALT[0]) != "None" and record.genotype(vcf_reader.samples[0])['GT'] == '1/1' and len(record.REF) == 1 and record.QUAL > qual_gatk_threshold:
+                if str(record.ALT[0]) != "None" and record.INFO['AC'][0] == 2 and len(record.REF) == 1 and record.QUAL > qual_gatk_threshold:
                     found_positions.update({absolute_positon:record.REF})
             except KeyError:
                 pass
@@ -3525,7 +3525,7 @@ def get_snps(directory):
                 
                 # check record.QUAL
                 # In GATK VCFs "!= None" not used.
-                if str(record.ALT[0]) != "None" and len(record.ALT[0]) == 1 and record.genotype(vcf_reader.samples[0])['GT'] == '1/1' and record.QUAL > N_gatk_threshold:
+                if str(record.ALT[0]) != "None" and len(record.ALT[0]) == 1 and record.INFO['AC'][0] == 2 and record.QUAL > N_gatk_threshold:
                     sample_dict.update({record_position:record.ALT[0]})
                 # same as above but take into account Ambiguious call
                 #elif str(record.ALT[0]) != "None" and len(record.ALT[0]) == 1 and record.genotype(vcf_reader.samples[0])['GT'] != '1/1' and record.QUAL >= N_gatk_threshold:

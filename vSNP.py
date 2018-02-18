@@ -1444,12 +1444,12 @@ class script1():
                 for record in vcf_reader:
                     try:
                         genome_length += 1
-                        total_bases += record.genotype(sample_name)['DP']
-                        if record.genotype(sample_name)['GT'] != '0/0':
+                        total_bases += record.genotype(vcf_reader.samples[0])['DP']
+                        if record.genotype(vcf_reader.samples[0])['GT'] != '0/0':
                             vcf_hapall_writer.write_record(record)
                             if record.QUAL >= 300:
                                 good_snp_count += 1
-                        elif int(record.genotype(sample_name)['DP']) == int(0):
+                        elif int(record.genotype(vcf_reader.samples[0])['DP']) == int(0):
                             vcf_hapall_writer.write_record(record)
                             zero_coverage += 1
                     except:
@@ -1461,7 +1461,16 @@ class script1():
 
                 with open(hapall, 'r') as file:
                     entire_file = file.read()
-                entire_file = entire_file.replace(',<NON_REF>', '').replace('<NON_REF>', '.')
+                entire_file = re.sub(r'<NON_REF>\t.\t.\t.\tGT:AD:DP:GQ:PL\t0/0:0,0:0:0:0,0,0', r'N,<NON_REF>\t.\t.\t.\tGT:AD:DP:GQ:PL\t0/0:0,0,0:1000:0:1000,0,0,0,0,0', entire_file)
+                with open(hapall, 'w') as file:
+                    file.write(entire_file)
+
+                os.system("gatk-launch GenotypeGVCFs -R {} -V {} -O {}" .format(sample_reference, hapall, 'hapall-temp'))
+                os.rename('hapall-temp', hapall)
+
+                with open(hapall, 'r') as file:
+                    entire_file = file.read()
+                entire_file = re.sub(r'N\t974.78\t.\tAC=1;AF=0.500;AN=2;DP=1000;ExcessHet=3.0103;MLEAC=1;MLEAF=0.500\tGT:AD:DP:GQ:PL\t0/1:0,0:1000:0:1000,0,0', r'N\t.\t.\t.\t.\tGT\t0/0', entire_file)
                 with open(hapall, 'w') as file:
                     file.write(entire_file)
 
@@ -1471,11 +1480,17 @@ class script1():
                 print("Making zc.vcf...\n")
                 for record in vcf_reader:
                     try:
-                        if (record.genotype(sample_name)['GT'] != '0/0' and len(record.REF) == 1 and len(record.ALT[0]) == 1) or record.genotype(sample_name)['DP'] == 0:
+                        if (len(record.REF) == 1 and len(record.ALT[0]) == 1):
                             vcf_zc_writer.write_record(record)
                     except:
                         pass
                 vcf_zc_writer.close()
+
+                with open(zero_coverage_vcf, 'r') as file:
+                    entire_file = file.read()
+                entire_file = re.sub(r'N\t.\t.\t.', r'N\t.\t.\t.\t.\tGT\t./.', entire_file)
+                with open(zero_coverage_vcf, 'w') as file:
+                    file.write(entire_file)
 
                 vcf_reader = vcf.Reader(open(hapall), 'r')
                 vcf_annotation_nozero = vcf.Writer(open(annotation_vcf, 'w'), vcf_reader)

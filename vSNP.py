@@ -1470,7 +1470,7 @@ class script1():
 
                 with open(hapall, 'r') as file:
                     entire_file = file.read()
-                entire_file = re.sub(r'N\t974.78\t.\tAC=1;AF=0.500;AN=2;DP=1000;ExcessHet=3.0103;MLEAC=1;MLEAF=0.500\tGT:AD:DP:GQ:PL\t0/1:0,0:1000:0:1000,0,0', r'N\t.\t.\t.\t.\tGT\t0/0', entire_file)
+                entire_file = re.sub(r'[A-Z]\tN\t974.78\t.\tAC=1;AF=0.500;AN=2;DP=1000;ExcessHet=3.0103;MLEAC=1;MLEAF=0.500\tGT:AD:DP:GQ:PL\t0/1:0,0:1000:0:1000,0,0', r'N\t.\t.\t.\t.\tGT\t./.', entire_file)
                 with open(hapall, 'w') as file:
                     file.write(entire_file)
 
@@ -1482,15 +1482,17 @@ class script1():
                     try:
                         if (len(record.REF) == 1 and len(record.ALT[0]) == 1):
                             vcf_zc_writer.write_record(record)
+                    except TypeError:
+                        vcf_zc_writer.write_record(record)
                     except:
                         pass
                 vcf_zc_writer.close()
 
-                with open(zero_coverage_vcf, 'r') as file:
-                    entire_file = file.read()
-                entire_file = re.sub(r'N\t.\t.\t.', r'N\t.\t.\t.\tGT\t./.', entire_file)
-                with open(zero_coverage_vcf, 'w') as file:
-                    file.write(entire_file)
+                # with open(zero_coverage_vcf, 'r') as file:
+                #     entire_file = file.read()
+                # entire_file = re.sub(r'N\t.\t.\t.', r'N\t.\t.\t.\t.\tGT\t./.', entire_file)
+                # with open(zero_coverage_vcf, 'w') as file:
+                #     file.write(entire_file)
 
                 vcf_reader = vcf.Reader(open(hapall), 'r')
                 vcf_annotation_nozero = vcf.Writer(open(annotation_vcf, 'w'), vcf_reader)
@@ -3102,7 +3104,7 @@ def group_files(each_vcf):
                 if str(record.ALT[0]) != "None" and record_ref_length == 1 and record_alt_length == 1 and record.INFO['AC'][0] == 2 and record.QUAL > qual_gatk_threshold and record.INFO['MQ'] > 45:
                     list_pass.append(absolute_positon)
                 # capture ambigous defining SNPs in htmlfile
-                elif str(record.ALT[0]) != "None" and record.genotype(vcf_reader.samples[0])['GT'] != '1/1':
+                elif str(record.ALT[0]) != "None" and record.INFO['AC'][0] == 1:
                     list_amb.append(absolute_positon)
             except ZeroDivisionError:
                 print ("bad line in %s at %s" % (each_vcf, absolute_positon))
@@ -3528,8 +3530,8 @@ def get_snps(directory):
                 if str(record.ALT[0]) != "None" and len(record.ALT[0]) == 1 and record.INFO['AC'][0] == 2 and record.QUAL > N_gatk_threshold:
                     sample_dict.update({record_position:record.ALT[0]})
                 # same as above but take into account Ambiguious call
-                #elif str(record.ALT[0]) != "None" and len(record.ALT[0]) == 1 and record.genotype(vcf_reader.samples[0])['GT'] != '1/1' and record.QUAL >= N_gatk_threshold:
-                elif str(record.ALT[0]) != "None" and len(record.ALT[0]) == 1 and record.genotype(vcf_reader.samples[0])['GT'] != '1/1':
+                #elif str(record.ALT[0]) != "None" and len(record.ALT[0]) == 1 and record.INFO['AC'][0] == 1 and record.QUAL >= N_gatk_threshold:
+                elif str(record.ALT[0]) != "None" and len(record.ALT[0]) == 1 and record.INFO['AC'][0] == 1:
                     ref_alt = str(record.ALT[0]) + str(record.REF[0])
                     if ref_alt == "AG":
                         sample_dict.update({record_position:"R"})

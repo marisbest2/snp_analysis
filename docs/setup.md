@@ -69,6 +69,11 @@ Put `snp_analysis` in your $PATH, or easier run lines below to put script in you
 
     ~$ ln -s ~/snp_analysis/vSNP.py ~/anaconda*/bin/
 
+## Dependency files
+vSNP requires reference files, high quality VCF files for GATK best practices, defining SNP positions to group closely related isolates and those positions to filter.  These files are provide as dependency files.  When vSNP is ran it looks for these file in your home directory.  If they are not found vSNP will attempt to download the files from GitHub.  These files can also be added now.
+
+    ~$ cd ~; git clone https://github.com/USDA-VS/dependencies.git
+
 ## Test step 1
 
 Test files can be downloaded at:

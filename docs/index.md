@@ -26,4 +26,4 @@ Step 2 is called on VCF files output from step 1.  References chosen in step 1 h
 
 In addition to using a closely related FASTA reference file, which minimizes SNP calling error, there are three additional external files, or dependencies, used to create high quality, informative SNP alignments.  As shown in bovis_dependency_view.jpg and suis1_dependency_view.jpg the reference used to build VCF files must be reflected in the three dependencies.  The three dependent files are: filter file, defining SNPs, and gbk file.  
 
-To keep dependency files up-to-date in step 1 and 2, and to minimize the download requirement, files are downloaded to the user's home directory as needed when the script is ran.  For example, if samples ran are M. bovis only those dependency files for M. bovis will be downloaded.  Not those for any other species type.
+To keep dependency files up-to-date in step 1 and 2, and to minimize the download requirement, files are downloaded to the user's home directory as needed when the script is ran.  The setup instructions also provides instructions for downloading files manually.

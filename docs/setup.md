@@ -104,7 +104,7 @@ If an error occurs it may have to do with running multiple samples and downloadi
 
 In step 1 vSNP saw FASTQ files in the working directory and ran appropriately.  In step 2 it looks for VCF files.  `vSNP.py` must only see `*vcf` files in the working directory.  It will exit if any other file type is found.  
 
-Test using VCF test files, or better yet use the VCFs you just produced from step 1 above.  From script 1 output use VCF files in the `alignment` directory ending in *-zc.vcf.  Make a working directory containing only those VCFs and call `vSNP.py`.  
+Test using VCF test files, or better yet use the VCFs you just produced from step 1 above.  From script 1 output use VCF files in the `alignment` directory ending in *_zc.vcf.  Make a working directory containing only those VCFs and call `vSNP.py`.  
     
 If using VCF test files
 

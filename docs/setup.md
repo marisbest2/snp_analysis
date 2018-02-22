@@ -46,7 +46,7 @@ Install programs.
     
     ~$ conda install pyvcf biopython bwa samtools picard abyss gatk raxml newick_utils xlrd xlsxwriter gitpython regex pandas
 
-If cairosvg prevents installtion remove it and install with pip.
+Install cairosvg.  At the time of writing this (2018-02-22) cairosvg via conda was not compatiable with Python 3.6.
 
     ~$ pip install cairosvg
 
@@ -54,7 +54,7 @@ Cairosvg requires cairo.  If importing cairosvg fails, it is needed.  Follow ins
 
 When gatk is downloaded using Anacoda it still needs to be registered.  GATK has a way to do this.  Go to GATK's website, download the GATK package, unzip it, and run:
 
-    ~$ gatk-register /path/to/Downloads/GenomeAnalysisTK*/GenomeAnalysisTK.jar.  
+    ~$ gatk-register /path/to/Downloads/GenomeAnalysisTK*/GenomeAnalysisTK.jar
     
 After `gatk-register` is ran, GATK just downloaded from the GATK website, can be deleted.  The download was only needed to register the Anaconda GATK package.
 
@@ -74,7 +74,7 @@ vSNP requires reference files, high quality VCF files for GATK best practices, d
 
     ~$ cd ~; git clone https://github.com/USDA-VS/dependencies.git
 
-## Test step 1
+## Step 1 test
 
 Test files can be downloaded at:
 
@@ -100,7 +100,7 @@ If an error occurs it may have to do with running multiple samples and downloadi
     $ rm -r ../test/*; cp ../original/* ./; ls
     $ vSNP.py
 
-## Test step 2
+## Step 2 test
 
 In step 1 vSNP saw FASTQ files in the working directory and ran appropriately.  In step 2 it looks for VCF files.  `vSNP.py` must only see `*vcf` files in the working directory.  It will exit if any other file type is found.  
 

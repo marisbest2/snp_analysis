@@ -1771,7 +1771,7 @@ class script2():
             else:
                 os.makedirs(home + "/dependencies")
                 print("\n\nDOWNLOADING DEPENDENCIES FROM GITHUB... ***\n\n")
-                git.Repo.clone_from("https://github.com/stuber/dependencies.git", home + "/dependencies")
+                git.Repo.clone_from("https://github.com/USDA-VS/dependencies.git", home + "/dependencies")
                 upload_to ="not_found"
                 remote = "no remote"
                 script_location = home # points to home directory

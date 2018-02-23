@@ -41,6 +41,9 @@ from collections import Counter
 from Bio.SeqIO.QualityIO import FastqGeneralIterator
 from Bio import SeqIO
 
+# vSNP classes
+import vProperties
+
 # needs to be at the function level
 global malformed
 malformed = []
@@ -1378,35 +1381,6 @@ class script2():
             raxml_cpu = 2
         else:
             raxml_cpu = int(cpu_count/10)
-                    
-        # Get filters set up
-        def get_filters(excelinfile, filter_files):
-            for i in glob.glob(filter_files + "/*"):
-                os.remove(i)
-
-            wb = xlrd.open_workbook(excelinfile)
-            sheets = wb.sheet_names()
-            for sheet in sheets:
-                ws = wb.sheet_by_name(sheet)
-
-                myrange = lambda start, end: range(start, end+1)
-
-                for colnum in range(ws.ncols): # for each column in worksheet
-                    file_out = filter_files + "/" + ws.col_values(colnum)[0] + ".txt" # column header naming file
-                    write_out = open (file_out, 'at')
-                    mylist = ws.col_values(colnum)[1:] # list of each field in column, minus the header
-                    mylist = [x for x in mylist if x] # remove blank cells
-                    for value in mylist:
-                        value = str(value)
-                        value = value.replace(sheet + "-", '')
-                        if "-" not in value:
-                            value=int(float(value)) # change str to float to int
-                            print (sheet + "-" + str(value), file=write_out)
-                        elif "-" in value:
-                            value = value.split("-")
-                            for i in range(int(value[0]), int(value[1]) + 1 ):
-                                print (sheet + "-" + str(i), file=write_out)
-            write_out.close()
 
         print ("\nSET VARIABLES")
         print ("\tgenotypingcodes: %s " % genotypingcodes)
@@ -2134,59 +2108,6 @@ def find_positions(filename):
     except TypeError:
         print ("TypeError error found")
     return found_positions
-
-def bruc_private_codes(upload_to):
-
-    found = False
-    if os.path.isfile("/Volumes/MB/Brucella/Brucella Logsheets/ALL_WGS.xlsx"):
-        private_location = "/Volumes/MB/Brucella/Brucella Logsheets/ALL_WGS.xlsx"
-        print("private_location:  %s" % private_location)
-        found = True
-
-    elif os.path.isfile("/fdrive/Brucella/Brucella Logsheets/ALL_WGS.xlsx"):
-        private_location = "/fdrive/Brucella/Brucella Logsheets/ALL_WGS.xlsx"
-        print("private_location:  %s" % private_location)
-        found = True
-
-    else:
-        print("Path to Brucella genotyping codes not found")
-
-    if found:
-        wb_out = xlsxwriter.Workbook(upload_to + "/brucella/genotyping_codes.xlsx")
-        ws_out = wb_out.add_worksheet()
-
-        wb_in = xlrd.open_workbook(private_location)
-
-        row = 0
-        col = 0
-
-        sheet_in = wb_in.sheet_by_index(1)
-        for row_data in sheet_in.col(32):
-            row_data = row_data.value
-            row_data = re.sub("/", "_", row_data)
-            row_data = re.sub("\.", "_", row_data)
-            row_data = re.sub("\*", "_", row_data)
-            row_data = re.sub("\?", "_", row_data)
-            row_data = re.sub("\(", "_", row_data)
-            row_data = re.sub("\)", "_", row_data)
-            row_data = re.sub("\[", "_", row_data)
-            row_data = re.sub("\]", "_", row_data)
-            row_data = re.sub(" ", "_", row_data)
-            row_data = re.sub("{", "_", row_data)
-            row_data = re.sub("}", "_", row_data)
-            row_data = re.sub("\'", "_", row_data)
-            row_data = re.sub("-_", "_", row_data)
-            row_data = re.sub("_-", "_", row_data)
-            row_data = re.sub("--", "_", row_data)
-            row_data = re.sub("_$", "", row_data)
-            row_data = re.sub("-$", "", row_data)
-            row_data = re.sub("\'", "", row_data)
-            row_data = str(row_data)
-
-            ws_out.write(row, col, row_data)
-            row += 1
-
-        wb_out.close()
 
 def get_snps(directory):
     os.chdir(root_dir+ "/" + directory)

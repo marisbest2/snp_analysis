@@ -1290,7 +1290,7 @@ class script1():
                     self.mlst()
                 elif self.species in ["h37", "af"]: #removed bovis
                     print("TB")
-                    self.spoligo()
+                    # self.spoligo()
                 
                 print ("reference: %s" % sample_reference)
                 ref=re.sub('\.fasta', '', os.path.basename(sample_reference[0]))
@@ -4067,7 +4067,6 @@ class loop():
                         for v in stat_summary.values():
                             worksheet.write(row, col, v) #stat summary to be attached in email and left in root directory
                             col += 1
-                workbook.close()
                 if not args.quiet and path_found:
                     try:
                         open_check = open(summary_cumulative_file, 'a') #'a' is very important, 'w' will leave you with an empty file
@@ -4093,7 +4092,7 @@ class loop():
                         df_sorted.T.to_excel(summary_cumulative_file_temp, index=False)
                 else:
                     print("Path to cumulative stat summary file not found")
-        
+            workbook.close()
 ####send email:
         def send_email(email_list):
             text = "See attached:  "

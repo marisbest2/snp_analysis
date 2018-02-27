@@ -1290,7 +1290,7 @@ class script1():
                     self.mlst()
                 elif self.species in ["h37", "af"]: #removed bovis
                     print("TB")
-                    # self.spoligo()
+                    self.spoligo()
                 
                 print ("reference: %s" % sample_reference)
                 ref=re.sub('\.fasta', '', os.path.basename(sample_reference[0]))
@@ -4034,7 +4034,7 @@ class loop():
         lower_count = 0
         upper_count = 1
         while lower_count < total_samples:
-            upper_count = lower_count +  4 #limited_cpu_count
+            upper_count = lower_count +  limited_cpu_count
             run_list = directory_list[lower_count:upper_count] #create a run list
             for i in run_list:
                 directory_list.remove(i)
@@ -4092,7 +4092,7 @@ class loop():
                         df_sorted.T.to_excel(summary_cumulative_file_temp, index=False)
                 else:
                     print("Path to cumulative stat summary file not found")
-            workbook.close()
+
 ####send email:
         def send_email(email_list):
             text = "See attached:  "
@@ -4122,6 +4122,7 @@ class loop():
             #smtp.sendmail(send_from, send_to, msg.as_string())
             smtp.quit()
 
+        workbook.close()
         if args.email:
             send_email(email_list)
 

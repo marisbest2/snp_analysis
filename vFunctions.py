@@ -38,6 +38,7 @@ from collections import Counter
 from Bio.SeqIO.QualityIO import FastqGeneralIterator
 from Bio import SeqIO
 
+from vAttributes import Step1
 
 def run_loop(root_dir, limited_cpu_count, species_call, debug_call, quiet_call):
     home = os.path.expanduser("~")
@@ -167,10 +168,10 @@ def run_loop(root_dir, limited_cpu_count, species_call, debug_call, quiet_call):
 #map pooled from script 1
 def read_aligner(single_directory, species_call):
     os.chdir(single_directory)
-    R1 = glob.glob('*_R1*fastq.gz')
-    R2 = glob.glob('*_R2*fastq.gz')
+    R1 = glob.glob('*_R1*fastq.gz')[0]
+    R2 = glob.glob('*_R2*fastq.gz')[0]
     print("R1 and R2: %s %s" % (R1, R2))
-    script1(R1[0], R2[0], species_call)
+    script1(R1, R2, species_call)
     try:
         stat_summary = sample.align_reads()
         return(stat_summary)
@@ -178,7 +179,7 @@ def read_aligner(single_directory, species_call):
         return #(stat_summary)
         pass
 
-def script1(R1[0], R2[0], species_call):
+def script1(R1, R2, species_call):
 
     malformed = []
     directory = str(os.getcwd())
@@ -190,25 +191,19 @@ def script1(R1[0], R2[0], species_call):
     R2 = zips + "/" + R2
     R1unzip = re.sub('\.gz', '', R1)
     R2unzip = re.sub('\.gz', '', R2)
-    
-    if species_call:
-        species_force = species_call
-        print("Forcing species --> Sample will be ran as %s" % species_call)
-    else:
-        species_force=None
 
     ### SET PARAMETERS
-    if species_force:
-        option_list, found = script1.parameters(species_force)
-        dependents_dir = option_list[0]
-        reference = option_list[1]
-        hqs = option_list[2]
-        gbk_file = option_list[3]
-        email_list = option_list[4]
-        upload_to = option_list[5]
-        remote = option_list[6]
-        script_dependents = option_list[7]
-        spoligo_db = option_list[8]
+    if species_call:
+        print("Forcing species --> Sample will be ran as %s" % species_call)
+        species_attributes = Step1(species_call)
+        dependents_dir = species_attributes.dependents_dir
+        reference = species_attributes.reference
+        hqs = species_attributes.hqs
+        gbk_file = species_attributes.gbk_file
+        upload_to = species_attributes.upload_to
+        remote = species_attributes.remote
+        script_dependents = species_attributes.script_dependents
+        spoligo_db = species_attributes.spoligo_db
 
     else:
         best_ref_found = script1.best_reference(self)

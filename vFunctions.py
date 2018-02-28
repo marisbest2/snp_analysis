@@ -206,7 +206,7 @@ def script1(R1, R2, species_call):
         spoligo_db = species_attributes.spoligo_db
 
     else:
-        best_ref_found = script1.best_reference(self)
+        best_ref_found = best_reference(R1unzip, R2unzip)
         self.species = best_ref_found
         try: # exit if best ref isn't in parameter list
             option_list, found = script1.parameters(best_ref_found)
@@ -315,6 +315,170 @@ class Update_Directory:
             self.remote = "not_found"
             self.path = home + "/dependencies" + dependents_dir
 
+def best_reference(R1unzip, R2unzip):
+        
+    '''Use oligos to determine species.  Most often if the absents of a single oligo from a set specific for either brucella or bovis will confer species type.  Some species will the absents of more than one oligo.  Oligo findings are translated to binary patterns.'''
+
+    print("\nFinding the best reference\n")
+    
+    write_out = open("best_reference.txt", 'w')
+    
+    '''get the species'''
+    oligo_dictionary = {}
+    oligo_dictionary["01_ab1"] = "AATTGTCGGATAGCCTGGCGATAACGACGC"
+    oligo_dictionary["02_ab3"] = "CACACGCGGGCCGGAACTGCCGCAAATGAC"
+    oligo_dictionary["03_ab5"] = "GCTGAAGCGGCAGACCGGCAGAACGAATAT"
+    oligo_dictionary["04_mel"] = "TGTCGCGCGTCAAGCGGCGTGAAATCTCTG"
+    oligo_dictionary["05_suis1"] = "TGCGTTGCCGTGAAGCTTAATTCGGCTGAT"
+    oligo_dictionary["06_suis2"] = "GGCAATCATGCGCAGGGCTTTGCATTCGTC"
+    oligo_dictionary["07_suis3"] = "CAAGGCAGATGCACATAATCCGGCGACCCG"
+    oligo_dictionary["08_ceti1"] = "GTGAATATAGGGTGAATTGATCTTCAGCCG"
+    oligo_dictionary["09_ceti2"] = "TTACAAGCAGGCCTATGAGCGCGGCGTGAA"
+    oligo_dictionary["10_canis4"] = "CTGCTACATAAAGCACCCGGCGACCGAGTT"
+    oligo_dictionary["11_canis"] = "ATCGTTTTGCGGCATATCGCTGACCACAGC"
+    oligo_dictionary["12_ovis"] = "CACTCAATCTTCTCTACGGGCGTGGTATCC"
+    oligo_dictionary["13_ether2"] = "CGAAATCGTGGTGAAGGACGGGACCGAACC"
+    oligo_dictionary["14_63B1"] = "CCTGTTTAAAAGAATCGTCGGAACCGCTCT"
+    oligo_dictionary["15_16M0"] = "TCCCGCCGCCATGCCGCCGAAAGTCGCCGT"
+    oligo_dictionary["16_mel1b"] = "TCTGTCCAAACCCCGTGACCGAACAATAGA" #added 2018-01-30
+    oligo_dictionary["17_tb157"] = "CTCTTCGTATACCGTTCCGTCGTCACCATGGTCCT"
+    oligo_dictionary["18_tb7"] = "TCACGCAGCCAACGATATTCGTGTACCGCGACGGT"
+    oligo_dictionary["19_tbbov"] = "CTGGGCGACCCGGCCGACCTGCACACCGCGCATCA"
+    oligo_dictionary["20_tb5"] = "CCGTGGTGGCGTATCGGGCCCCTGGATCGCGCCCT"
+    oligo_dictionary["21_tb2"] = "ATGTCTGCGTAAAGAAGTTCCATGTCCGGGAAGTA"
+    oligo_dictionary["22_tb3"] = "GAAGACCTTGATGCCGATCTGGGTGTCGATCTTGA"
+    oligo_dictionary["23_tb4"] = "CGGTGTTGAAGGGTCCCCCGTTCCAGAAGCCGGTG"
+    oligo_dictionary["24_tb6"] = "ACGGTGATTCGGGTGGTCGACACCGATGGTTCAGA"
+    oligo_dictionary["25_para"] = "CCTTTCTTGAAGGGTGTTCG"
+    oligo_dictionary["26_para2"] = "CGAACACCCTTCAAGAAAGG"
+
+    brucella_identifications = {}
+    brucella_identifications["1111111111111111"] = "odd" #Unexpected findings
+    brucella_identifications["0111111111111111"] = "ab1" #Brucella abortus bv 1, 2 or 4
+    brucella_identifications["1011111111111111"] = "ab3" #Brucella abortus bv 3
+    brucella_identifications["1101111111111111"] = "ab1" #Brucella abortus bv 5, 6 or 9
+    brucella_identifications["1110111111111101"] = "mel1"
+    brucella_identifications["0000010101101101"] = "mel1"
+    brucella_identifications["1110111111111100"] = "mel1b" #added 2018-01-30
+    brucella_identifications["0000010101101100"] = "mel1b" #added 2018-01-30
+    brucella_identifications["1110111111111011"] = "mel2"
+    brucella_identifications["0000010101101001"] = "mel2"
+    brucella_identifications["0100010101101001"] = "mel2"
+    brucella_identifications["1110011111101011"] = "mel2"
+    brucella_identifications["1110111111110111"] = "mel3"
+    brucella_identifications["1110011111100111"] = "mel3"
+    brucella_identifications["1111011111111111"] = "suis1"
+    brucella_identifications["1111101111111111"] = "suis2"
+    brucella_identifications["1111110111111101"] = "suis3"
+    brucella_identifications["1111111011111111"] = "ceti1"
+    brucella_identifications["1111111001111111"] = "ceti1"
+    brucella_identifications["1111111101111111"] = "ceti2"
+    brucella_identifications["1111111110111101"] = "suis4"
+    brucella_identifications["1111111110011101"] = "canis"
+    brucella_identifications["1111111111101111"] = "ovis"
+
+    bovis_identifications = {}
+    bovis_identifications["11101111"] = "h37" #tb1
+    bovis_identifications["11101101"] = "h37" #tb1
+    bovis_identifications["01100111"] = "h37" #tb2
+    bovis_identifications["01101011"] = "h37" #tb3
+    bovis_identifications["11101011"] = "h37" #tb3
+    bovis_identifications["01101111"] = "h37" #tb4a
+    bovis_identifications["01101101"] = "h37" #tb4b
+    bovis_identifications["11101101"] = "h37" #tb4b
+    bovis_identifications["01101111"] = "h37" #tb4b
+    bovis_identifications["11111111"] = "h37" #tb5
+    bovis_identifications["11001111"] = "h37" #tb6
+    bovis_identifications["10101110"] = "h37" #tb7
+    bovis_identifications["11001110"] = "af" #bovis
+    bovis_identifications["11011110"] = "af" #bovis
+    bovis_identifications["11001100"] = "af" #bovis
+    
+    para_identifications = {}
+    para_identifications["1"] = "para"
+    para_identifications["01"] = "para"
+    para_identifications["11"] = "para"
+
+    count_summary={}
+
+    with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool: 
+        for v, count in pool.map(finding_best_ref, oligo_dictionary.values()):
+            for k, value in oligo_dictionary.items():
+                if v == value:
+                    count_summary.update({k:count})
+                    count_summary=OrderedDict(sorted(count_summary.items()))
+
+    count_list=[]
+    for v in count_summary.values():
+        count_list.append(v)
+    brucella_sum=sum(count_list[:16])
+    bovis_sum=sum(count_list[16:24])
+    para_sum=sum(count_list[24:])
+    
+    print("Best reference Brucella counts:", file=write_out)
+    for i in count_list[:16]:
+        print(i,  end=',', file=write_out)
+        
+    print("\nBest reference TB counts:", file=write_out)
+    for i in count_list[16:24]:
+        print(i,  end=',', file=write_out)
+
+    print("\nBest reference Para counts:", file=write_out)
+    for i in count_list[24:]:
+        print(i,  end=',', file=write_out)
+
+    #Binary dictionary
+    binary_dictionary={}
+    for k, v in count_summary.items():
+        if v > 1:
+            binary_dictionary.update({k:1})
+        else:
+            binary_dictionary.update({k:0})
+    binary_dictionary=OrderedDict(sorted(binary_dictionary.items()))
+
+    binary_list=[]
+    for v in binary_dictionary.values():
+        binary_list.append(v)
+    brucella_binary=binary_list[:16]
+    brucella_string=''.join(str(e) for e in brucella_binary)
+    bovis_binary=binary_list[16:24]
+    bovis_string=''.join(str(e) for e in bovis_binary)
+    para_binary=binary_list[24:]
+    para_string=''.join(str(e) for e in para_binary)
+
+    if brucella_sum > 3:
+        if brucella_string in brucella_identifications:
+            print("Brucella group, species %s" % brucella_identifications[brucella_string])
+            print("\n\nBrucella group, species %s" % brucella_identifications[brucella_string], file=write_out)
+            return(brucella_identifications[brucella_string]) # return to set parameters
+        else:
+            print("Brucella group, but no match")
+            print("\n\nBrucella group, but no match", file=write_out)
+    elif bovis_sum > 3:
+        if bovis_string in bovis_identifications:
+            print("TB group, species %s" % bovis_identifications[bovis_string])
+            print("\n\nTB group, species %s" % bovis_identifications[bovis_string], file=write_out)
+            return(bovis_identifications[bovis_string]) # return to set parameters
+        else:
+            print("TB group, but no match")
+            print("\n\nTB group, but no match", file=write_out)
+    elif para_sum >= 1:
+        if para_string in para_identifications:
+            print("Para group")
+            print("\n\nPara group", file=write_out)
+            return("para") # return to set parameters
+        else:
+            print("No match")
+            print("\n\nNo match", file=write_out)
+
+    write_out.close()
+    
+    for i in fastqs: #remove unzipped fastq files to save space
+        os.remove(i)
+    
+    genome_coverage = 0
+    total_coverage = total_length - total_zero_coverage
+
 def Bruc_Private_Codes(genotypingcodes):
     found = False
     if os.path.isfile("/Volumes/MB/Brucella/Brucella Logsheets/ALL_WGS.xlsx"):
@@ -394,42 +558,6 @@ def Get_Filters(self, excelinfile, filter_files):
                     for i in range(int(value[0]), int(value[1]) + 1 ):
                         print (sheet + "-" + str(i), file=write_out)
     write_out.close()
-
-def get_species():
-    #species = corresponding NCBI accession
-    species_cross_reference = {}
-    species_cross_reference["salmonella"] = ["016856, 016855"]
-    species_cross_reference["bovis"] = ["AF2122_NC002945", "00879"]
-    species_cross_reference["af"] = ["NC_002945.4"]
-    species_cross_reference["h37"] = ["000962", "002755", "009525", "018143"]
-    species_cross_reference["para"] = ["NC_002944"]
-    species_cross_reference["ab1"] = ["006932", "006933"]
-    species_cross_reference["ab3"] = ["007682", "007683"]
-    species_cross_reference["canis"] = ["010103", "010104"]
-    species_cross_reference["ceti1"] = ["Bceti1Cudo"]
-    species_cross_reference["ceti2"] = ["022905", "022906"]
-    species_cross_reference["mel1"] = ["003317", "003318"]
-    species_cross_reference["mel1b"] = ["CP018508", "CP018509"]
-    species_cross_reference["mel2"] = ["012441", "012442"]
-    species_cross_reference["mel3"] = ["007760", "007761"]
-    species_cross_reference["ovis"] = ["009504", "009505"]
-    species_cross_reference["neo"] = ["KN046827"]
-    species_cross_reference["suis1"] = ["017250", "017251"]
-    species_cross_reference["suis3"] = ["007719", "007718"]
-    species_cross_reference["suis4"] = ["B-REF-BS4-40"]
-    
-    vcf_list = glob.glob('*vcf')
-    for each_vcf in vcf_list:
-        print(each_vcf)
-        mal = fix_vcf(each_vcf)
-        vcf_reader = vcf.Reader(open(each_vcf, 'r'))
-        print("single_vcf %s" % each_vcf)
-        for record in vcf_reader:
-            header = record.CHROM
-            for k, vlist in species_cross_reference.items():
-                for l in vlist:
-                    if l in header:
-                        return(k)
 
 def send_email(email_list):
     text = "See attached:  "
@@ -1363,6 +1491,43 @@ def group_files(each_vcf):
         the_sample_name.append(i) # a is group_calls
         group_calls = the_sample_name
     return dict_amb, group_calls, mal
+
+
+def get_species():
+    #species = corresponding NCBI accession
+    species_cross_reference = {}
+    species_cross_reference["salmonella"] = ["016856, 016855"]
+    species_cross_reference["bovis"] = ["AF2122_NC002945", "00879"]
+    species_cross_reference["af"] = ["NC_002945.4"]
+    species_cross_reference["h37"] = ["000962", "002755", "009525", "018143"]
+    species_cross_reference["para"] = ["NC_002944"]
+    species_cross_reference["ab1"] = ["006932", "006933"]
+    species_cross_reference["ab3"] = ["007682", "007683"]
+    species_cross_reference["canis"] = ["010103", "010104"]
+    species_cross_reference["ceti1"] = ["Bceti1Cudo"]
+    species_cross_reference["ceti2"] = ["022905", "022906"]
+    species_cross_reference["mel1"] = ["003317", "003318"]
+    species_cross_reference["mel1b"] = ["CP018508", "CP018509"]
+    species_cross_reference["mel2"] = ["012441", "012442"]
+    species_cross_reference["mel3"] = ["007760", "007761"]
+    species_cross_reference["ovis"] = ["009504", "009505"]
+    species_cross_reference["neo"] = ["KN046827"]
+    species_cross_reference["suis1"] = ["017250", "017251"]
+    species_cross_reference["suis3"] = ["007719", "007718"]
+    species_cross_reference["suis4"] = ["B-REF-BS4-40"]
+    
+    vcf_list = glob.glob('*vcf')
+    for each_vcf in vcf_list:
+        print(each_vcf)
+        mal = fix_vcf(each_vcf)
+        vcf_reader = vcf.Reader(open(each_vcf, 'r'))
+        print("single_vcf %s" % each_vcf)
+        for record in vcf_reader:
+            header = record.CHROM
+            for k, vlist in species_cross_reference.items():
+                for l in vlist:
+                    if l in header:
+                        return(k)
 
 def find_filter_dict(each_vcf):
     dict_qual = {}
@@ -2309,172 +2474,28 @@ def add_zero_coverage(coverage_in, vcf_file, loc_sam):
                 total_zero_coverage = total_zero_coverage + 1
         print(len(zero_position))
 
-def best_reference():
-        
-    '''Use oligos to determine species.  Most often if the absents of a single oligo from a set specific for either brucella or bovis will confer species type.  Some species will the absents of more than one oligo.  Oligo findings are translated to binary patterns.'''
+def add_zero_coverage(coverage_in, vcf_file, loc_sam):
     
-    fastqs = glob.glob(zips + '/*.fastq')
-    if len(fastqs) < 2:
-        script1.unzipfiles()
-    fastqs = glob.glob(zips + '/*.fastq')
-
-    print("\nFinding the best reference\n")
+    temp_vcf = loc_sam + "-temp.vcf"
+    zero_coverage_vcf = loc_sam + "_zc.vcf"
     
-    write_out = open("best_reference.txt", 'w')
-    
-    '''get the species'''
-    oligo_dictionary = {}
-    oligo_dictionary["01_ab1"] = "AATTGTCGGATAGCCTGGCGATAACGACGC"
-    oligo_dictionary["02_ab3"] = "CACACGCGGGCCGGAACTGCCGCAAATGAC"
-    oligo_dictionary["03_ab5"] = "GCTGAAGCGGCAGACCGGCAGAACGAATAT"
-    oligo_dictionary["04_mel"] = "TGTCGCGCGTCAAGCGGCGTGAAATCTCTG"
-    oligo_dictionary["05_suis1"] = "TGCGTTGCCGTGAAGCTTAATTCGGCTGAT"
-    oligo_dictionary["06_suis2"] = "GGCAATCATGCGCAGGGCTTTGCATTCGTC"
-    oligo_dictionary["07_suis3"] = "CAAGGCAGATGCACATAATCCGGCGACCCG"
-    oligo_dictionary["08_ceti1"] = "GTGAATATAGGGTGAATTGATCTTCAGCCG"
-    oligo_dictionary["09_ceti2"] = "TTACAAGCAGGCCTATGAGCGCGGCGTGAA"
-    oligo_dictionary["10_canis4"] = "CTGCTACATAAAGCACCCGGCGACCGAGTT"
-    oligo_dictionary["11_canis"] = "ATCGTTTTGCGGCATATCGCTGACCACAGC"
-    oligo_dictionary["12_ovis"] = "CACTCAATCTTCTCTACGGGCGTGGTATCC"
-    oligo_dictionary["13_ether2"] = "CGAAATCGTGGTGAAGGACGGGACCGAACC"
-    oligo_dictionary["14_63B1"] = "CCTGTTTAAAAGAATCGTCGGAACCGCTCT"
-    oligo_dictionary["15_16M0"] = "TCCCGCCGCCATGCCGCCGAAAGTCGCCGT"
-    oligo_dictionary["16_mel1b"] = "TCTGTCCAAACCCCGTGACCGAACAATAGA" #added 2018-01-30
-    oligo_dictionary["17_tb157"] = "CTCTTCGTATACCGTTCCGTCGTCACCATGGTCCT"
-    oligo_dictionary["18_tb7"] = "TCACGCAGCCAACGATATTCGTGTACCGCGACGGT"
-    oligo_dictionary["19_tbbov"] = "CTGGGCGACCCGGCCGACCTGCACACCGCGCATCA"
-    oligo_dictionary["20_tb5"] = "CCGTGGTGGCGTATCGGGCCCCTGGATCGCGCCCT"
-    oligo_dictionary["21_tb2"] = "ATGTCTGCGTAAAGAAGTTCCATGTCCGGGAAGTA"
-    oligo_dictionary["22_tb3"] = "GAAGACCTTGATGCCGATCTGGGTGTCGATCTTGA"
-    oligo_dictionary["23_tb4"] = "CGGTGTTGAAGGGTCCCCCGTTCCAGAAGCCGGTG"
-    oligo_dictionary["24_tb6"] = "ACGGTGATTCGGGTGGTCGACACCGATGGTTCAGA"
-    oligo_dictionary["25_para"] = "CCTTTCTTGAAGGGTGTTCG"
-    oligo_dictionary["26_para2"] = "CGAACACCCTTCAAGAAAGG"
-
-    brucella_identifications = {}
-    brucella_identifications["1111111111111111"] = "odd" #Unexpected findings
-    brucella_identifications["0111111111111111"] = "ab1" #Brucella abortus bv 1, 2 or 4
-    brucella_identifications["1011111111111111"] = "ab3" #Brucella abortus bv 3
-    brucella_identifications["1101111111111111"] = "ab1" #Brucella abortus bv 5, 6 or 9
-    brucella_identifications["1110111111111101"] = "mel1"
-    brucella_identifications["0000010101101101"] = "mel1"
-    brucella_identifications["1110111111111100"] = "mel1b" #added 2018-01-30
-    brucella_identifications["0000010101101100"] = "mel1b" #added 2018-01-30
-    brucella_identifications["1110111111111011"] = "mel2"
-    brucella_identifications["0000010101101001"] = "mel2"
-    brucella_identifications["0100010101101001"] = "mel2"
-    brucella_identifications["1110011111101011"] = "mel2"
-    brucella_identifications["1110111111110111"] = "mel3"
-    brucella_identifications["1110011111100111"] = "mel3"
-    brucella_identifications["1111011111111111"] = "suis1"
-    brucella_identifications["1111101111111111"] = "suis2"
-    brucella_identifications["1111110111111101"] = "suis3"
-    brucella_identifications["1111111011111111"] = "ceti1"
-    brucella_identifications["1111111001111111"] = "ceti1"
-    brucella_identifications["1111111101111111"] = "ceti2"
-    brucella_identifications["1111111110111101"] = "suis4"
-    brucella_identifications["1111111110011101"] = "canis"
-    brucella_identifications["1111111111101111"] = "ovis"
-
-    bovis_identifications = {}
-    bovis_identifications["11101111"] = "h37" #tb1
-    bovis_identifications["11101101"] = "h37" #tb1
-    bovis_identifications["01100111"] = "h37" #tb2
-    bovis_identifications["01101011"] = "h37" #tb3
-    bovis_identifications["11101011"] = "h37" #tb3
-    bovis_identifications["01101111"] = "h37" #tb4a
-    bovis_identifications["01101101"] = "h37" #tb4b
-    bovis_identifications["11101101"] = "h37" #tb4b
-    bovis_identifications["01101111"] = "h37" #tb4b
-    bovis_identifications["11111111"] = "h37" #tb5
-    bovis_identifications["11001111"] = "h37" #tb6
-    bovis_identifications["10101110"] = "h37" #tb7
-    bovis_identifications["11001110"] = "af" #bovis
-    bovis_identifications["11011110"] = "af" #bovis
-    bovis_identifications["11001100"] = "af" #bovis
-    
-    para_identifications = {}
-    para_identifications["1"] = "para"
-    para_identifications["01"] = "para"
-    para_identifications["11"] = "para"
-
-    count_summary={}
-
-    with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool: 
-        for v, count in pool.map(finding_best_ref, oligo_dictionary.values()):
-            for k, value in oligo_dictionary.items():
-                if v == value:
-                    count_summary.update({k:count})
-                    count_summary=OrderedDict(sorted(count_summary.items()))
-
-    count_list=[]
-    for v in count_summary.values():
-        count_list.append(v)
-    brucella_sum=sum(count_list[:16])
-    bovis_sum=sum(count_list[16:24])
-    para_sum=sum(count_list[24:])
-    
-    print("Best reference Brucella counts:", file=write_out)
-    for i in count_list[:16]:
-        print(i,  end=',', file=write_out)
-        
-    print("\nBest reference TB counts:", file=write_out)
-    for i in count_list[16:24]:
-        print(i,  end=',', file=write_out)
-
-    print("\nBest reference Para counts:", file=write_out)
-    for i in count_list[24:]:
-        print(i,  end=',', file=write_out)
-
-    #Binary dictionary
-    binary_dictionary={}
-    for k, v in count_summary.items():
-        if v > 1:
-            binary_dictionary.update({k:1})
-        else:
-            binary_dictionary.update({k:0})
-    binary_dictionary=OrderedDict(sorted(binary_dictionary.items()))
-
-    binary_list=[]
-    for v in binary_dictionary.values():
-        binary_list.append(v)
-    brucella_binary=binary_list[:16]
-    brucella_string=''.join(str(e) for e in brucella_binary)
-    bovis_binary=binary_list[16:24]
-    bovis_string=''.join(str(e) for e in bovis_binary)
-    para_binary=binary_list[24:]
-    para_string=''.join(str(e) for e in para_binary)
-
-    if brucella_sum > 3:
-        if brucella_string in brucella_identifications:
-            print("Brucella group, species %s" % brucella_identifications[brucella_string])
-            print("\n\nBrucella group, species %s" % brucella_identifications[brucella_string], file=write_out)
-            return(brucella_identifications[brucella_string]) # return to set parameters
-        else:
-            print("Brucella group, but no match")
-            print("\n\nBrucella group, but no match", file=write_out)
-    elif bovis_sum > 3:
-        if bovis_string in bovis_identifications:
-            print("TB group, species %s" % bovis_identifications[bovis_string])
-            print("\n\nTB group, species %s" % bovis_identifications[bovis_string], file=write_out)
-            return(bovis_identifications[bovis_string]) # return to set parameters
-        else:
-            print("TB group, but no match")
-            print("\n\nTB group, but no match", file=write_out)
-    elif para_sum >= 1:
-        if para_string in para_identifications:
-            print("Para group")
-            print("\n\nPara group", file=write_out)
-            return("para") # return to set parameters
-        else:
-            print("No match")
-            print("\n\nNo match", file=write_out)
-
-    write_out.close()
-    
-    for i in fastqs: #remove unzipped fastq files to save space
-        os.remove(i)
-    
+    zero_position=[]
+    total_length = 0
+    total_zero_coverage = 0
+    with open(coverage_in) as f:
+        for line in f:
+            total_length = total_length + 1
+            line.rstrip()
+            line=re.split(':|\t', line)
+            chromosome=line[0]
+            position=line[1]
+            abs_pos = chromosome + "-" + position
+            depth=line[2]
+            if depth == "0":
+                zero_position.append(abs_pos) #positions with zero coverage in coverage file
+                total_zero_coverage = total_zero_coverage + 1
+        print(len(zero_position))
+                
     genome_coverage = 0
     total_coverage = total_length - total_zero_coverage
 

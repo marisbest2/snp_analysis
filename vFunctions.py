@@ -40,14 +40,53 @@ from Bio import SeqIO
 
 from vAttributes import Step1
 
-def run_loop(root_dir, limited_cpu_count, species_call, debug_call, quiet_call):
-    home = os.path.expanduser("~")
+def unzipfiles(R1, R2): # don't "self" if called from within
+    try:
+        for zip_filename in R1, R2:
+            print("Unzipping... %s" % zip_filename)
+            name_nogz = os.path.splitext(zip_filename)[0]
+            write_out = open(name_nogz, 'wt')
+            with gzip.open(zip_filename, 'rt') as f:
+                file_content = f.read()
+                print(file_content, file=write_out)
+            write_out.close()
+    except OSError:
+        print("#### ZIP FILE APPEARS TO HAVE AN ERROR: %s" % zip_filename)
+        text = "ZIP FILE APPEARS TO HAVE AN ERROR: " + zip_filename
+        msg = MIMEMultipart()
+        msg['From'] = "tod.p.stuber@aphis.usda.gov"
+        msg['To'] = "tod.p.stuber@aphis.usda.gov"
+        msg['Date'] = formatdate(localtime = True)
+        msg['Subject'] = "###fastq.gz unzipping problem"
+        msg.attach(MIMEText(text))
+        smtp = smtplib.SMTP('10.10.8.12')
+        smtp.send_message(msg)
+        smtp.quit()
 
-    startTime = datetime.now()
-    print ("\n\n*** START ***\n")
-    print ("Start time: %s" % startTime)
+        for zip_filename in R1, R2:
+            os.remove(zip_filename)
+        os.rename("zips", "zips_currupt")
 
-    list_of_files = glob.glob('*gz')
+def make_global(myhome, mystartTime, rd, lcc, dc, qc):
+    global home
+    global startTime
+    global root_dir 
+    global limited_cpu_count
+    global species_call
+    global debug_call
+    global quiet_call
+    home = myhome
+    startTime = mystartTime
+    root_dir = rd
+    limited_cpu_count = lcc
+    debug_call = dc
+    quiet_call = qc
+
+def make_species_call_global(sc):
+    global species_call
+    species_call = sc
+
+def loop_all(list_of_files):
     list_len = len(list_of_files)
     if (list_len % 2 != 0):
         print("\n#####Check paired files.  Unpaired files seen by odd number of counted FASTQs\n\n")
@@ -60,47 +99,46 @@ def run_loop(root_dir, limited_cpu_count, species_call, debug_call, quiet_call):
             os.makedirs(prefix_name)
         shutil.move(file, prefix_name)
 
-    ###
-    #Run stats
-    ts = time.time()
-    st = datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H-%M-%S')
-
-    #placed at root
-    #get file opened and give a header
-    summary_file = root_dir+ '/stat_alignment_summary_' + st + '.xlsx'
-    workbook = xlsxwriter.Workbook(summary_file)
-    worksheet = workbook.add_worksheet()
-    row = 0
-    col = 0
-    top_row_header = ["time_stamp", "sample_name", "self.species", "reference_sequence_name", "R1size", "R2size", "allbam_mapped_reads", "genome_coverage", "ave_coverage", "ave_read_length", "unmapped_reads", "unmapped_assembled_contigs", "good_snp_count", "mlst_type", "octalcode", "sbcode", "hexadecimal_code", "binarycode"]
-    for header in top_row_header:
-        worksheet.write(row, col, header)
-        col += 1
-    ###
-
-    #Cumulative stats
-    path_found = False
-    if os.path.isdir("/bioinfo11/TStuber/Results/stats"): #check bioinfo from server
-        path_found = True
-        copy_to = "/bioinfo11/TStuber/Results/stats"
-    elif os.path.isdir("/Volumes/root/TStuber/Results"): #check bioinfo from Mac
-        path_found = True
-        copy_to = "/Volumes/root/TStuber/Results/stats"
-    else:
-        copy_to="no_path"
-        print("Bioinfo not connected")
-
-    if path_found:
-        summary_cumulative_file = copy_to + '/stat_alignment_culmulative_summary' + '.xlsx'
-        summary_cumulative_file_temp = copy_to + '/stat_alignment_culmulative_summary-' + st + '-temp.xlsx'
-        temp_folder = copy_to + '/temp'
-    ###
-
     directory_list=[]
     for f in  os.listdir('.'):
         if not f.startswith('.'):
             directory_list.append(f)
+    return directory_list
 
+    # #Run stats
+    # ts = time.time()
+    # st = datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H-%M-%S')
+
+    # #placed at root
+    # #get file opened and give a header
+    # summary_file = root_dir+ '/stat_alignment_summary_' + st + '.xlsx'
+    # workbook = xlsxwriter.Workbook(summary_file)
+    # worksheet = workbook.add_worksheet()
+    # row = 0
+    # col = 0
+    # top_row_header = ["time_stamp", "sample_name", "self.species", "reference_sequence_name", "R1size", "R2size", "allbam_mapped_reads", "genome_coverage", "ave_coverage", "ave_read_length", "unmapped_reads", "unmapped_assembled_contigs", "good_snp_count", "mlst_type", "octalcode", "sbcode", "hexadecimal_code", "binarycode"]
+    # for header in top_row_header:
+    #     worksheet.write(row, col, header)
+    #     col += 1
+
+    # #Cumulative stats
+    # path_found = False
+    # if os.path.isdir("/bioinfo11/TStuber/Results/stats"): #check bioinfo from server
+    #     path_found = True
+    #     copy_to = "/bioinfo11/TStuber/Results/stats"
+    # elif os.path.isdir("/Volumes/root/TStuber/Results"): #check bioinfo from Mac
+    #     path_found = True
+    #     copy_to = "/Volumes/root/TStuber/Results/stats"
+    # else:
+    #     copy_to="no_path"
+    #     print("Bioinfo not connected")
+
+    # if path_found:
+    #     summary_cumulative_file = copy_to + '/stat_alignment_culmulative_summary' + '.xlsx'
+    #     summary_cumulative_file_temp = copy_to + '/stat_alignment_culmulative_summary-' + st + '-temp.xlsx'
+    #     temp_folder = copy_to + '/temp'
+
+def loop_resticted(directory_list):
     total_samples = len(directory_list)
     lower_count = 0
     upper_count = 1
@@ -110,124 +148,73 @@ def run_loop(root_dir, limited_cpu_count, species_call, debug_call, quiet_call):
         for i in run_list:
             directory_list.remove(i)
         total_samples = len(directory_list)
-        print(run_list)
+        return run_list
 
-        print("Iterating directories")
-        frames = []
-        if debug_call: #run just one sample at a time to debug
-            for single_directory in run_list:
-                print("DEBUGGING, SAMPLES RAN INDIVIDUALLY")
-                stat_summary = read_aligner(single_directory, species_call)
-                df_stat_summary = pd.DataFrame.from_dict(stat_summary, orient='index') #convert stat_summary to df
-                frames.append(df_stat_summary) #frames to concatenate
-                col = 0
-                row += 1
-                for v in stat_summary.values():
-                    worksheet.write(row, col, v)
-                    col += 1
-                os.chdir(root_dir)
-        else: # run all in run_list in parallel
-            print("SAMPLES RAN IN PARALLEL")
-            with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool: #max_workers=cpu_count
-                for stat_summary in pool.map(read_aligner, run_list, species_call): #run in parallel run_list in read_aligner (script1)
-                    df_stat_summary = pd.DataFrame.from_dict(stat_summary, orient='index') #convert stat_summary to df
-                    frames.append(df_stat_summary) #frames to concatenate
-                    col = 0
-                    row += 1
-                    #run stats
-                    for v in stat_summary.values():
-                        worksheet.write(row, col, v) #stat summary to be attached in email and left in root directory
-                        col += 1
-            workbook.close()
-            if not quiet_call and path_found:
-                try:
-                    open_check = open(summary_cumulative_file, 'a') #'a' is very important, 'w' will leave you with an empty file
-                    open_check.close()
-                    df_all=pd.read_excel(summary_cumulative_file)
-                    df_all_trans = df_all.T #indexed on column headers
-                    # save back the old and remake the working stats file
-                    shutil.move(summary_cumulative_file, '{}' .format(temp_folder + '/stat_backup' + st + '.xlsx'))
-                    sorter = list(df_all_trans.index) #list of original column order
-                    frames.insert(0, df_all_trans) #put as first item in list
-                    df_concat = pd.concat(frames, axis=1) #cat frames
-                    df_sorted = df_concat.loc[sorter] #sort based on sorter order
-                    df_sorted.T.to_excel(summary_cumulative_file, index=False) #transpose before writing to excel, numerical index not needed
-                except BlockingIOError:
-                    sorter = list(df_stat_summary.index) #list of original column order
-                    df_concat = pd.concat(frames, axis=1) #cat frames
-                    df_sorted = df_concat.loc[sorter] #sort based on sorter order
-                    df_sorted.T.to_excel(summary_cumulative_file_temp, index=False)
-                except OSError:
-                    sorter = list(df_stat_summary.index) #list of original column order
-                    df_concat = pd.concat(frames, axis=1) #cat frames
-                    df_sorted = df_concat.loc[sorter] #sort based on sorter order
-                    df_sorted.T.to_excel(summary_cumulative_file_temp, index=False)
-            else:
-                print("Path to cumulative stat summary file not found")
-
-#map pooled from script 1
-def read_aligner(single_directory, species_call):
+def read_aligner(single_directory):
     os.chdir(single_directory)
     R1 = glob.glob('*_R1*fastq.gz')[0]
     R2 = glob.glob('*_R2*fastq.gz')[0]
     print("R1 and R2: %s %s" % (R1, R2))
-    script1(R1, R2, species_call)
     try:
-        stat_summary = sample.align_reads()
-        return(stat_summary)
-    except:
-        return #(stat_summary)
-        pass
+        if species_call:
+            sample_attributes = set_variables(R1, R2, species_call)
+    except NameError:
+        sample_attributes = set_variables(R1, R2, None)
+    stat_summary = align_reads(sample_attributes) #5
+    return stat_summary
+    
+def set_variables(R1, R2, species_call):
 
-def script1(R1, R2, species_call):
-
-    malformed = []
+    sample_attributes = {}
     directory = str(os.getcwd())
+    sample_attributes["directory"] = directory
     zips = directory + "/zips"
     os.makedirs(zips)
     shutil.move(R1, zips)
     shutil.move(R2, zips)
     R1 = zips + "/" + R1
     R2 = zips + "/" + R2
+    sample_attributes["R1"] = R1
+    sample_attributes["R2"] = R2
+    unzipfiles(R1, R2)
     R1unzip = re.sub('\.gz', '', R1)
     R2unzip = re.sub('\.gz', '', R2)
+    sample_attributes["R1unzip"] = R1unzip
+    sample_attributes["R2unzip"] = R2unzip
 
     ### SET PARAMETERS
     if species_call:
         print("Forcing species --> Sample will be ran as %s" % species_call)
-        species_attributes = Step1(species_call)
-        dependents_dir = species_attributes.dependents_dir
-        reference = species_attributes.reference
-        hqs = species_attributes.hqs
-        gbk_file = species_attributes.gbk_file
-        upload_to = species_attributes.upload_to
-        remote = species_attributes.remote
-        script_dependents = species_attributes.script_dependents
-        spoligo_db = species_attributes.spoligo_db
-
+        species_attributes = Step1(species_call) #making object from attribute file
+        sample_attributes["dependents_dir"] = species_attributes.dependents_dir
+        sample_attributes["reference"] = species_attributes.reference
+        sample_attributes["hqs"] = species_attributes.hqs
+        sample_attributes["gbk_file"] = species_attributes.gbk_file
+        sample_attributes["upload_to"] = species_attributes.upload_to
+        sample_attributes["remote"] = species_attributes.remote
+        sample_attributes["script_dependents"] = species_attributes.script_dependents
+        sample_attributes["spoligo_db"] = species_attributes.spoligo_db
+        sample_attributes["species_call"] = species_call
     else:
-        best_ref_found = best_reference(R1unzip, R2unzip)
-        self.species = best_ref_found
+        species_call = best_reference(R1unzip, R2unzip)
         try: # exit if best ref isn't in parameter list
-            option_list, found = script1.parameters(best_ref_found)
-            dependents_dir = option_list[0]
-            reference = option_list[1]
-            hqs = option_list[2]
-            gbk_file = option_list[3]
-            email_list = option_list[4]
-            upload_to = option_list[5]
-            remote = option_list[6]
-            script_dependents = option_list[7]
-            spoligo_db = option_list[8]
+            species_attributes = Step1(species_call) #making object from attribute file
+            sample_attributes["dependents_dir"] = species_attributes.dependents_dir
+            sample_attributes["reference"] = species_attributes.reference
+            sample_attributes["hqs"] = species_attributes.hqs
+            sample_attributes["gbk_file"] = species_attributes.gbk_file
+            sample_attributes["upload_to"] = species_attributes.upload_to
+            sample_attributes["remote"] = species_attributes.remote
+            sample_attributes["script_dependents"] = species_attributes.script_dependents
+            sample_attributes["spoligo_db"] = species_attributes.spoligo_db
+            sample_attributes["species_call"] = species_call
         except UnboundLocalError:
-            print("\nprinted options list:")
-            for i in option_list:
-                print(i)
-            print("\nNo parameters options for best_ref_found or species given - UnboundLocalError\n\n")
-            self.species = "NO FINDINGS"
+            species_call = "NO FINDINGS"
+            sample_attributes["species_call"] = species_call
         except TypeError:
             print("No parameters options for best_ref_found or species given - TypeError")
-            self.species = "NO FINDINGS"
+            species_call = "NO FINDINGS"
+            sample_attributes["species_call"] = species_call
     try:
         shutil.copy2(reference, directory)
         shutil.copy2(hqs, directory)
@@ -237,83 +224,384 @@ def script1(R1, R2, species_call):
         shutil.copy2(hqs, directory)
     except NameError:
         print("No parameters options for best_ref_found or species given - NameError")
-        self.species = "NO FINDINGS"
+        species_call = "NO FINDINGS"
+        sample_attributes["species_call"] = species_call
+    return sample_attributes
 
-    R1 = glob.glob('*_R1*fastq.gz')
-    R2 = glob.glob('*_R2*fastq.gz')
-    R1count = len(R1)
-    R2count = len(R2)
-    fastq_count = R1count + R2count
-    if (fastq_count % 2 != 0):
-        print("\n#####Check paired files.  Unpaired files seen by odd number of counted FASTQs\n\n")
-        sys.exit(0)
-    if (R1count != R2count):
-        print("\n#####Check paired files.  R1 files do not equal R2\n\n")
-        sys.exit(0)
-    if (all_file_types_count != fastq_count):
-        print("\n#####Only zipped FASTQ files are allowed in directory\n\n")
-        sys.exit(0)
-    elif (fastq_count > 1):
-        if args.all_vcf or args.elite or args.upload or args.filter:
-            print("#####Incorrect use of options when running loop/script 1")
+def align_reads(sample_attributes):
+    working_directory = sample_attributes["directory"]
+    R1 = sample_attributes["R1"]
+    R2 = sample_attributes["R2"] = R2
+    R1unzip = sample_attributes["R1unzip"] = R1unzip
+    R2unzip = sample_attributes["R2unzip"] = R2unzip
+
+    dependents_dir = sample_attributes["dependents_dir"] = species_attributes.dependents_dir
+    reference = sample_attributes["reference"] = species_attributes.reference
+    hqs = sample_attributes["hqs"] = species_attributes.hqs
+    gbk_file = sample_attributes["gbk_file"] = species_attributes.gbk_file
+    upload_to = sample_attributes["upload_to"] = species_attributes.upload_to
+    remote = sample_attributes["remote"] = species_attributes.remote
+    script_dependents = sample_attributes["script_dependents"] = species_attributes.script_dependents
+    spoligo_db = sample_attributes["spoligo_db"] = species_attributes.spoligo_db
+    species_call = sample_attributes["species_call"] = species_call
+
+    if species_call == "NO FINDINGS":
+        read_base = os.path.basename(R1)
+        sample_name=re.sub('_.*', '', read_base)
+        R1size = sizeof_fmt(os.path.getsize(R1))
+        R2size = sizeof_fmt(os.path.getsize(R2))
+        stat_summary = {}
+        stat_summary["time_stamp"] = st
+        stat_summary["sample_name"] = sample_name
+        stat_summary["species_call"] = "NOT_FOUND"
+        stat_summary["reference_sequence_name"] = "N/A"
+        stat_summary["R1size"] = R1size
+        stat_summary["R2size"] = R2size
+        stat_summary["allbam_mapped_reads"] = "CHECK SAMPLE *****************************************"
+        return(stat_summary)
+    else:
+        read_base = os.path.basename(R1)
+        sample_name=re.sub('_.*', '', read_base)
+        
+        print("species_call: %s" % species_call)
+        if species_call in ["ab1", "ab3", "suis1", "suis3", "suis4", "mel1", "mel1b", "mel2", "mel3", "canis", "ceti1", "ceti2"]:
+            print("Brucella")
+            mlst(R1, R2)
+        elif species_call in ["h37", "af"]: #removed bovis
+            print("TB")
+            spoligo(R1unzip, R2unzip)
+        
+        print ("reference: %s" % reference)
+        ref=re.sub('\.fasta', '', os.path.basename(reference[0]))
+        if len(reference) != 1:
+            print("### ERROR reference not available or too many")
             sys.exit(0)
-        else:
-            print("\n--> RUNNING LOOP/SCRIPT 1\n") #
-            run_loop()
+        if len(hqs) != 1:
+            print("### ERROR high quality snps not available or too many")
+            sys.exit(0)
+        
+        print ("--")
+        print("sample name: %s" % sample_name)
+        print("sample reference: %s" % reference)
+        print("Read 1: %s" % R1)
+        print("Read 2: %s\n" % R2)
+        print("directory: %s" % directory)
+        print ("--")
 
-class Update_Directory:
-    def __init__(self, dependents_dir):
-        home = os.path.expanduser("~")
+        loc_sam=directory + "/" + sample_name
+        
+        os.system("samtools faidx {}" .format(reference))
+        os.system("picard CreateSequenceDictionary REFERENCE={} OUTPUT={}" .format(reference, directory + "/" + ref + ".dict"))
+        os.system("bwa index {}" .format(reference))
+        samfile = loc_sam + ".sam"
+        allbam = loc_sam + "-all.bam"
+        unmapsam = loc_sam + "-unmapped.sam"
+        unmapped_read1 = loc_sam + "-unmapped_R1.fastq"
+        unmapped_read2 = loc_sam + "-unmapped_R2.fastq"
+        unmapped_read1gz = loc_sam + "-unmapped_R1.fastq.gz"
+        unmapped_read2gz = loc_sam + "-unmapped_R2.fastq.gz"
+        abyss_out = loc_sam + "-unmapped_contigs.fasta"
+        sortedbam = loc_sam + "-sorted.bam"
+        nodupbam = loc_sam + "-nodup.bam"
+        metrics = loc_sam + "-metrics.txt"
+        indel_realigner = loc_sam + ".intervals"
+        realignedbam = loc_sam + "-realigned.bam"
+        recal_group = loc_sam + "-recal_group"
+        prebam=loc_sam + "-pre.bam"
+        qualitybam = loc_sam + "-quality.bam"
+        coverage_file=loc_sam + "-coverage.txt"
+        hapall = loc_sam + "-hapall.vcf"
+        bamout = loc_sam + "-bamout.bam"
+        
+        print("\n@@@ BWA mem")
+        os.system("bwa mem -M -t 16 {} {} {} > {}" .format(reference, R1, R2, samfile))
 
-        if os.path.isdir("/bioinfo11/TStuber/Results"):
-            #server
-            storage_path = "/bioinfo11/TStuber/Results"
-            computer_path = "/home/shared"
-        elif os.path.isdir("/Volumes/root/TStuber/Results"):
-            #mac
-            storage_path = "/Volumes/root/TStuber/Results"
-            computer_path = "/Users/Shared"
+        print("\nAdd read group and out all BAM")
+        os.system("picard AddOrReplaceReadGroups INPUT={} OUTPUT={} RGLB=lib1 RGPU=unit1 RGSM={} RGPL=illumina" .format(samfile, allbam, sample_name))
+        os.system("samtools index {}" .format(allbam))
 
-        #check if bioinfo is attached
-        if os.path.isdir(storage_path): 
-            self.upload_to = storage_path
-            self.remote = storage_path + dependents_dir
-            self.path = storage_path + dependents_dir
-            #make copy of local dependents
-            if os.path.isdir(computer_path):
-                dep_path = computer_path
-                dir_split = dependents_dir.split('/')[1:]
-                #build path to file if needed
-                for i in dir_split:
-                    dep_path += '/' + i
-                    if not os.path.exists(dep_path):
-                        os.makedirs(dep_path)
-                local = computer_path + dependents_dir
-                if os.path.isdir(local):
-                    try:
-                        #remove files
-                        shutil.rmtree(local)
-                        #copy files from remote to local
-                        shutil.copytree(self.remote, local)
-                    except:
-                        pass
-        #if no storage path (bioinfo) check if dependents have been copied local to share
-        elif os.path.isdir(computer_path + dependents_dir):
-            self.upload_to = "not_found"
-            self.remote = "not_found"
-            self.path = computer_path + dependents_dir
-        #if not in shared folder then check home directory previously downloaded from github
-        elif os.path.isdir(home + "/dependencies" + dependents_dir):
-            self.upload_to = "not_found"
-            self.remote = "not_found"
-            self.path = home + "/dependencies" + dependents_dir # sets dependencies directory to home directory
-        else:
-            os.makedirs(home + "/dependencies")
-            print("\n\nDOWNLOADING DEPENDENCIES FROM GITHUB... ***\n\n")
-            git.Repo.clone_from("https://github.com/USDA-VS/dependencies.git", home + "/dependencies")
-            self.upload_to = "not_found"
-            self.remote = "not_found"
-            self.path = home + "/dependencies" + dependents_dir
+        print("\n@@@ Samtools unmapped")
+        os.system("samtools view -h -f4 -T {} {} -o {}" .format(reference, allbam, unmapsam))
+
+        print("\n@@@ Unmapped to FASTQ")
+        os.system("picard SamToFastq INPUT={} FASTQ={} SECOND_END_FASTQ={}" .format(unmapsam, unmapped_read1, unmapped_read2))
+        
+        print("\n@@@ Abyss")
+        abyss_contig_count=0
+
+        os.system("ABYSS --out {} --coverage 5 --kmer 64 {} {}" .format(abyss_out, unmapped_read1, unmapped_read2))
+        try:
+            with open(abyss_out) as f:
+                for line in f:
+                    abyss_contig_count += line.count(">")
+        except FileNotFoundError:
+            abyss_contig_count = 0
+
+        print("\n@@@ Sort BAM")
+        os.system("samtools sort {} -o {}" .format(allbam, sortedbam))
+        os.system("samtools index {}" .format(sortedbam))
+        
+        print("\n@@@ Write stats to file")
+        stat_file = "stat_align.txt"
+        stat_out = open(stat_file, 'w')
+        #os.system("samtools idxstats {} > {}" .format(sortedbam, stat_out)) Doesn't work when needing to std out.
+        stat_out.write(os.popen("samtools idxstats {} " .format(sortedbam)).read())
+        stat_out.close()
+
+        with open(stat_file) as f:
+            first_line = f.readline()
+            first_line = first_line.rstrip()
+            first_line=re.split(':|\t', first_line)
+            reference_sequence_name = str(first_line[0])
+            sequence_length = "{:,}".format(int(first_line[1]))
+            allbam_mapped_reads = int(first_line[2])
+            allbam_unmapped_reads = "{:,}".format(int(first_line[3]))
+
+        print("\n@@@ Find duplicate reads")
+        os.system("picard MarkDuplicates INPUT={} OUTPUT={} METRICS_FILE={} ASSUME_SORTED=true REMOVE_DUPLICATES=true" .format(sortedbam, nodupbam, metrics))
+        os.system("samtools index {}" .format(nodupbam))
+        
+        duplicate_stat_file = "duplicate_stat_align.txt"
+        duplicate_stat_out = open(duplicate_stat_file, 'w')
+        #os.system("samtools idxstats {} > {}" .format(sortedbam, stat_out)) Doesn't work when needing to std out.
+        duplicate_stat_out.write(os.popen("samtools idxstats {} " .format(nodupbam)).read())
+        duplicate_stat_out.close()
+        with open(duplicate_stat_file) as f:
+            dup_first_line = f.readline()
+            dup_first_line = dup_first_line.rstrip()
+            dup_first_line=re.split(':|\t', dup_first_line)
+            nodupbam_mapped_reads = int(dup_first_line[2])
+            nodupbam_unmapped_reads = int(dup_first_line[3])
+        try:
+            unmapped_reads = allbam_mapped_reads - nodupbam_mapped_reads
+        except:
+            unmapped_reads = "none_found"
+        
+        allbam_mapped_reads = "{:,}".format(allbam_mapped_reads)
+        print(unmapped_reads)
+
+        print("\n@@@  Realign indels")
+        os.system("gatk -T RealignerTargetCreator -I {} -R {} -o {}" .format(nodupbam, reference, indel_realigner))
+        if not os.path.isfile(indel_realigner):
+            os.system("gatk -T RealignerTargetCreator --fix_misencoded_quality_scores -I {} -R {} -o {}" .format(nodupbam, reference, indel_realigner))
+        os.system("gatk -T IndelRealigner -I {} -R {} -targetIntervals {} -o {}" .format(nodupbam, reference, indel_realigner, realignedbam))
+        if not os.path.isfile(realignedbam):
+            os.system("gatk -T IndelRealigner --fix_misencoded_quality_scores -I {} -R {} -targetIntervals {} -o {}" .format(nodupbam, reference, indel_realigner, realignedbam))
+
+        print("\n@@@ Base recalibration")
+        os.system("gatk -T BaseRecalibrator -I {} -R {} -knownSites {} -o {}". format(realignedbam, reference, hqs, recal_group))
+        if not os.path.isfile(realignedbam):
+            os.system("gatk -T BaseRecalibrator  --fix_misencoded_quality_scores -I {} -R {} -knownSites {} -o {}". format(realignedbam, reference, hqs, recal_group))
+
+        print("\n@@@ Make realigned BAM")
+        os.system("gatk -T PrintReads -R {} -I {} -BQSR {} -o {}" .format (reference, realignedbam, recal_group, prebam))
+        if not os.path.isfile(prebam):
+            os.system("gatk -T PrintReads  --fix_misencoded_quality_scores -R {} -I {} -BQSR {} -o {}" .format (reference, realignedbam, recal_group, prebam))
+
+        print("\n@@@ Clip reads")
+        os.system("gatk -T ClipReads -R {} -I {} -o {} -filterNoBases -dcov 10" .format(reference, prebam, qualitybam))
+        os.system("samtools index {}" .format(qualitybam))
+
+        print("\n@@@ Depth of coverage using GATK")
+        os.system("gatk -T DepthOfCoverage -R {} -I {} -o {} -omitIntervals --omitLocusTable --omitPerSampleStats -nt 8" .format(reference, prebam, coverage_file))
+
+        print("\n@@@ Calling SNPs with HaplotypeCaller")
+        os.system("gatk -R {} -T HaplotypeCaller -I {} -o {} -bamout {} -dontUseSoftClippedBases -allowNonUniqueKmersInRef" .format(reference, qualitybam, hapall, bamout))
+
+        try: 
+            print("Getting Zero Coverage...\n")
+            zero_coverage_vcf, good_snp_count, ave_coverage, genome_coverage = add_zero_coverage(coverage_file, hapall, loc_sam)
+        except FileNotFoundError:
+            print("#### ALIGNMENT ERROR, NO COVERAGE FILE: %s" % sample_name)
+            text = "ALIGNMENT ERROR, NO COVERAGE FILE " + sample_name
+            msg = MIMEMultipart()
+            msg['From'] = "tod.p.stuber@aphis.usda.gov"
+            msg['To'] = "tod.p.stuber@aphis.usda.gov"
+            msg['Date'] = formatdate(localtime = True)
+            msg['Subject'] = "### No coverage file"
+            msg.attach(MIMEText(text))
+            smtp = smtplib.SMTP('10.10.8.12')
+            smtp.send_message(msg)
+            smtp.quit()
+
+            # process_id = os.getpid()
+            # os.kill(process_id, signal.SIGKILL)
+
+        ###
+        if gbk_file is not "None":
+            try:
+                in_annotation_as_dict = SeqIO.to_dict(SeqIO.parse(gbk_file, "genbank"))
+                annotated_vcf = loc_sam + "-annotated.vcf"
+                write_out=open(annotated_vcf, 'w')
+                
+                with open(zero_coverage_vcf) as vfile:
+                    print("finding annotations...\n")
+                    for line in vfile:
+                        annotated_line = get_annotations(line, in_annotation_as_dict)
+                        print("%s" % annotated_line, file=write_out)
+                write_out.close()
+            except AttributeError:
+                pass
+
+        os.remove(coverage_file)
+        os.remove(samfile)
+        os.remove(allbam)
+        os.remove(nodupbam)
+        os.remove(nodupbam + ".bai")
+        os.remove(unmapsam)
+        os.remove(sortedbam)
+        os.remove(sortedbam + ".bai")
+        os.remove(indel_realigner)
+        os.remove(realignedbam)
+        os.remove(loc_sam + "-realigned.bai")
+        os.remove(recal_group)
+        os.remove(prebam)
+        os.remove(loc_sam + "-pre.bai")
+        os.remove(hqs)
+        os.remove(hqs + ".idx")
+        os.remove(reference + ".amb")
+        os.remove(reference + ".ann")
+        os.remove(reference + ".bwt")
+        os.remove(reference + ".pac")
+        os.remove(reference + ".sa")
+        os.remove(ref + ".dict")
+        os.remove(duplicate_stat_file)
+        os.remove(stat_file)
+
+        unmapped = directory + "/unmapped"
+        os.makedirs(unmapped)
+
+        newZip = zipfile.ZipFile(unmapped_read1gz, 'w')
+        newZip.write(unmapped_read1, compress_type=zipfile.ZIP_DEFLATED)
+        newZip.close()
+        newZip = zipfile.ZipFile(unmapped_read2gz, 'w')
+        newZip.write(unmapped_read2, compress_type=zipfile.ZIP_DEFLATED)
+        newZip.close()
+        os.remove(unmapped_read1)
+        os.remove(unmapped_read2)
+        
+        try:
+            shutil.move(unmapped_read1gz, unmapped)
+            shutil.move(unmapped_read2gz, unmapped)
+            shutil.move(abyss_out, unmapped)
+        except FileNotFoundError:
+            pass
+        
+        alignment = directory + "/alignment"
+        os.makedirs(alignment)
+        movefiles = glob.glob('*-*')
+        for i in movefiles:
+            shutil.move(i, alignment)
+        try:
+            shutil.move(reference, alignment)
+            shutil.move(reference + ".fai", alignment)
+        except shutil.Error:
+            pass
+        except FileNotFoundError:
+            pass
+        except FileExistsError:
+            pass
+
+        runtime = (datetime.now() - startTime)
+        print ("\n\nruntime: %s:  \n" % runtime)
+        ave_coverage = "{:0.1f}".format(float(ave_coverage))
+        print("average_coverage: %s" % ave_coverage)
+
+        R1size = sizeof_fmt(os.path.getsize(R1))
+        R2size = sizeof_fmt(os.path.getsize(R2))
+
+        try:
+            with open("mlst.txt") as f:
+                first_line = f.readline()
+                mlst_type = first_line.rstrip()
+                first_line = first_line.split()
+                mlst_type = first_line[1:]
+                mlst_type = '-'.join(mlst_type)
+        except FileNotFoundError:
+            mlst_type = "N/A"
+
+        try:
+            with open("spoligo.txt") as f:
+                first_line = f.readline()
+                first_line = first_line.rstrip()
+                first_line = first_line.split()
+                octalcode = first_line[0]
+                sbcode = first_line[1]
+                hexcode = first_line[2]
+                binarycode = first_line[3]
+        except FileNotFoundError:
+            octalcode = "N/A"
+            sbcode = "N/A"
+            hexcode = "N/A"
+            binarycode = "N/A"
+            
+        #Capture program versions for step 1
+        try:
+            verison_out = open("version_capture.txt", 'w')
+            print(os.popen('conda list bwa | grep -v "^#"; \
+                conda list abyss | grep -v "^#"; \
+                conda list picard | grep -v "^#"; \
+                conda list samtools | grep -v "^#"; \
+                conda list gatk | grep -v "^#"; \
+                conda list biopython | grep -v "^#"').read(), file=verison_out)
+            verison_out.close()
+        except:
+            pass
+
+        sequence_count = 0
+        total_length = 0
+        with gzip.open(R2, "rt") as handle:
+            for r in SeqIO.parse(handle, "fastq"):
+                total_length = total_length + len(r.seq)
+                sequence_count = sequence_count + 1
+        ave_read_length = total_length/sequence_count
+        ave_read_length = "{:0.1f}".format(float(ave_read_length))
+
+        ts = time.time()
+        st = datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H-%M-%S')
+
+        stat_summary={}
+        stat_summary["time_stamp"] = st
+        stat_summary["sample_name"] = sample_name
+        stat_summary["self.species"] = self.species
+        stat_summary["reference_sequence_name"] = reference_sequence_name
+        stat_summary["R1size"] = R1size
+        stat_summary["R2size"] = R2size
+        stat_summary["allbam_mapped_reads"] = allbam_mapped_reads
+        stat_summary["genome_coverage"] = genome_coverage
+        stat_summary["ave_coverage"] = ave_coverage
+        stat_summary["ave_read_length"] = ave_read_length
+        stat_summary["unmapped_reads"] = unmapped_reads
+        stat_summary["unmapped_assembled_contigs"] = abyss_contig_count
+        stat_summary["good_snp_count"] = good_snp_count
+        stat_summary["mlst_type"] = mlst_type
+        stat_summary["octalcode"] = octalcode
+        stat_summary["sbcode"] = sbcode
+        stat_summary["hexadecimal_code"] = hexcode
+        stat_summary["binarycode"] = binarycode
+
+        for k, v in stat_summary.items():
+            print("%s: %s" % (k, v))
+        
+        ###
+        # Create a sample stats file in the sample's script1 directory
+        summary_file = loc_sam + "_" + st + '.xlsx'
+        workbook = xlsxwriter.Workbook(summary_file)
+        worksheet = workbook.add_worksheet()
+        row = 0
+        col = 0
+
+        top_row_header = ["time_stamp", "sample_name", "self.species", "reference_sequence_name", "R1size", "R2size", "allbam_mapped_reads", "genome_coverage", "ave_coverage", "ave_read_length", "unmapped_reads", "unmapped_assembled_contigs", "good_snp_count", "mlst_type", "octalcode", "sbcode", "hexadecimal_code", "binarycode"]
+        for header in top_row_header:
+            worksheet.write(row, col, header)
+            col += 1
+        col = 0
+        row += 1
+        for v in stat_summary.values():
+                worksheet.write(row, col, v)
+                col += 1
+        workbook.close()
+    return stat_summary
 
 def best_reference(R1unzip, R2unzip):
         
@@ -472,92 +760,336 @@ def best_reference(R1unzip, R2unzip):
             print("\n\nNo match", file=write_out)
 
     write_out.close()
+
+def finding_best_ref(v):
+    count=0
+    for fastq in R1unzip, R2unzip:
+        with open(fastq) as in_handle:
+            # all 3, title and seq and qual, were needed
+            for title, seq, qual in FastqGeneralIterator(in_handle):
+                count += seq.count(v)
+    return(v, count)
+
+def mlst(R1, R2):
+   
+    #https://bmcmicrobiol.biomedcentral.com/articles/10.1186/1471-2180-7-34
+    write_ref = open("ST1-MLST.fasta", 'w')
+    print(">ST1-MLST", file=write_ref)
+    print("CGTTTCCCCAAGGAAGTGGAGGTTGCAGGCGATACGATCGATGTTGGCTACGGCCCGATCAAGGTTCATGCCGTCCGCAACCCGGCCGAACTGCCGTGGAAGGAAGAAAACGTCGATATCGCCCTTGAATGCACCGGCATTTTCACCTCGCGCGACAAGGCAGCACTTCATCTTGAAGCTGGCGCCAAGCGCGTCATCGTCTCCGCTCCCGCAGACGGTGCCGATCTCACCGTCGTCTATGGTGTCAACAACGACAAGCTGACGAAGGACCATCTGGTCATCTCCAACGCTTCGTGTACCACCAACTGCCTTGCGCCGGTGGCTCAGGTTCTCAACGATACTATCGGTATCGAAAAGGGCTTCATGACCACGATCCACTCCTATACGGGCGACCAGCCGACGCTGGACACCATGCACAAGGATCTCTACCGCGCCCGCGCCGCTGCCCTTTCCATGATCCCGACCTCGACGGGTGCGGCCAAGGCCGTCGGTCTCGTTCTGCCGGAACTGAAAGGCAAGCTCGACGGCGTTGCCATTCGCGTCCCGACCCCAAATGTCTCGGTCGTTGATCTCACCTTCATCGCCAAGCGTGAAACCACCGTTGAAGAAGTCAACAATGCGATCCGCGAAGCCGCCAATGGCCGCCTCAAGGGCATTCTCGGCTATACCGATGAGAAGCTCGTCTCGCACGACTTCAACCACGATTCCCATTCCTCGGTCTTCCACACCGACCAGACCAAGGTTATGGACGGCACCATGGTGCGTATCCTGTCGTGGTACGACAATGAATGGGGCTTCTCCAGCCGCATGAGCGACACCGCCGTCGCTTTGGGCAAGCTGATCTGATAACGGCAACGCCTCTCCTTCACTGGCGAGGCGTTTTCATTTCTTGATAAGGACCGAGAGAAGAAACATGATGTTCCGCACCCTTGACGATGCCAATGTCCAATCCAAGCGCGTGCTGGTCCGTGTTGACCTCAACGTGCCGAAAATCCGCCGTTCTGCTCGCTGGTCTTAACACCCCGGGCGTCACCACCGTGATCGAGCCGGTCATGACGCGCGATCATACGGAAAAGATGCTGCAAGACTTTGGCGCAGACCTGACGGTTGAAACCGATAAGGATGGTGTGCGCCATATCCGTATTGTCGGCCAGGGCAAGCTTACCGGCCAGACCATCGACGTGCCGGGTGATCCCTCGTCAACGGCTTTTCCGCTGGTGGCCGCCCTTCTGGTCGAAGGTTCGGAGGTCACCATCCGCAATGTGCTGATGAACCCGACCCGCACCGGCCTGATCCTGACGTTGCAGGAAATGGGGGCGGATATCGAGATCATCGATCCACGCCTTGCCGGCGGCGAGGATGTCGCCGATCTGCGCGTCAAGGCCTCGAAGCTGAAAGGCGTTGTCGTTCCGCCGGAACGTGCGCCTTCGATGATCGATGAATATCCGGTTCTGGCCATTGCCGCGTCTTTTGCGGAAGGCGAAACCGTGATGGACGGTCTCGATGAACTGCGCGTCAAGGAATCGGATCGTCTGGCGGCCGTTGCGCGCGGCCTTGAAGCCAATGGTGTCGATTGTACCGAAGGCGAGATGTCGCTGACGGTTCGTGGCCGCCCCGGCGGCAAGGGGCTGGGCGGTGGCACGGTTGCAACCCACCTCGACCACCGCATCGCGATGAGTTTCCTCGTCATGGGCCTTGCATCGGAAAAGCCGGTTACGGTGGATGACAGCACCATGATCGCCACCTCTTTCCCGGAATTCATGGGCATGATGGCGGGGCTGGGGGCGAAGATTGCCGAAAGCGGTGCAGAATGAAATCGTTCGTCGTCGCCCCGTTCATTGTCGCCATTGACGGACCGGCCGCCTCGGGCAAGGGAACCCTTGCCCGGCGGATCGCGACACATTACGGGATGCCGCATCTCGATACGGGCCTGACCTATCGCGCGGTCGCCAAGAGCCGCGCTCTGTCATTCTGGCCGTGGCAGGCCCGGTGGACGGCGACGAGATCGACCTCACCAATTGCGACTGGGTCGTGCGTCCTAAAAAGATGATCGCTGATCTGGGCTTTGAAGACGTGACCGTCCTCAATGATTTCGAGGCGCAGGCCCTTGCCGTGGTTTCGCTGGAAGGCCACCATATGGAACAGATCGGCGGCAAACCGGAGGAGGCTGTTGCCACCCGCGTCGTGCTCGGCCCCGGCACGGGCCTTGGCGTGGCAGGTCTGTTTCGCACACGTCATGCATGGGTTCCGGTTCCCGGTGAAGGCGGTCATATCGATATCGGTCCACGCACCGAACGCGACTACCAGATTTTCCCGCATATCGAACGCATCGAAGGGCGTGTCACCGGCGAGCAAATTCTTAGCGGGCGGGGCCTGCGCAACCTCTATCTGGGCATCTGCGCCGCCGACAAGATCACGCCCACCCTTGAGACGCCAGTAGACATTACATCCGCCGGACTGGACGGCAGCAATCCACAAGCCGCAGAAACGCTTGACCTCTTCGCCACCTATCTGGGGCGGCTTGCGGGCGACCTTGCGCTCATTTTCATGGCGCATGGCGGCGTTTATCTTTCGGGTGGCATCCCGGTGCGCATCCTTTCCGCCCTCAAGGCCGGTTCGTTCCGCGCAACCTTCGAGGACAAGGCCCCGCACAAGGCCATCATGCGCGACATACCGGTCCGCGTTATCACATATCAACTGGCGGCCTTAACCGGGCTTTCCGCTTTCGCCCGCACCCCCTCGCGCTTTGAAGTTTCGACCGAGGGCCGCCGCTGGCGCATGCGCCGCTAGAGCATTTCCGAGCCAAAAGTGCGAAGCGGTTCCGTTTCCCAACGAGCCGACCGCGGCTGCGCTTGCCTATGGTCTCGACAAGAGCGAAGGCAAGACCATCGCTGTCTATGACCTTGGCGGCGGTACTTTCGACGTGTCGGTTCTGGAAATCGGCGACGGCGTTTTTGAAGTGAAGTCCACCAATGGCGACACGTTCCTTGGCGGTGAAGACTTCGATATTCGTCTGGTCGAATATCTGGTTGCCGAGTTCAAGAAGGAAAGTGGCATCGACCTGAAGAACGACAAGCTTGCCCTGCAGCGCCTCAAGGAAGCTGCCGAAAAGGCCAAGATCGAACTGTCGTCCTCGCAGCAGACCGAAATCAACCTGCCGTTCATCACGGCTGACCAGACTGGCCCGAAGCATCTGGCGATCAAGCTGTCGCGCGCCAAGTTTGAAAGCCTGGTCGATGATCTCGTGCAGCGCACGGTCGAGCCGTGCAAGGCGGCGCTCAAGGATGCCGGCCTCAAGGCTGGCGAAATTGACGAAGTGGTTCTGGTCGGCGGCATGACCCGCATGCCCAAGATTCAGGAAGTCGTGAAGGCCTTCTTCGGCAAGGAACCGCACAAGGGCGTGAACCCGGATGAAGTCGTGGCCATGGGCGCGGCGATCCAGGGCGGCGTTTTGCAGGGCGACGTCAAGGACGTGCTGCTGCTCGACGTGACCCCGCTTTCGCTCGGCATTGAAACGCTGGGCGGCGTGTTCACCCGCCTGATCGAACGCAACACCACTATCCCGACCAAGAAGTCGCAGACCTTCTCCACGGCTGAGGACAACCAGTCGGCCGTGACGATCCGCGTCTTCCAGGGCGAGCGTGAAATGGCAGCCGATAACAAGCTGCTTGGACAGTTCGACCTCGTTGGCATTCCGCCACGTCCCTGCCCGGAAAGCTTGCCGATTGCCAGGAGCGCGATCCGGCCAAGTCCGAAATCTTCATCGTCGAGGGCGATTCGGCAGGCGGTTCCGCCAAGAGCGGGCGCTCGCGCCAGAATCAGGCCATTCTGCCGCTGCGCGGCAAAATCCTGAACGTGGAACGCGTGCGTTTCGACCGGATGATTTCATCCGATCAGGTGGGCACCCTCATCACGGCGCTTGGCACCTCCATCGGCAAGGATGAAACGCACGGCTTCAACGCCGACAAGCTGCGTTATCACAAGATCATCATCATGACCGACGCCGACGTCGATGGCGCCCATATTCGTACGCTTCTGCTCACCTTCTTCTTCCGGCAGATGCCGGAACTGATCGAACGCGGGCATATCTATATCGCGCAGCCGCCGCTCTATAAGGTGACACGCGGCAAGTCTTCGCAATATATCAAGAACGAAGCCGCCTTTGAGGATTTCCTCATCGAAACCGGCCTTGAAGAAACGACACTGGAACTGGTGACTGGCGAAATGCGCGCCGGGCCGGATTTGCGCTCGGTGGTGGAGGATGCGCGCACGCTGCGTCAGCTTCTGCACGGCCTGCACACCCGCTATGACCGCAGCGTGGTGGAACAGGCGGCAATTGCCGGCCTGCTCAACCCCGATGCCTCAAGGGACAATGCAACGGCACAGCATTCCGCCGATACGGTTGCCAAGCGTCTCGACATGATTTCGGAAGAGACCGAGCGCGGCTGGAGCGGCCATGTGATGGAAGACGGCGGCTATCGCTTCGAGCGTATGGTGCGCGGTGTAAAGGATATCGCCATTCTCGACATGGCCCTGCTCGGCTCGGCCGATGCCCGCCAGGTCGACCGAGATCGAGATGTATTCCCGCCTGATCCATACGGTCGATCATATCGAAGGCCGCCTGCGTGACGGCATGGATGCGTTTGACGGCTTCCTCAGCCATGCATGGGCTGTGACGGTGACAGGCGCGCCGAAGCTGTGGGCAATGCGCTTTCTTGAGGAAAACGAACGCAGCCCGCGCGCATGGTATGGCGGCGCGATCGGCATGATGCATTTCAATGGCGATATGAATACAGGGCTGACGCTGCGCACCATCCGCATCAAGGATGGTGTGGCGGAAATCCGTGCAGGGGCGACGCTTCTGTTCGATTCCAACCCTGACGAGGAAGAAGCCGAGACCGAATTGAAGGCATCGGCCATGATTGCGGCTGTGCGGGACGCACAGAAGAGCAATCAGATCGCGGAAGAAAGTGTGGCGGCAAAGGTGGGTGAGGGGGTTTCGATCCTGCTGGTCGATCACGAGGATTCCTTCGTCCATACGCTTGCCAATTATTTCCGCCAGACGGGCGCCAAGGTTTCCACCGTGCGTTCACCGGTGGCAGAGGAGATATTCGACCGCGTCAATCCCGATCTGGTGGTGTTATCGCCGGGACCGGGCTCGCCGCAGGATTTCGATTGCAAGGCGACCATCGATAAGGCGCGCAAGCGCCAGCTTCCGATTTTTGGCGTCTGCCTCGGCCTTCAGGCACTGGCGGAAGCCTATGGCGGGGCGTTGCGCCAGCTTCGCGTTCCGGTGCATGGCAAGCCTTCACGCATCCGCGTATCAAAGCCGGAGCGCATTTTCTCCGGCTTGCCGGAGGAAGTGACGGTGGGGCGTTATCATTCGATCTTCGCCGATCCTGAACGCCTGCCGGATGATTTTCTCGTCACAGCCGAAACGGAAGACGGGATCATAGCCTGCGGTGGAGGTGGTGATGGTGCCGCCGGGCTCCAGCCTGCCTGCGGATGCGGGGCTTGTCGTGTTGCCCGGCACCAAATCCACGATTGCCGATCTGCTGGCGCTGCGTGAAAACGGCTGGGACCGCGAATTGGTCGCCCATGTGAAGCGGGGCGGGCATGTGCTTGGTATTTGCGGCGGGTTTCAAATGCTTGGACGGCGGATCAGTGACCCGGCGGGTATTGAAGGCAATGTGCGCGATATCGAGGGGCTGGGCCTTCTCGATATCGAGACGATGACGGAGCCGGAAAAAGTGGTTCGCAATGTTGAGGCGGTGTCGCTGCTGCATGATGAGCCGCTGGAGGGCTATGAAATCCACATCGGGCGCACCAGCGGGCCGGATATGGCGCGGCCATTTGCGCGTATCGGCGATCATGATGATGGGGCCGTCTCGCCCGATGGTCGTATCATGGGAACCTATCTCCACGGTATTTTCAGTGCGGATCGTTTCCGCCACCACTTTTTGCGCGCGCTGGGTGTGGAAGGCGGCCAGATGAATTATCGCGAGAGCGTCGAAGAGGCTCTGGGCGAACTGGCTGAAGGGCTGGAAGCCTCGCTGGATATTGATGGCCTGTTTGCGCTGGCATGATTGACGCCGCGAAGCCGAAAGCCTAGTGTCAAACCATGTGACAGGTTTTGCCGGAACGAATCCCCGGCAATACCAAAAGGGAATGCGACGGACGGACCCACGCCGGGCGTCTTTATCGCAGCCGACCCCGCGACTGTAGAGCGGAGAGGGAAGAGGCAAGCCGGGCAACCGGCAGCCACTGGAAATCAGATGCGATAATGCAACATCGCATTTTTGCCATCTTCTCGACAGATTATCTCCACACAATGGGGCATTTCGTGCCGCAATTACCCTCGATATGTCACCCCTGTCAGCGCGGCATGGGCGGTTTACTCCCGATGCTGCCCGCCCGATAAGGGACCGCGCAAAACGTAATTTGTGTAAGGAGAATGCCATGCGCACTCTTAAGTCTCTCGTAATCGTCTCGGCTGCGCTGCTGCCGTTCTCTGCGACCGCTTTTGCTGCCGACGCCATCCAGGAACAGCCTCCGGTTCCGGCTCCGGTTGAAGTAGCTCCCCAGTATAGCTGGGCTGGTGGCTATACCGGTCTTTACCTTGGCTATGGCTGGAACAAGGCCAAGACCAGCACCGTTGGCAGCATCAAGCCTGACGATTGGAAGGCTGGCGCCTTTGCTGGCTGGAACTTCCAGCAGGACCAGATCGTATACGGTGTTGAAGGTGATGCAGGTTATTCCTGGGCCAAGAAGTCCAAGGACGGCCTGGAAGTCAAGCAGGGCTTTGAAGGCTCGCTGCGTGCCCGCGTCGGCTACGACCTGAACCCGGTTATGCCGTACCTCACGGCTGGTATTGCCGGTTCGCAGATCAAGCTTAACAACGGCTTGGACGACGAAAGCAAGTTCCGCGTGGGTTGGACGGCTGGTGCCGGTCTCGAAGCCAAGCTGACGGACAACATCCTCGGCCGCGTTGAGTACCGTTACACCCAGTACGGCAACAAGAACTATGATCTGGCCGGTACGACTGTTCGCAACAAGCTGGACACGCAGGATATCCGCGTCGGCATCGGCTACAAGTTCTAATTATAGCATAATTGGACACGGAAAACCGGACAGGCAACTGTCCGGTTTTTTGTTGTCTGCAAAGGTCGAGAAAGCGCGGCAGAGCAACGGCGGCAGCCTGATTTTCAGGGGAAATGAAGTGGAGGCTTCTGTTGCCAGGTGCCTCCGAACCCCGCCTTAAGGGGCTAACCCTAAGGACTTTAGAGTGGGTTTCCCGCACCGCCATTAGGCAGCGAGAGCATAACCCTGAGCATTGTTGTCATTTGCAACTACTCTGTTGACCCGATAACGGTGGTATCATGCCGAGTAAAAGAGCGATCTTTACACCCTTGTCGATCCTGTTTCGCCCCCGCCACAACACAGCCTGATCGGCAAGCTGTGCTGTGGTGGAGGCGCCGGGTACCGCCCCCGGGTCCAATGGGTTTATTACACCGTCCGTTTATCACCATAGTCGGCTTGCGCCGACAGGACGTATATAGGCGTGGTTTTTACCGATTGGAAGGGGGCTTGTGCGTTTTCGCGCAAGACCGACAGAGGTGGTGCGGCCCTTCCGTTCATTTTCCATTGACAGCTTCCGCGTGCTGGTCAATCCTCACAATATATCGGGATCGGCCTTGAAGAGGCTTGGCGCAGCCGGGGCGGAAACCATGGCTGAAACGGGGACGATATGCCCCAATCGAAGGAGAGTGGATATATGAGTGAATATCTCGCGGATGTCCGTCGCTATGATGCTGCCGCCGATGAGGCCGTTGTCGAGAAAATCGTCAAGCATCTTGGCATTGCGCTTCGCAATCGCGATTCCTCGCTCGTTTCGGCAAGC", file=write_ref)
+    write_ref.close()
+
+    directory = str(os.getcwd())
+    print(directory)
+    sample_reference_mlst_location = directory + "/ST1-MLST.fasta"
+    read_base = os.path.basename(R1)
+    sample_name = re.sub('_.*', '', read_base)
+    sample_name_mlst = sample_name + "-mlst"
+    print ("mlst reference: %s" % sample_reference_mlst_location)
+    ref=re.sub('\.fasta', '', os.path.basename(sample_reference_mlst_location))
+    print(ref)
+
+    loc_sam_mlst=directory + "/" + sample_name_mlst
+    print ("\n--")
+    print("sample name mlst: %s" % sample_name_mlst)
+    print("sample reference mlst: %s" % sample_reference_mlst_location)
+    print("ref, no ext: %s " % ref)
+    print("Read 1: %s" % R1)
+    print("Read 2: %s\n" % R2)
+    print("directory: %s" % directory)
+    print("loc_sam_mlst: %s" % loc_sam_mlst)
+    print ("--\n")
+
+    os.system("samtools faidx {}" .format(sample_reference_mlst_location))
+    os.system("picard CreateSequenceDictionary REFERENCE={} OUTPUT={}" .format(sample_reference_mlst_location, directory + "/" + ref + ".dict"))
+    os.system("bwa index {}" .format(sample_reference_mlst_location))
     
+    print("\n@@@ BWA mem")
+    samfile_mlst = loc_sam_mlst + ".sam"
+    os.system("bwa mem -M -t 16 {} {} {} > {}" .format(sample_reference_mlst_location, R1, R2, samfile_mlst))
+    
+    print("\nAdd read group and out all BAM")
+    all_bam_mlst = loc_sam_mlst + "-all.bam"
+    os.system("picard AddOrReplaceReadGroups INPUT={} OUTPUT={} RGLB=lib1 RGPU=unit1 RGSM={} RGPL=illumina" .format(samfile_mlst, all_bam_mlst, sample_name_mlst))
+
+    print("\n@@@ Samtools mapped")
+    mapbam = loc_sam_mlst + "-unmapped.bam"
+    os.system("samtools view -h -F4 -b -T {} {} -o {}" .format(sample_reference_mlst_location, all_bam_mlst, mapbam))
+
+    print("\n@@@ Sort BAM")
+    sortedbam = loc_sam_mlst + "-sorted.bam"
+    os.system("samtools sort {} -o {}" .format(mapbam, sortedbam))
+
+    print("\n@@@ Index BAM")
+    os.system("samtools index {}" .format(sortedbam))
+
+    print("\n@@@ Calling SNPs with UnifiedGenotyper")
+    vcf_mlst = directory + "/" + sample_name + "_mlst" + ".vcf"
+    os.system("gatk -R {} -T UnifiedGenotyper -glm BOTH -out_mode EMIT_ALL_SITES -I {} -o {} -nct 8" .format(sample_reference_mlst_location, sortedbam, vcf_mlst))
+
+    # Position 1629 was too close to the end of glk sequence.  Reads would not assemble properly to call possilbe SNP, therefore 100 bases of the gene were added.  Because of this all positions beyond this point are 100 more.  Same with position 1645 and 2693.
+
+    target_vcf_positions = [231, 297, 363, 398, 429, 523, 631, 730, 1247, 1296, 1342, 1381, 1648, 1685, 1741, 1754, 2165, 2224, 2227, 2297, 2300, 2344, 2352, 2403, 2530, 2557, 2578, 2629, 3045, 3054, 3118, 3295, 3328, 3388, 3966, 3969, 4167, 4271, 4296, 4893, 4996, 4998, 5058, 5248, 5672, 5737, 5928, 5963, 5984, 5987, 6025, 6045, 6498, 6499, 6572, 6627, 6715, 6735, 6745, 6785, 6810, 6828, 6845, 6864, 6875, 7382, 7432, 7464, 7594, 7660, 7756]
+
+    pos_call_dict={}
+    vcf_reader = vcf.Reader(open(vcf_mlst, 'r'))
+    for record in vcf_reader:
+        if record.ALT[0]:
+            pos_call_dict.update({record.POS:record.ALT[0]})
+        else:
+            pos_call_dict.update({record.POS:record.REF})
+
+    mlst_string=[]
+    for i in target_vcf_positions:
+        if i in pos_call_dict:
+            mlst_string.append(pos_call_dict[i]) #if number in list then get value
+    mlst_join =  ''.join(map(str, mlst_string))
+    print(mlst_join)
+
+    mlst_dictionary={}
+    mlst_dictionary["CTCCCGGGGCGACCCGATCGAAGCGGGAAGGCCACGGCGCGTGAGCAGCCGGGCATCTGTCCCGCGGGGTA"] = "MLST type 01"
+    mlst_dictionary["CTCCCGGGGCGACCCGAGCGAAGCGGGAAGGCCACGGCGCGTGAGCAGCCGGGCATCTGTCCCGCGGGGTA"] = "MLST type 02"
+    mlst_dictionary["CTCCCGTGGCGACCCGAGCGAAGCGGGAAGGCCACGGCGCGTGAGCAGCCGGGCATCTGTCCCGCGGGGTA"] = "MLST type 03"
+    mlst_dictionary["CTCCCGGGGCGACCCGAGCGAAGCGGGAAGGCCAAGGCGCGTGAGCAGCCGGGCATCTGTCCCGCGGGGTA"] = "MLST type 04"
+    mlst_dictionary["CTCCCGGGGCGACCCGATCGAAGCGGGAAGGCCACGGCGAGTGAGCAGCCGGGCATCTGTCCCGCGGGGTA"] = "MLST type 05"
+    mlst_dictionary["TTCCTGGGGCAACCCGAGCGAGGCAGGGAGGCCGCGGCTCGTGAGCGGTCGGGCATCTGTCCCGCGGGGTA"] = "MLST type 06"
+    mlst_dictionary["CTTCCTGGCCGAGCCGAGTGAAGGGGGGAGGCCACGGCGCGTGCTCGGCTGGGTACCTGTCTCGCGGTGCT"] = "MLST type 07"
+    mlst_dictionary["CTTCCTGGCCGACCCGAGTGAAGGGGGGAGGCCACGGCGCGTGCGCGGCTGGGTACCCGTCTCGCGGTGCT"] = "MLST type 08"
+    mlst_dictionary["CTTCCTGGCCGACCCGAGTGAAGGGGGGAGGCCACGGCGCGTGCGCGGCTGGGTACCTGTCTCGTGGTGCT"] = "MLST type 09"
+    mlst_dictionary["CTTCCTGGCCGACCCGAGTGAAGGGGGGGGGCCACGGCGCGTGCTCGGCTGGGTACCTGTCTCGCGGTGCT"] = "MLST type 10"
+    mlst_dictionary["CTTCCTGGCCGACCCGAGTGAAGGGGGGAGGCCACGGCGCGTGCGCGGCTGGGTACCTGTCTCGCGGTGCT"] = "MLST type 11"
+    mlst_dictionary["CTTCCTGGCCGACCCGAGTGAAGGGGGGAGGCCACGGCGCGTGCTCGGCTGGGTACCTGTCTCGCGGTGCT"] = "MLST type 12"
+    mlst_dictionary["CCCCCGGGCCGACTCGAGCGAAGCGAAGAGGCCACGGCGCGTGAGTGACCAGGCACCTATCCCACGGGGTA"] = "MLST type 13"
+    mlst_dictionary["CCCCCGGGCCGGCCCAAGCGAAGCGGGGAGGCTACAGTGCGTGAGTGGCCAGGCACCTGTCCCGCGGGGTA"] = "MLST type 14"
+    mlst_dictionary["CCCCCGGGCCGACCCGGGCGAAGCGGGGAGGCTACGGTGCGTGAGTGGCCAGGCACCTGTCCCGCGAGGTA"] = "MLST type 15"
+    mlst_dictionary["CCCCCGGCCCGACCCGGGCGAAGCGGGGAGGCTACGGTGCGTGAGTGGCCAGGCACCTGTCCCGCGAGGTA"] = "MLST type 16"
+    mlst_dictionary["CCCCCGGGCCGGCCCAAGCGAAGCGGGGAGGCTACAATGCGTGAGTGGCCAGGCACCTGTCCCGCAGGGTA"] = "MLST type 17"
+    mlst_dictionary["CCCCCGGGCCGGCCCAAGCGAAGCGGGGAGGCTACAATGCGTGAGTGGCCAGGCACCTGTCCCGCAGGCTA"] = "MLST type 18"
+    mlst_dictionary["CCCCCGGGCCGACCCGAGCGAAGCGGGGAGGACACGGCGCGTGAGTGGCCAGGCACCTGTCCCGCGGGGTA"] = "MLST type 19"
+    mlst_dictionary["CCCCCGGGCCGGCCCAAGCGAAGCGGGGAGGCTACAATGCGTGAGTGGCCAGGCACATGTCCCGCAGGGTA"] = "MLST type 20"
+    mlst_dictionary["CCCCCGGGCCGGCCCAAGCGAAGCGGGGAGGCTACAATGCGTGAGTGGCCAGGCACATGCCCCGCAGGGTA"] = "MLST type 21"
+    mlst_dictionary["CCCCCGGGCCGACCCGAGCGAGGCGGGGAGGCCACGGCGCGGGAGTGGCCAGACACCTGTCCTGCGGGGTA"] = "MLST type 22"
+    mlst_dictionary["CCCCCGGGCTGACCCGAGCGAAACGGGGAAGCCACGGCGCGTAAGTGGCCAGGCACCTGTCCCGCGGGGTA"] = "MLST type 23"
+    mlst_dictionary["CCCCCGGGCTGACCCGAGCGGAACGGGGAAGCCACGGCGCGTAAGTGGCCAGGCACCTGTCCCGCGGGGTA"] = "MLST type 23x"
+    mlst_dictionary["CCCCCGGGCCGACCCGAGCAAAGCGGGGAGGCCACGGCGCGTAAGTGGCCAGGCACCTGTCCCGCGGGGTA"] = "MLST type 24"
+    mlst_dictionary["CCCCCGGGCCGACCCGAGCGAAGCGGGGAGGCCACGGCGCGTAAGTGGCCAGGCACCTGTCCCGCGGGGTA"] = "MLST type 25"
+    mlst_dictionary["CCCCCGGGCCGACCCGAGCGAAGCGGGGAGGCCACGGCGCGTAAGTGGCCAAGCACCTGTTCCGCGGGGTA"] = "MLST type 26"
+    mlst_dictionary["CCCCCGGGCCGACCCGAGCGAAGCGGGGAGACCACGGCGCATAAGTGGCCAGGCACCTGTCCCGCGGGGTA"] = "MLST type 27"
+    mlst_dictionary["CCCTCGGGCCGACCTGAGCGAAGCGGGGAGACCACGGCGCATAAGTGGCCAGGCTCCTGTCCCGCGGGGTA"] = "MLST type 28"
+
     for i in fastqs: #remove unzipped fastq files to save space
         os.remove(i)
-    
-    genome_coverage = 0
-    total_coverage = total_length - total_zero_coverage
 
-def Bruc_Private_Codes(genotypingcodes):
-    found = False
-    if os.path.isfile("/Volumes/MB/Brucella/Brucella Logsheets/ALL_WGS.xlsx"):
-        private_location = "/Volumes/MB/Brucella/Brucella Logsheets/ALL_WGS.xlsx"
-        print("Copying single column genotype codes to:  %s" % genotypingcodes)
-        found = True
-
-    elif os.path.isfile("/fdrive/Brucella/Brucella Logsheets/ALL_WGS.xlsx"):
-        private_location = "/fdrive/Brucella/Brucella Logsheets/ALL_WGS.xlsx"
-        print("Copying single column genotype codes to:  %s" % genotypingcodes)
-        found = True
-
-    else:
-        print("Path to Brucella genotyping codes not found")
-
-    if found:
-        wb_out = xlsxwriter.Workbook(genotypingcodes)
-        ws_out = wb_out.add_worksheet()
-
-        wb_in = xlrd.open_workbook(private_location)
-
-        row = 0
-        col = 0
-
-        sheet_in = wb_in.sheet_by_index(1)
-        for row_data in sheet_in.col(32):
-            row_data = row_data.value
-            row_data = re.sub("/", "_", row_data)
-            row_data = re.sub("\.", "_", row_data)
-            row_data = re.sub("\*", "_", row_data)
-            row_data = re.sub("\?", "_", row_data)
-            row_data = re.sub("\(", "_", row_data)
-            row_data = re.sub("\)", "_", row_data)
-            row_data = re.sub("\[", "_", row_data)
-            row_data = re.sub("\]", "_", row_data)
-            row_data = re.sub(" ", "_", row_data)
-            row_data = re.sub("{", "_", row_data)
-            row_data = re.sub("}", "_", row_data)
-            row_data = re.sub("\'", "_", row_data)
-            row_data = re.sub("-_", "_", row_data)
-            row_data = re.sub("_-", "_", row_data)
-            row_data = re.sub("--", "_", row_data)
-            row_data = re.sub("_$", "", row_data)
-            row_data = re.sub("-$", "", row_data)
-            row_data = re.sub("\'", "", row_data)
-            row_data = str(row_data)
-
-            ws_out.write(row, col, row_data)
-            row += 1
-
-        wb_out.close()
-
-def Get_Filters(self, excelinfile, filter_files):
-    for i in glob.glob(filter_files + "/*"):
+    remove_files = glob.glob('ST1-MLST*')
+    for i in remove_files:
+        os.remove(i)
+    remove_files = glob.glob('*-mlst*')
+    for i in remove_files:
+        os.remove(i)
+    remove_files = glob.glob('*_mlst.vcf.idx')
+    for i in remove_files:
         os.remove(i)
 
-    wb = xlrd.open_workbook(excelinfile)
-    sheets = wb.sheet_names()
-    for sheet in sheets:
-        ws = wb.sheet_by_name(sheet)
-
-        myrange = lambda start, end: range(start, end+1)
-
-        for colnum in range(ws.ncols): # for each column in worksheet
-            file_out = filter_files + "/" + ws.col_values(colnum)[0] + ".txt" # column header naming file
-            write_out = open (file_out, 'at')
-            mylist = ws.col_values(colnum)[1:] # list of each field in column, minus the header
-            mylist = [x for x in mylist if x] # remove blank cells
-            for value in mylist:
-                value = str(value)
-                value = value.replace(sheet + "-", '')
-                if "-" not in value:
-                    value=int(float(value)) # change str to float to int
-                    print (sheet + "-" + str(value), file=write_out)
-                elif "-" in value:
-                    value = value.split("-")
-                    for i in range(int(value[0]), int(value[1]) + 1 ):
-                        print (sheet + "-" + str(i), file=write_out)
+    write_out = open("mlst.txt", 'w')
+    
+    if mlst_join in mlst_dictionary:
+        mlst_type = mlst_dictionary[mlst_join]
+        print(mlst_type)
+        print(mlst_type, file=write_out)
+    else:
+        print("NO MLST MATCH FOUND\n")
+        print("NO MLST MATCH FOUND", file=write_out)
+    
     write_out.close()
+
+def finding_sp(v):
+    total=0
+    total_finds=0
+    #if total < 6: # doesn't make a big different.  Might as well get full counts
+    # total += sum(seq.count(x) for x in (v)) #v=list of for and rev spacer
+    total_finds = [len(regex.findall("(" + spacer + "){s<=1}", seq_string)) for spacer in v]
+    for number in total_finds:
+        total += number
+    return(v, total)
+
+def binary_to_octal(binary):
+    binary_len = len(binary)
+    i = 0
+    ie = 1
+    octal = ""
+    while ie < 43:
+        ie = i + 3
+        print(binary[i:ie])
+        region = binary[i:ie]
+        region_len = len(region)
+        i += 3
+        if int(region[0]) == 1:
+            if region_len < 2: # for the lone spacer 43.  When present needs to be 1 not 4.
+                oct = 1
+            else:
+                oct = 4
+        else:
+            oct = 0
+        try:
+            if int(region[1]) == 1:
+                oct += 2
+            if int(region[2]) == 1:
+                oct += 1
+        except IndexError:
+            pass
+        octal = octal + str(oct)
+    return(octal)
+
+def binary_to_hex(binary):
+    section1 = binary[0:7]
+    section2 = binary[7:14]
+    section3 = binary[14:21]
+    section4 = binary[21:28]
+    section5 = binary[28:36]
+    section6 = binary[36:43]
+
+    hex_section1 = hex(int(section1, 2))
+    hex_section2 = hex(int(section2, 2))
+    hex_section3 = hex(int(section3, 2))
+    hex_section4 = hex(int(section4, 2))
+    hex_section5 = hex(int(section5, 2))
+    hex_section6 = hex(int(section6, 2))
+
+    return(hex_section1.replace('0x', '').upper() + "-" + hex_section2.replace('0x', '').upper() + "-" + hex_section3.replace('0x', '').upper() + "-" + hex_section4.replace('0x', '').upper() + "-" + hex_section5.replace('0x', '').upper() + "-" + hex_section6.replace('0x', '').upper())
+
+def spoligo(R1unzip, R2unzip):
+    
+    print("\nFinding spoligotype pattern...\n")
+    
+    '''spoligo spacers'''
+    spoligo_dictionary = {}
+    spoligo_dictionary["spacer01"] = ["TGATCCAGAGCCGGCGACCCTCTAT", "ATAGAGGGTCGCCGGCTCTGGATCA"]
+    spoligo_dictionary["spacer02"] = ["CAAAAGCTGTCGCCCAAGCATGAGG", "CCTCATGCTTGGGCGACAGCTTTTG"]
+    spoligo_dictionary["spacer03"] = ["CCGTGCTTCCAGTGATCGCCTTCTA", "TAGAAGGCGATCACTGGAAGCACGG"]
+    spoligo_dictionary["spacer04"] = ["ACGTCATACGCCGACCAATCATCAG", "CTGATGATTGGTCGGCGTATGACGT"]
+    spoligo_dictionary["spacer05"] = ["TTTTCTGACCACTTGTGCGGGATTA", "TAATCCCGCACAAGTGGTCAGAAAA"]
+    spoligo_dictionary["spacer06"] = ["CGTCGTCATTTCCGGCTTCAATTTC", "GAAATTGAAGCCGGAAATGACGACG"]
+    spoligo_dictionary["spacer07"] = ["GAGGAGAGCGAGTACTCGGGGCTGC", "GCAGCCCCGAGTACTCGCTCTCCTC"]
+    spoligo_dictionary["spacer08"] = ["CGTGAAACCGCCCCCAGCCTCGCCG", "CGGCGAGGCTGGGGGCGGTTTCACG"]
+    spoligo_dictionary["spacer09"] = ["ACTCGGAATCCCATGTGCTGACAGC", "GCTGTCAGCACATGGGATTCCGAGT"]
+    spoligo_dictionary["spacer10"] = ["TCGACACCCGCTCTAGTTGACTTCC", "GGAAGTCAACTAGAGCGGGTGTCGA"]
+    spoligo_dictionary["spacer11"] = ["GTGAGCAACGGCGGCGGCAACCTGG", "CCAGGTTGCCGCCGCCGTTGCTCAC"]
+    spoligo_dictionary["spacer12"] = ["ATATCTGCTGCCCGCCCGGGGAGAT", "ATCTCCCCGGGCGGGCAGCAGATAT"]
+    spoligo_dictionary["spacer13"] = ["GACCATCATTGCCATTCCCTCTCCC", "GGGAGAGGGAATGGCAATGATGGTC"]
+    spoligo_dictionary["spacer14"] = ["GGTGTGATGCGGATGGTCGGCTCGG", "CCGAGCCGACCATCCGCATCACACC"]
+    spoligo_dictionary["spacer15"] = ["CTTGAATAACGCGCAGTGAATTTCG", "CGAAATTCACTGCGCGTTATTCAAG"]
+    spoligo_dictionary["spacer16"] = ["CGAGTTCCCGTCAGCGTCGTAAATC", "GATTTACGACGCTGACGGGAACTCG"]
+    spoligo_dictionary["spacer17"] = ["GCGCCGGCCCGCGCGGATGACTCCG", "CGGAGTCATCCGCGCGGGCCGGCGC"]
+    spoligo_dictionary["spacer18"] = ["CATGGACCCGGGCGAGCTGCAGATG", "CATCTGCAGCTCGCCCGGGTCCATG"]
+    spoligo_dictionary["spacer19"] = ["TAACTGGCTTGGCGCTGATCCTGGT", "ACCAGGATCAGCGCCAAGCCAGTTA"]
+    spoligo_dictionary["spacer20"] = ["TTGACCTCGCCAGGAGAGAAGATCA", "TGATCTTCTCTCCTGGCGAGGTCAA"]
+    spoligo_dictionary["spacer21"] = ["TCGATGTCGATGTCCCAATCGTCGA", "TCGACGATTGGGACATCGACATCGA"]
+    spoligo_dictionary["spacer22"] = ["ACCGCAGACGGCACGATTGAGACAA", "TTGTCTCAATCGTGCCGTCTGCGGT"]
+    spoligo_dictionary["spacer23"] = ["AGCATCGCTGATGCGGTCCAGCTCG", "CGAGCTGGACCGCATCAGCGATGCT"]
+    spoligo_dictionary["spacer24"] = ["CCGCCTGCTGGGTGAGACGTGCTCG", "CGAGCACGTCTCACCCAGCAGGCGG"]
+    spoligo_dictionary["spacer25"] = ["GATCAGCGACCACCGCACCCTGTCA", "TGACAGGGTGCGGTGGTCGCTGATC"]
+    spoligo_dictionary["spacer26"] = ["CTTCAGCACCACCATCATCCGGCGC", "GCGCCGGATGATGGTGGTGCTGAAG"]
+    spoligo_dictionary["spacer27"] = ["GGATTCGTGATCTCTTCCCGCGGAT", "ATCCGCGGGAAGAGATCACGAATCC"]
+    spoligo_dictionary["spacer28"] = ["TGCCCCGGCGTTTAGCGATCACAAC", "GTTGTGATCGCTAAACGCCGGGGCA"]
+    spoligo_dictionary["spacer29"] = ["AAATACAGGCTCCACGACACGACCA", "TGGTCGTGTCGTGGAGCCTGTATTT"]
+    spoligo_dictionary["spacer30"] = ["GGTTGCCCCGCGCCCTTTTCCAGCC", "GGCTGGAAAAGGGCGCGGGGCAACC"]
+    spoligo_dictionary["spacer31"] = ["TCAGACAGGTTCGCGTCGATCAAGT", "ACTTGATCGACGCGAACCTGTCTGA"]
+    spoligo_dictionary["spacer32"] = ["GACCAAATAGGTATCGGCGTGTTCA", "TGAACACGCCGATACCTATTTGGTC"]
+    spoligo_dictionary["spacer33"] = ["GACATGACGGCGGTGCCGCACTTGA", "TCAAGTGCGGCACCGCCGTCATGTC"]
+    spoligo_dictionary["spacer34"] = ["AAGTCACCTCGCCCACACCGTCGAA", "TTCGACGGTGTGGGCGAGGTGACTT"]
+    spoligo_dictionary["spacer35"] = ["TCCGTACGCTCGAAACGCTTCCAAC", "GTTGGAAGCGTTTCGAGCGTACGGA"]
+    spoligo_dictionary["spacer36"] = ["CGAAATCCAGCACCACATCCGCAGC", "GCTGCGGATGTGGTGCTGGATTTCG"]
+    spoligo_dictionary["spacer37"] = ["CGCGAACTCGTCCACAGTCCCCCTT", "AAGGGGGACTGTGGACGAGTTCGCG"]
+    spoligo_dictionary["spacer38"] = ["CGTGGATGGCGGATGCGTTGTGCGC", "GCGCACAACGCATCCGCCATCCACG"]
+    spoligo_dictionary["spacer39"] = ["GACGATGGCCAGTAAATCGGCGTGG", "CCACGCCGATTTACTGGCCATCGTC"]
+    spoligo_dictionary["spacer40"] = ["CGCCATCTGTGCCTCATACAGGTCC", "GGACCTGTATGAGGCACAGATGGCG"]
+    spoligo_dictionary["spacer41"] = ["GGAGCTTTCCGGCTTCTATCAGGTA", "TACCTGATAGAAGCCGGAAAGCTCC"]
+    spoligo_dictionary["spacer42"] = ["ATGGTGGGACATGGACGAGCGCGAC", "GTCGCGCTCGTCCATGTCCCACCAT"]
+    spoligo_dictionary["spacer43"] = ["CGCAGAATCGCACCGGGTGCGGGAG", "CTCCCGCACCCGGTGCGATTCTGCG"]
+
+    count_summary={}
+
+    global seq_string
+    sequence_list = []
+    for fastq in R1unzip, R2unzip:
+        with open(fastq) as in_handle:
+            # all 3, title and seq and qual, were needed
+            for title, seq, qual in FastqGeneralIterator(in_handle):
+                sequence_list.append(seq)
+    seq_string = "".join(sequence_list)
+
+    with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool: #max_workers=4
+        for v, count in pool.map(finding_sp, spoligo_dictionary.values()):
+            for k, value in spoligo_dictionary.items():
+                if v == value:
+                    count_summary.update({k:count})
+                    count_summary=OrderedDict(sorted(count_summary.items()))
+    seq_string = ""
+
+    spoligo_binary_dictionary={}
+    for k, v in count_summary.items():
+        if v > 4:
+            spoligo_binary_dictionary.update({k:1})
+        else:
+            spoligo_binary_dictionary.update({k:0})
+    spoligo_binary_dictionary=OrderedDict(sorted(spoligo_binary_dictionary.items()))
+    
+    spoligo_binary_list=[]
+    for v in spoligo_binary_dictionary.values():
+        spoligo_binary_list.append(v)
+    bovis_string=''.join(str(e) for e in spoligo_binary_list) #bovis_string correct
+    hexadecimal = binary_to_hex(bovis_string)
+    
+    write_out = open("spoligo.txt", 'w')
+    
+    found = False
+    with open(spoligo_db) as f: # put into dictionary or list
+        for line in f:
+            line=line.rstrip()
+            octalcode = line.split()[0] #no arg splits on whitespace
+            sbcode = line.split()[1]
+            binarycode = line.split()[2]
+            if bovis_string == '0000000000000000000000000000000000000000000':
+                found=True
+                octalcode = "spoligo not found"
+                sbcode = "spoligo not found"
+                hexadecimal = "SB2277 ???"
+                binarycode = "0000000000000000000000000000000000000000000"
+                print("CHECK SAMPLE!  NO SPACERS FOUND.  LIKELY NOT TB COMPLEX.  ALTHOUGH SB2277 IS A ZERO STRING BINARY\n")
+                print("CHECK SAMPLE!  NO SPACERS FOUND.  LIKELY NOT TB COMPLEX.  ALTHOUGH SB2277 IS A ZERO STRING BINARY", file=write_out)
+                print("\nOne mismatch allowed spacers search against both R1 and R2 reads.\n", file=write_out)
+                for k, v in count_summary.items():
+                    print(k, v, file=write_out)
+            elif bovis_string == binarycode:
+                found=True
+                print("Pattern found:")
+                print("%s %s %s %s" % (octalcode, sbcode, hexadecimal, binarycode))
+                print("%s %s %s %s" % (octalcode, sbcode, hexadecimal, binarycode), file=write_out)
+                print("\One mismatch allowed spacer search against both R1 and R2 reads.\n", file=write_out)
+                for k, v in count_summary.items():
+                    print(k, v, file=write_out)
+    if not found:
+        octal = binary_to_octal(bovis_string)
+        sbcode = "N/A"
+        print("%s %s %s %s" % (octal, sbcode, hexadecimal, bovis_string))
+        print("%s %s %s %s" % (octal, sbcode, hexadecimal, bovis_string), file=write_out)
+        print("SPOLIGO SB NUMBER NOT FOUND\n")
+        print("\nSPOLIGO SB NUMBER NOT FOUND\n", file=write_out)
+        print("\nOne mismatch allowed spacer search against both R1 and R2 reads.\n", file=write_out)
+        
+        for k, v in count_summary.items():
+            print(k, v, file=write_out)
+
+    print("bovis_string: %s" % bovis_string, file=write_out)
+    print("binarycode  : %s" % binarycode, file=write_out)
+
+    for i in fastqs: #remove unzipped fastq files to save space
+        os.remove(i)
+        
+    write_out.close()
+
+
+
+
 
 def send_email(email_list):
     text = "See attached:  "
@@ -1492,7 +2024,6 @@ def group_files(each_vcf):
         group_calls = the_sample_name
     return dict_amb, group_calls, mal
 
-
 def get_species():
     #species = corresponding NCBI accession
     species_cross_reference = {}
@@ -2085,373 +2616,6 @@ def run_script2():
 
     htmlfile.close()
 
-def align_reads(self):
-    if self.species == "NO FINDINGS":
-        read_base = os.path.basename(R1)
-        sample_name=re.sub('_.*', '', read_base)
-        R1size = script1.sizeof_fmt(os.path.getsize(R1))
-        R2size = script1.sizeof_fmt(os.path.getsize(R2))
-        stat_summary = {}
-        stat_summary["time_stamp"] = st
-        stat_summary["sample_name"] = sample_name
-        stat_summary["self.species"] = "NOT_FOUND"
-        stat_summary["reference_sequence_name"] = "N/A"
-        stat_summary["R1size"] = R1size
-        stat_summary["R2size"] = R2size
-        stat_summary["allbam_mapped_reads"] = "CHECK SAMPLE *****************************************"
-        return(stat_summary)
-    else:
-        startTime = datetime.now()
-        print ("\n\n*** START ***\n")
-        print ("Start time: %s" % startTime)
-
-        read_base = os.path.basename(R1)
-        sample_name=re.sub('_.*', '', read_base)
-
-        sample_reference=glob.glob(directory + '/*fasta')
-        hqs=glob.glob(directory + '/*vcf')
-        
-        print("self.species: %s" % self.species)
-        if self.species in ["ab1", "ab3", "suis1", "suis3", "suis4", "mel1", "mel1b", "mel2", "mel3", "canis", "ceti1", "ceti2"]:
-            print("Brucella")
-            self.mlst()
-        elif self.species in ["h37", "af"]: #removed bovis
-            print("TB")
-            self.spoligo()
-        
-        print ("reference: %s" % sample_reference)
-        ref=re.sub('\.fasta', '', os.path.basename(sample_reference[0]))
-        if len(sample_reference) != 1:
-            print("### ERROR reference not available or too many")
-            sys.exit(0)
-        if len(hqs) != 1:
-            print("### ERROR high quality snps not available or too many")
-            sys.exit(0)
-        sample_reference=sample_reference[0]
-        hqs=hqs[0]
-        
-        print ("--")
-        print("sample name: %s" % sample_name)
-        print("sample reference: %s" % sample_reference)
-        print("Read 1: %s" % R1)
-        print("Read 2: %s\n" % R2)
-        print("directory: %s" % directory)
-        print ("--")
-
-        loc_sam=directory + "/" + sample_name
-        
-        os.system("samtools faidx {}" .format(sample_reference))
-        os.system("picard CreateSequenceDictionary REFERENCE={} OUTPUT={}" .format(sample_reference, directory + "/" + ref + ".dict"))
-        os.system("bwa index {}" .format(sample_reference))
-        samfile = loc_sam + ".sam"
-        allbam = loc_sam + "-all.bam"
-        unmapsam = loc_sam + "-unmapped.sam"
-        unmapped_read1 = loc_sam + "-unmapped_R1.fastq"
-        unmapped_read2 = loc_sam + "-unmapped_R2.fastq"
-        unmapped_read1gz = loc_sam + "-unmapped_R1.fastq.gz"
-        unmapped_read2gz = loc_sam + "-unmapped_R2.fastq.gz"
-        abyss_out = loc_sam + "-unmapped_contigs.fasta"
-        sortedbam = loc_sam + "-sorted.bam"
-        nodupbam = loc_sam + "-nodup.bam"
-        metrics = loc_sam + "-metrics.txt"
-        indel_realigner = loc_sam + ".intervals"
-        realignedbam = loc_sam + "-realigned.bam"
-        recal_group = loc_sam + "-recal_group"
-        prebam=loc_sam + "-pre.bam"
-        qualitybam = loc_sam + "-quality.bam"
-        coverage_file=loc_sam + "-coverage.txt"
-        hapall = loc_sam + "-hapall.vcf"
-        bamout = loc_sam + "-bamout.bam"
-        
-        print("\n@@@ BWA mem")
-        os.system("bwa mem -M -t 16 {} {} {} > {}" .format(sample_reference, R1, R2, samfile))
-
-        print("\nAdd read group and out all BAM")
-        os.system("picard AddOrReplaceReadGroups INPUT={} OUTPUT={} RGLB=lib1 RGPU=unit1 RGSM={} RGPL=illumina" .format(samfile, allbam, sample_name))
-        os.system("samtools index {}" .format(allbam))
-
-        print("\n@@@ Samtools unmapped")
-        os.system("samtools view -h -f4 -T {} {} -o {}" .format(sample_reference, allbam, unmapsam))
-
-        print("\n@@@ Unmapped to FASTQ")
-        os.system("picard SamToFastq INPUT={} FASTQ={} SECOND_END_FASTQ={}" .format(unmapsam, unmapped_read1, unmapped_read2))
-        
-        print("\n@@@ Abyss")
-        abyss_contig_count=0
-
-        os.system("ABYSS --out {} --coverage 5 --kmer 64 {} {}" .format(abyss_out, unmapped_read1, unmapped_read2))
-        try:
-            with open(abyss_out) as f:
-                for line in f:
-                    abyss_contig_count += line.count(">")
-        except FileNotFoundError:
-            abyss_contig_count = 0
-
-        print("\n@@@ Sort BAM")
-        os.system("samtools sort {} -o {}" .format(allbam, sortedbam))
-        os.system("samtools index {}" .format(sortedbam))
-        
-        print("\n@@@ Write stats to file")
-        stat_file = "stat_align.txt"
-        stat_out = open(stat_file, 'w')
-        #os.system("samtools idxstats {} > {}" .format(sortedbam, stat_out)) Doesn't work when needing to std out.
-        stat_out.write(os.popen("samtools idxstats {} " .format(sortedbam)).read())
-        stat_out.close()
-
-        with open(stat_file) as f:
-            first_line = f.readline()
-            first_line = first_line.rstrip()
-            first_line=re.split(':|\t', first_line)
-            reference_sequence_name = str(first_line[0])
-            sequence_length = "{:,}".format(int(first_line[1]))
-            allbam_mapped_reads = int(first_line[2])
-            allbam_unmapped_reads = "{:,}".format(int(first_line[3]))
-
-        print("\n@@@ Find duplicate reads")
-        os.system("picard MarkDuplicates INPUT={} OUTPUT={} METRICS_FILE={} ASSUME_SORTED=true REMOVE_DUPLICATES=true" .format(sortedbam, nodupbam, metrics))
-        os.system("samtools index {}" .format(nodupbam))
-        
-        duplicate_stat_file = "duplicate_stat_align.txt"
-        duplicate_stat_out = open(duplicate_stat_file, 'w')
-        #os.system("samtools idxstats {} > {}" .format(sortedbam, stat_out)) Doesn't work when needing to std out.
-        duplicate_stat_out.write(os.popen("samtools idxstats {} " .format(nodupbam)).read())
-        duplicate_stat_out.close()
-        with open(duplicate_stat_file) as f:
-            dup_first_line = f.readline()
-            dup_first_line = dup_first_line.rstrip()
-            dup_first_line=re.split(':|\t', dup_first_line)
-            nodupbam_mapped_reads = int(dup_first_line[2])
-            nodupbam_unmapped_reads = int(dup_first_line[3])
-        try:
-            unmapped_reads = allbam_mapped_reads - nodupbam_mapped_reads
-        except:
-            unmapped_reads = "none_found"
-        
-        allbam_mapped_reads = "{:,}".format(allbam_mapped_reads)
-        print(unmapped_reads)
-
-        print("\n@@@  Realign indels")
-        os.system("gatk -T RealignerTargetCreator -I {} -R {} -o {}" .format(nodupbam, sample_reference, indel_realigner))
-        if not os.path.isfile(indel_realigner):
-            os.system("gatk -T RealignerTargetCreator --fix_misencoded_quality_scores -I {} -R {} -o {}" .format(nodupbam, sample_reference, indel_realigner))
-        os.system("gatk -T IndelRealigner -I {} -R {} -targetIntervals {} -o {}" .format(nodupbam, sample_reference, indel_realigner, realignedbam))
-        if not os.path.isfile(realignedbam):
-            os.system("gatk -T IndelRealigner --fix_misencoded_quality_scores -I {} -R {} -targetIntervals {} -o {}" .format(nodupbam, sample_reference, indel_realigner, realignedbam))
-
-        print("\n@@@ Base recalibration")
-        os.system("gatk -T BaseRecalibrator -I {} -R {} -knownSites {} -o {}". format(realignedbam, sample_reference, hqs, recal_group))
-        if not os.path.isfile(realignedbam):
-            os.system("gatk -T BaseRecalibrator  --fix_misencoded_quality_scores -I {} -R {} -knownSites {} -o {}". format(realignedbam, sample_reference, hqs, recal_group))
-
-        print("\n@@@ Make realigned BAM")
-        os.system("gatk -T PrintReads -R {} -I {} -BQSR {} -o {}" .format (sample_reference, realignedbam, recal_group, prebam))
-        if not os.path.isfile(prebam):
-            os.system("gatk -T PrintReads  --fix_misencoded_quality_scores -R {} -I {} -BQSR {} -o {}" .format (sample_reference, realignedbam, recal_group, prebam))
-
-        print("\n@@@ Clip reads")
-        os.system("gatk -T ClipReads -R {} -I {} -o {} -filterNoBases -dcov 10" .format(sample_reference, prebam, qualitybam))
-        os.system("samtools index {}" .format(qualitybam))
-
-        print("\n@@@ Depth of coverage using GATK")
-        os.system("gatk -T DepthOfCoverage -R {} -I {} -o {} -omitIntervals --omitLocusTable --omitPerSampleStats -nt 8" .format(sample_reference, prebam, coverage_file))
-
-        print("\n@@@ Calling SNPs with HaplotypeCaller")
-        os.system("gatk -R {} -T HaplotypeCaller -I {} -o {} -bamout {} -dontUseSoftClippedBases -allowNonUniqueKmersInRef" .format(sample_reference, qualitybam, hapall, bamout))
-
-        try: 
-            print("Getting Zero Coverage...\n")
-            zero_coverage_vcf, good_snp_count, ave_coverage, genome_coverage = script1.add_zero_coverage(coverage_file, hapall, loc_sam)
-        except FileNotFoundError:
-            print("#### ALIGNMENT ERROR, NO COVERAGE FILE: %s" % sample_name)
-            text = "ALIGNMENT ERROR, NO COVERAGE FILE " + sample_name
-            msg = MIMEMultipart()
-            msg['From'] = "tod.p.stuber@aphis.usda.gov"
-            msg['To'] = "tod.p.stuber@aphis.usda.gov"
-            msg['Date'] = formatdate(localtime = True)
-            msg['Subject'] = "### No coverage file"
-            msg.attach(MIMEText(text))
-            smtp = smtplib.SMTP('10.10.8.12')
-            smtp.send_message(msg)
-            smtp.quit()
-
-            # process_id = os.getpid()
-            # os.kill(process_id, signal.SIGKILL)
-
-        ###
-        if gbk_file is not "None":
-            try:
-                in_annotation_as_dict = SeqIO.to_dict(SeqIO.parse(gbk_file, "genbank"))
-                annotated_vcf = loc_sam + "-annotated.vcf"
-                write_out=open(annotated_vcf, 'w')
-                
-                with open(zero_coverage_vcf) as vfile:
-                    print("finding annotations...\n")
-                    for line in vfile:
-                        annotated_line = script1.get_annotations(line, in_annotation_as_dict)
-                        print("%s" % annotated_line, file=write_out)
-                write_out.close()
-            except AttributeError:
-                pass
-
-        os.remove(coverage_file)
-        os.remove(samfile)
-        os.remove(allbam)
-        os.remove(nodupbam)
-        os.remove(nodupbam + ".bai")
-        os.remove(unmapsam)
-        os.remove(sortedbam)
-        os.remove(sortedbam + ".bai")
-        os.remove(indel_realigner)
-        os.remove(realignedbam)
-        os.remove(loc_sam + "-realigned.bai")
-        os.remove(recal_group)
-        os.remove(prebam)
-        os.remove(loc_sam + "-pre.bai")
-        os.remove(hqs)
-        os.remove(hqs + ".idx")
-        os.remove(sample_reference + ".amb")
-        os.remove(sample_reference + ".ann")
-        os.remove(sample_reference + ".bwt")
-        os.remove(sample_reference + ".pac")
-        os.remove(sample_reference + ".sa")
-        os.remove(ref + ".dict")
-        os.remove(duplicate_stat_file)
-        os.remove(stat_file)
-
-        unmapped = directory + "/unmapped"
-        os.makedirs(unmapped)
-
-        newZip = zipfile.ZipFile(unmapped_read1gz, 'w')
-        newZip.write(unmapped_read1, compress_type=zipfile.ZIP_DEFLATED)
-        newZip.close()
-        newZip = zipfile.ZipFile(unmapped_read2gz, 'w')
-        newZip.write(unmapped_read2, compress_type=zipfile.ZIP_DEFLATED)
-        newZip.close()
-        os.remove(unmapped_read1)
-        os.remove(unmapped_read2)
-        
-        try:
-            shutil.move(unmapped_read1gz, unmapped)
-            shutil.move(unmapped_read2gz, unmapped)
-            shutil.move(abyss_out, unmapped)
-        except FileNotFoundError:
-            pass
-        
-        alignment = directory + "/alignment"
-        os.makedirs(alignment)
-        movefiles = glob.glob('*-*')
-        for i in movefiles:
-            shutil.move(i, alignment)
-        try:
-            shutil.move(sample_reference, alignment)
-            shutil.move(sample_reference + ".fai", alignment)
-        except shutil.Error:
-            pass
-        except FileNotFoundError:
-            pass
-        except FileExistsError:
-            pass
-
-        runtime = (datetime.now() - startTime)
-        print ("\n\nruntime: %s:  \n" % runtime)
-        ave_coverage = "{:0.1f}".format(float(ave_coverage))
-        print("average_coverage: %s" % ave_coverage)
-
-        R1size = script1.sizeof_fmt(os.path.getsize(R1))
-        R2size = script1.sizeof_fmt(os.path.getsize(R2))
-
-        try:
-            with open("mlst.txt") as f:
-                first_line = f.readline()
-                mlst_type = first_line.rstrip()
-                first_line = first_line.split()
-                mlst_type = first_line[1:]
-                mlst_type = '-'.join(mlst_type)
-        except FileNotFoundError:
-            mlst_type = "N/A"
-
-        try:
-            with open("spoligo.txt") as f:
-                first_line = f.readline()
-                first_line = first_line.rstrip()
-                first_line = first_line.split()
-                octalcode = first_line[0]
-                sbcode = first_line[1]
-                hexcode = first_line[2]
-                binarycode = first_line[3]
-        except FileNotFoundError:
-            octalcode = "N/A"
-            sbcode = "N/A"
-            hexcode = "N/A"
-            binarycode = "N/A"
-            
-        #Capture program versions for step 1
-        try:
-            verison_out = open("version_capture.txt", 'w')
-            print(os.popen('conda list bwa | grep -v "^#"; \
-                conda list abyss | grep -v "^#"; \
-                conda list picard | grep -v "^#"; \
-                conda list samtools | grep -v "^#"; \
-                conda list gatk | grep -v "^#"; \
-                conda list biopython | grep -v "^#"').read(), file=verison_out)
-            verison_out.close()
-        except:
-            pass
-
-        sequence_count = 0
-        total_length = 0
-        with gzip.open(R2, "rt") as handle:
-            for r in SeqIO.parse(handle, "fastq"):
-                total_length = total_length + len(r.seq)
-                sequence_count = sequence_count + 1
-        ave_read_length = total_length/sequence_count
-        ave_read_length = "{:0.1f}".format(float(ave_read_length))
-
-        ts = time.time()
-        st = datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H-%M-%S')
-
-        stat_summary={}
-        stat_summary["time_stamp"] = st
-        stat_summary["sample_name"] = sample_name
-        stat_summary["self.species"] = self.species
-        stat_summary["reference_sequence_name"] = reference_sequence_name
-        stat_summary["R1size"] = R1size
-        stat_summary["R2size"] = R2size
-        stat_summary["allbam_mapped_reads"] = allbam_mapped_reads
-        stat_summary["genome_coverage"] = genome_coverage
-        stat_summary["ave_coverage"] = ave_coverage
-        stat_summary["ave_read_length"] = ave_read_length
-        stat_summary["unmapped_reads"] = unmapped_reads
-        stat_summary["unmapped_assembled_contigs"] = abyss_contig_count
-        stat_summary["good_snp_count"] = good_snp_count
-        stat_summary["mlst_type"] = mlst_type
-        stat_summary["octalcode"] = octalcode
-        stat_summary["sbcode"] = sbcode
-        stat_summary["hexadecimal_code"] = hexcode
-        stat_summary["binarycode"] = binarycode
-
-        for k, v in stat_summary.items():
-            print("%s: %s" % (k, v))
-        
-        ###
-        # Create a sample stats file in the sample's script1 directory
-        summary_file = loc_sam + "_" + st + '.xlsx'
-        workbook = xlsxwriter.Workbook(summary_file)
-        worksheet = workbook.add_worksheet()
-        row = 0
-        col = 0
-
-        top_row_header = ["time_stamp", "sample_name", "self.species", "reference_sequence_name", "R1size", "R2size", "allbam_mapped_reads", "genome_coverage", "ave_coverage", "ave_read_length", "unmapped_reads", "unmapped_assembled_contigs", "good_snp_count", "mlst_type", "octalcode", "sbcode", "hexadecimal_code", "binarycode"]
-        for header in top_row_header:
-            worksheet.write(row, col, header)
-            col += 1
-        col = 0
-        row += 1
-        for v in stat_summary.values():
-                worksheet.write(row, col, v)
-                col += 1
-        workbook.close()
-
 def add_zero_coverage(coverage_in, vcf_file, loc_sam):
     
     temp_vcf = loc_sam + "-temp.vcf"
@@ -2584,33 +2748,6 @@ def sizeof_fmt(num, suffix='B'):
         num /= 1024.0
     return "%.1f%s%s" % (num, 'Yi', suffix)
 
-def unzipfiles(): # don't "self" if called from within
-    try:
-        for zip_filename in R1, R2:
-            print("Unzipping... %s" % zip_filename)
-            name_nogz = os.path.splitext(zip_filename)[0]
-            write_out = open(name_nogz, 'wt')
-            with gzip.open(zip_filename, 'rt') as f:
-                file_content = f.read()
-                print(file_content, file=write_out)
-            write_out.close()
-    except OSError:
-        print("#### ZIP FILE APPEARS TO HAVE AN ERROR: %s" % zip_filename)
-        text = "ZIP FILE APPEARS TO HAVE AN ERROR: " + zip_filename
-        msg = MIMEMultipart()
-        msg['From'] = "tod.p.stuber@aphis.usda.gov"
-        msg['To'] = "tod.p.stuber@aphis.usda.gov"
-        msg['Date'] = formatdate(localtime = True)
-        msg['Subject'] = "###fastq.gz unzipping problem"
-        msg.attach(MIMEText(text))
-        smtp = smtplib.SMTP('10.10.8.12')
-        smtp.send_message(msg)
-        smtp.quit()
-
-        for zip_filename in R1, R2:
-            os.remove(zip_filename)
-        os.rename("zips", "zips_currupt")
-
 def get_annotations(line, in_annotation_as_dict): #for line in vfile
     #pos_found = False
     line=line.rstrip()
@@ -2648,343 +2785,62 @@ def get_annotations(line, in_annotation_as_dict): #for line in vfile
             split_line[2] = annotation_found
             annotated_line = "\t".join(split_line)
             return(annotated_line)
-
-def finding_best_ref(v):
-    count=0
-    for fastq in R1unzip, R2unzip:
-        with open(fastq) as in_handle:
-            # all 3, title and seq and qual, were needed
-            for title, seq, qual in FastqGeneralIterator(in_handle):
-                count += seq.count(v)
-    return(v, count)
         
-def mlst(self):
+#               def iterating_dirs(run_list):
+        #     frames = []
+        #     if debug_call: #run just one sample at a time to debug
+        #         for single_directory in run_list:
+        #             print("DEBUGGING, SAMPLES RAN INDIVIDUALLY")
+        #             stat_summary = read_aligner(single_directory, species_call)
+        #             return stat_summary
+        #             # df_stat_summary = pd.DataFrame.from_dict(stat_summary, orient='index') #convert stat_summary to df
+        #             # frames.append(df_stat_summary) #frames to concatenate
+        #             # col = 0
+        #             # row += 1
+        #             # for v in stat_summary.values():
+        #             #     worksheet.write(row, col, v)
+        #             #     col += 1
+        #             # os.chdir(root_dir)
+        #     else: # run all in run_list in parallel
+        #         print("SAMPLES RAN IN PARALLEL")
+        #         with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool: #max_workers=cpu_count
+        #             for stat_summary in pool.map(read_aligner, run_list): #run in parallel run_list in read_aligner (script1)
+#                 return stat_summary
 
-    fastqs = glob.glob(zips + '/*.fastq')
-    if len(fastqs) < 2:
-        script1.unzipfiles()
-    fastqs = glob.glob(zips + '/*.fastq')
-    
-    #https://bmcmicrobiol.biomedcentral.com/articles/10.1186/1471-2180-7-34
-    write_ref = open("ST1-MLST.fasta", 'w')
-    print(">ST1-MLST", file=write_ref)
-    print("CGTTTCCCCAAGGAAGTGGAGGTTGCAGGCGATACGATCGATGTTGGCTACGGCCCGATCAAGGTTCATGCCGTCCGCAACCCGGCCGAACTGCCGTGGAAGGAAGAAAACGTCGATATCGCCCTTGAATGCACCGGCATTTTCACCTCGCGCGACAAGGCAGCACTTCATCTTGAAGCTGGCGCCAAGCGCGTCATCGTCTCCGCTCCCGCAGACGGTGCCGATCTCACCGTCGTCTATGGTGTCAACAACGACAAGCTGACGAAGGACCATCTGGTCATCTCCAACGCTTCGTGTACCACCAACTGCCTTGCGCCGGTGGCTCAGGTTCTCAACGATACTATCGGTATCGAAAAGGGCTTCATGACCACGATCCACTCCTATACGGGCGACCAGCCGACGCTGGACACCATGCACAAGGATCTCTACCGCGCCCGCGCCGCTGCCCTTTCCATGATCCCGACCTCGACGGGTGCGGCCAAGGCCGTCGGTCTCGTTCTGCCGGAACTGAAAGGCAAGCTCGACGGCGTTGCCATTCGCGTCCCGACCCCAAATGTCTCGGTCGTTGATCTCACCTTCATCGCCAAGCGTGAAACCACCGTTGAAGAAGTCAACAATGCGATCCGCGAAGCCGCCAATGGCCGCCTCAAGGGCATTCTCGGCTATACCGATGAGAAGCTCGTCTCGCACGACTTCAACCACGATTCCCATTCCTCGGTCTTCCACACCGACCAGACCAAGGTTATGGACGGCACCATGGTGCGTATCCTGTCGTGGTACGACAATGAATGGGGCTTCTCCAGCCGCATGAGCGACACCGCCGTCGCTTTGGGCAAGCTGATCTGATAACGGCAACGCCTCTCCTTCACTGGCGAGGCGTTTTCATTTCTTGATAAGGACCGAGAGAAGAAACATGATGTTCCGCACCCTTGACGATGCCAATGTCCAATCCAAGCGCGTGCTGGTCCGTGTTGACCTCAACGTGCCGAAAATCCGCCGTTCTGCTCGCTGGTCTTAACACCCCGGGCGTCACCACCGTGATCGAGCCGGTCATGACGCGCGATCATACGGAAAAGATGCTGCAAGACTTTGGCGCAGACCTGACGGTTGAAACCGATAAGGATGGTGTGCGCCATATCCGTATTGTCGGCCAGGGCAAGCTTACCGGCCAGACCATCGACGTGCCGGGTGATCCCTCGTCAACGGCTTTTCCGCTGGTGGCCGCCCTTCTGGTCGAAGGTTCGGAGGTCACCATCCGCAATGTGCTGATGAACCCGACCCGCACCGGCCTGATCCTGACGTTGCAGGAAATGGGGGCGGATATCGAGATCATCGATCCACGCCTTGCCGGCGGCGAGGATGTCGCCGATCTGCGCGTCAAGGCCTCGAAGCTGAAAGGCGTTGTCGTTCCGCCGGAACGTGCGCCTTCGATGATCGATGAATATCCGGTTCTGGCCATTGCCGCGTCTTTTGCGGAAGGCGAAACCGTGATGGACGGTCTCGATGAACTGCGCGTCAAGGAATCGGATCGTCTGGCGGCCGTTGCGCGCGGCCTTGAAGCCAATGGTGTCGATTGTACCGAAGGCGAGATGTCGCTGACGGTTCGTGGCCGCCCCGGCGGCAAGGGGCTGGGCGGTGGCACGGTTGCAACCCACCTCGACCACCGCATCGCGATGAGTTTCCTCGTCATGGGCCTTGCATCGGAAAAGCCGGTTACGGTGGATGACAGCACCATGATCGCCACCTCTTTCCCGGAATTCATGGGCATGATGGCGGGGCTGGGGGCGAAGATTGCCGAAAGCGGTGCAGAATGAAATCGTTCGTCGTCGCCCCGTTCATTGTCGCCATTGACGGACCGGCCGCCTCGGGCAAGGGAACCCTTGCCCGGCGGATCGCGACACATTACGGGATGCCGCATCTCGATACGGGCCTGACCTATCGCGCGGTCGCCAAGAGCCGCGCTCTGTCATTCTGGCCGTGGCAGGCCCGGTGGACGGCGACGAGATCGACCTCACCAATTGCGACTGGGTCGTGCGTCCTAAAAAGATGATCGCTGATCTGGGCTTTGAAGACGTGACCGTCCTCAATGATTTCGAGGCGCAGGCCCTTGCCGTGGTTTCGCTGGAAGGCCACCATATGGAACAGATCGGCGGCAAACCGGAGGAGGCTGTTGCCACCCGCGTCGTGCTCGGCCCCGGCACGGGCCTTGGCGTGGCAGGTCTGTTTCGCACACGTCATGCATGGGTTCCGGTTCCCGGTGAAGGCGGTCATATCGATATCGGTCCACGCACCGAACGCGACTACCAGATTTTCCCGCATATCGAACGCATCGAAGGGCGTGTCACCGGCGAGCAAATTCTTAGCGGGCGGGGCCTGCGCAACCTCTATCTGGGCATCTGCGCCGCCGACAAGATCACGCCCACCCTTGAGACGCCAGTAGACATTACATCCGCCGGACTGGACGGCAGCAATCCACAAGCCGCAGAAACGCTTGACCTCTTCGCCACCTATCTGGGGCGGCTTGCGGGCGACCTTGCGCTCATTTTCATGGCGCATGGCGGCGTTTATCTTTCGGGTGGCATCCCGGTGCGCATCCTTTCCGCCCTCAAGGCCGGTTCGTTCCGCGCAACCTTCGAGGACAAGGCCCCGCACAAGGCCATCATGCGCGACATACCGGTCCGCGTTATCACATATCAACTGGCGGCCTTAACCGGGCTTTCCGCTTTCGCCCGCACCCCCTCGCGCTTTGAAGTTTCGACCGAGGGCCGCCGCTGGCGCATGCGCCGCTAGAGCATTTCCGAGCCAAAAGTGCGAAGCGGTTCCGTTTCCCAACGAGCCGACCGCGGCTGCGCTTGCCTATGGTCTCGACAAGAGCGAAGGCAAGACCATCGCTGTCTATGACCTTGGCGGCGGTACTTTCGACGTGTCGGTTCTGGAAATCGGCGACGGCGTTTTTGAAGTGAAGTCCACCAATGGCGACACGTTCCTTGGCGGTGAAGACTTCGATATTCGTCTGGTCGAATATCTGGTTGCCGAGTTCAAGAAGGAAAGTGGCATCGACCTGAAGAACGACAAGCTTGCCCTGCAGCGCCTCAAGGAAGCTGCCGAAAAGGCCAAGATCGAACTGTCGTCCTCGCAGCAGACCGAAATCAACCTGCCGTTCATCACGGCTGACCAGACTGGCCCGAAGCATCTGGCGATCAAGCTGTCGCGCGCCAAGTTTGAAAGCCTGGTCGATGATCTCGTGCAGCGCACGGTCGAGCCGTGCAAGGCGGCGCTCAAGGATGCCGGCCTCAAGGCTGGCGAAATTGACGAAGTGGTTCTGGTCGGCGGCATGACCCGCATGCCCAAGATTCAGGAAGTCGTGAAGGCCTTCTTCGGCAAGGAACCGCACAAGGGCGTGAACCCGGATGAAGTCGTGGCCATGGGCGCGGCGATCCAGGGCGGCGTTTTGCAGGGCGACGTCAAGGACGTGCTGCTGCTCGACGTGACCCCGCTTTCGCTCGGCATTGAAACGCTGGGCGGCGTGTTCACCCGCCTGATCGAACGCAACACCACTATCCCGACCAAGAAGTCGCAGACCTTCTCCACGGCTGAGGACAACCAGTCGGCCGTGACGATCCGCGTCTTCCAGGGCGAGCGTGAAATGGCAGCCGATAACAAGCTGCTTGGACAGTTCGACCTCGTTGGCATTCCGCCACGTCCCTGCCCGGAAAGCTTGCCGATTGCCAGGAGCGCGATCCGGCCAAGTCCGAAATCTTCATCGTCGAGGGCGATTCGGCAGGCGGTTCCGCCAAGAGCGGGCGCTCGCGCCAGAATCAGGCCATTCTGCCGCTGCGCGGCAAAATCCTGAACGTGGAACGCGTGCGTTTCGACCGGATGATTTCATCCGATCAGGTGGGCACCCTCATCACGGCGCTTGGCACCTCCATCGGCAAGGATGAAACGCACGGCTTCAACGCCGACAAGCTGCGTTATCACAAGATCATCATCATGACCGACGCCGACGTCGATGGCGCCCATATTCGTACGCTTCTGCTCACCTTCTTCTTCCGGCAGATGCCGGAACTGATCGAACGCGGGCATATCTATATCGCGCAGCCGCCGCTCTATAAGGTGACACGCGGCAAGTCTTCGCAATATATCAAGAACGAAGCCGCCTTTGAGGATTTCCTCATCGAAACCGGCCTTGAAGAAACGACACTGGAACTGGTGACTGGCGAAATGCGCGCCGGGCCGGATTTGCGCTCGGTGGTGGAGGATGCGCGCACGCTGCGTCAGCTTCTGCACGGCCTGCACACCCGCTATGACCGCAGCGTGGTGGAACAGGCGGCAATTGCCGGCCTGCTCAACCCCGATGCCTCAAGGGACAATGCAACGGCACAGCATTCCGCCGATACGGTTGCCAAGCGTCTCGACATGATTTCGGAAGAGACCGAGCGCGGCTGGAGCGGCCATGTGATGGAAGACGGCGGCTATCGCTTCGAGCGTATGGTGCGCGGTGTAAAGGATATCGCCATTCTCGACATGGCCCTGCTCGGCTCGGCCGATGCCCGCCAGGTCGACCGAGATCGAGATGTATTCCCGCCTGATCCATACGGTCGATCATATCGAAGGCCGCCTGCGTGACGGCATGGATGCGTTTGACGGCTTCCTCAGCCATGCATGGGCTGTGACGGTGACAGGCGCGCCGAAGCTGTGGGCAATGCGCTTTCTTGAGGAAAACGAACGCAGCCCGCGCGCATGGTATGGCGGCGCGATCGGCATGATGCATTTCAATGGCGATATGAATACAGGGCTGACGCTGCGCACCATCCGCATCAAGGATGGTGTGGCGGAAATCCGTGCAGGGGCGACGCTTCTGTTCGATTCCAACCCTGACGAGGAAGAAGCCGAGACCGAATTGAAGGCATCGGCCATGATTGCGGCTGTGCGGGACGCACAGAAGAGCAATCAGATCGCGGAAGAAAGTGTGGCGGCAAAGGTGGGTGAGGGGGTTTCGATCCTGCTGGTCGATCACGAGGATTCCTTCGTCCATACGCTTGCCAATTATTTCCGCCAGACGGGCGCCAAGGTTTCCACCGTGCGTTCACCGGTGGCAGAGGAGATATTCGACCGCGTCAATCCCGATCTGGTGGTGTTATCGCCGGGACCGGGCTCGCCGCAGGATTTCGATTGCAAGGCGACCATCGATAAGGCGCGCAAGCGCCAGCTTCCGATTTTTGGCGTCTGCCTCGGCCTTCAGGCACTGGCGGAAGCCTATGGCGGGGCGTTGCGCCAGCTTCGCGTTCCGGTGCATGGCAAGCCTTCACGCATCCGCGTATCAAAGCCGGAGCGCATTTTCTCCGGCTTGCCGGAGGAAGTGACGGTGGGGCGTTATCATTCGATCTTCGCCGATCCTGAACGCCTGCCGGATGATTTTCTCGTCACAGCCGAAACGGAAGACGGGATCATAGCCTGCGGTGGAGGTGGTGATGGTGCCGCCGGGCTCCAGCCTGCCTGCGGATGCGGGGCTTGTCGTGTTGCCCGGCACCAAATCCACGATTGCCGATCTGCTGGCGCTGCGTGAAAACGGCTGGGACCGCGAATTGGTCGCCCATGTGAAGCGGGGCGGGCATGTGCTTGGTATTTGCGGCGGGTTTCAAATGCTTGGACGGCGGATCAGTGACCCGGCGGGTATTGAAGGCAATGTGCGCGATATCGAGGGGCTGGGCCTTCTCGATATCGAGACGATGACGGAGCCGGAAAAAGTGGTTCGCAATGTTGAGGCGGTGTCGCTGCTGCATGATGAGCCGCTGGAGGGCTATGAAATCCACATCGGGCGCACCAGCGGGCCGGATATGGCGCGGCCATTTGCGCGTATCGGCGATCATGATGATGGGGCCGTCTCGCCCGATGGTCGTATCATGGGAACCTATCTCCACGGTATTTTCAGTGCGGATCGTTTCCGCCACCACTTTTTGCGCGCGCTGGGTGTGGAAGGCGGCCAGATGAATTATCGCGAGAGCGTCGAAGAGGCTCTGGGCGAACTGGCTGAAGGGCTGGAAGCCTCGCTGGATATTGATGGCCTGTTTGCGCTGGCATGATTGACGCCGCGAAGCCGAAAGCCTAGTGTCAAACCATGTGACAGGTTTTGCCGGAACGAATCCCCGGCAATACCAAAAGGGAATGCGACGGACGGACCCACGCCGGGCGTCTTTATCGCAGCCGACCCCGCGACTGTAGAGCGGAGAGGGAAGAGGCAAGCCGGGCAACCGGCAGCCACTGGAAATCAGATGCGATAATGCAACATCGCATTTTTGCCATCTTCTCGACAGATTATCTCCACACAATGGGGCATTTCGTGCCGCAATTACCCTCGATATGTCACCCCTGTCAGCGCGGCATGGGCGGTTTACTCCCGATGCTGCCCGCCCGATAAGGGACCGCGCAAAACGTAATTTGTGTAAGGAGAATGCCATGCGCACTCTTAAGTCTCTCGTAATCGTCTCGGCTGCGCTGCTGCCGTTCTCTGCGACCGCTTTTGCTGCCGACGCCATCCAGGAACAGCCTCCGGTTCCGGCTCCGGTTGAAGTAGCTCCCCAGTATAGCTGGGCTGGTGGCTATACCGGTCTTTACCTTGGCTATGGCTGGAACAAGGCCAAGACCAGCACCGTTGGCAGCATCAAGCCTGACGATTGGAAGGCTGGCGCCTTTGCTGGCTGGAACTTCCAGCAGGACCAGATCGTATACGGTGTTGAAGGTGATGCAGGTTATTCCTGGGCCAAGAAGTCCAAGGACGGCCTGGAAGTCAAGCAGGGCTTTGAAGGCTCGCTGCGTGCCCGCGTCGGCTACGACCTGAACCCGGTTATGCCGTACCTCACGGCTGGTATTGCCGGTTCGCAGATCAAGCTTAACAACGGCTTGGACGACGAAAGCAAGTTCCGCGTGGGTTGGACGGCTGGTGCCGGTCTCGAAGCCAAGCTGACGGACAACATCCTCGGCCGCGTTGAGTACCGTTACACCCAGTACGGCAACAAGAACTATGATCTGGCCGGTACGACTGTTCGCAACAAGCTGGACACGCAGGATATCCGCGTCGGCATCGGCTACAAGTTCTAATTATAGCATAATTGGACACGGAAAACCGGACAGGCAACTGTCCGGTTTTTTGTTGTCTGCAAAGGTCGAGAAAGCGCGGCAGAGCAACGGCGGCAGCCTGATTTTCAGGGGAAATGAAGTGGAGGCTTCTGTTGCCAGGTGCCTCCGAACCCCGCCTTAAGGGGCTAACCCTAAGGACTTTAGAGTGGGTTTCCCGCACCGCCATTAGGCAGCGAGAGCATAACCCTGAGCATTGTTGTCATTTGCAACTACTCTGTTGACCCGATAACGGTGGTATCATGCCGAGTAAAAGAGCGATCTTTACACCCTTGTCGATCCTGTTTCGCCCCCGCCACAACACAGCCTGATCGGCAAGCTGTGCTGTGGTGGAGGCGCCGGGTACCGCCCCCGGGTCCAATGGGTTTATTACACCGTCCGTTTATCACCATAGTCGGCTTGCGCCGACAGGACGTATATAGGCGTGGTTTTTACCGATTGGAAGGGGGCTTGTGCGTTTTCGCGCAAGACCGACAGAGGTGGTGCGGCCCTTCCGTTCATTTTCCATTGACAGCTTCCGCGTGCTGGTCAATCCTCACAATATATCGGGATCGGCCTTGAAGAGGCTTGGCGCAGCCGGGGCGGAAACCATGGCTGAAACGGGGACGATATGCCCCAATCGAAGGAGAGTGGATATATGAGTGAATATCTCGCGGATGTCCGTCGCTATGATGCTGCCGCCGATGAGGCCGTTGTCGAGAAAATCGTCAAGCATCTTGGCATTGCGCTTCGCAATCGCGATTCCTCGCTCGTTTCGGCAAGC", file=write_ref)
-    write_ref.close()
-
-    directory = str(os.getcwd())
-    print(directory)
-    sample_reference_mlst_location = directory + "/ST1-MLST.fasta"
-    read_base = os.path.basename(R1)
-    sample_name = re.sub('_.*', '', read_base)
-    sample_name_mlst = sample_name + "-mlst"
-    print ("mlst reference: %s" % sample_reference_mlst_location)
-    ref=re.sub('\.fasta', '', os.path.basename(sample_reference_mlst_location))
-    print(ref)
-
-    loc_sam_mlst=directory + "/" + sample_name_mlst
-    print ("\n--")
-    print("sample name mlst: %s" % sample_name_mlst)
-    print("sample reference mlst: %s" % sample_reference_mlst_location)
-    print("ref, no ext: %s " % ref)
-    print("Read 1: %s" % R1)
-    print("Read 2: %s\n" % R2)
-    print("directory: %s" % directory)
-    print("loc_sam_mlst: %s" % loc_sam_mlst)
-    print ("--\n")
-
-    os.system("samtools faidx {}" .format(sample_reference_mlst_location))
-    os.system("picard CreateSequenceDictionary REFERENCE={} OUTPUT={}" .format(sample_reference_mlst_location, directory + "/" + ref + ".dict"))
-    os.system("bwa index {}" .format(sample_reference_mlst_location))
-    
-    print("\n@@@ BWA mem")
-    samfile_mlst = loc_sam_mlst + ".sam"
-    os.system("bwa mem -M -t 16 {} {} {} > {}" .format(sample_reference_mlst_location, R1, R2, samfile_mlst))
-    
-    print("\nAdd read group and out all BAM")
-    all_bam_mlst = loc_sam_mlst + "-all.bam"
-    os.system("picard AddOrReplaceReadGroups INPUT={} OUTPUT={} RGLB=lib1 RGPU=unit1 RGSM={} RGPL=illumina" .format(samfile_mlst, all_bam_mlst, sample_name_mlst))
-
-    print("\n@@@ Samtools mapped")
-    mapbam = loc_sam_mlst + "-unmapped.bam"
-    os.system("samtools view -h -F4 -b -T {} {} -o {}" .format(sample_reference_mlst_location, all_bam_mlst, mapbam))
-
-    print("\n@@@ Sort BAM")
-    sortedbam = loc_sam_mlst + "-sorted.bam"
-    os.system("samtools sort {} -o {}" .format(mapbam, sortedbam))
-
-    print("\n@@@ Index BAM")
-    os.system("samtools index {}" .format(sortedbam))
-
-    print("\n@@@ Calling SNPs with UnifiedGenotyper")
-    vcf_mlst = directory + "/" + sample_name + "_mlst" + ".vcf"
-    os.system("gatk -R {} -T UnifiedGenotyper -glm BOTH -out_mode EMIT_ALL_SITES -I {} -o {} -nct 8" .format(sample_reference_mlst_location, sortedbam, vcf_mlst))
-
-    # Position 1629 was too close to the end of glk sequence.  Reads would not assemble properly to call possilbe SNP, therefore 100 bases of the gene were added.  Because of this all positions beyond this point are 100 more.  Same with position 1645 and 2693.
-
-    target_vcf_positions = [231, 297, 363, 398, 429, 523, 631, 730, 1247, 1296, 1342, 1381, 1648, 1685, 1741, 1754, 2165, 2224, 2227, 2297, 2300, 2344, 2352, 2403, 2530, 2557, 2578, 2629, 3045, 3054, 3118, 3295, 3328, 3388, 3966, 3969, 4167, 4271, 4296, 4893, 4996, 4998, 5058, 5248, 5672, 5737, 5928, 5963, 5984, 5987, 6025, 6045, 6498, 6499, 6572, 6627, 6715, 6735, 6745, 6785, 6810, 6828, 6845, 6864, 6875, 7382, 7432, 7464, 7594, 7660, 7756]
-
-    pos_call_dict={}
-    vcf_reader = vcf.Reader(open(vcf_mlst, 'r'))
-    for record in vcf_reader:
-        if record.ALT[0]:
-            pos_call_dict.update({record.POS:record.ALT[0]})
-        else:
-            pos_call_dict.update({record.POS:record.REF})
-
-    mlst_string=[]
-    for i in target_vcf_positions:
-        if i in pos_call_dict:
-            mlst_string.append(pos_call_dict[i]) #if number in list then get value
-    mlst_join =  ''.join(map(str, mlst_string))
-    print(mlst_join)
-
-    mlst_dictionary={}
-    mlst_dictionary["CTCCCGGGGCGACCCGATCGAAGCGGGAAGGCCACGGCGCGTGAGCAGCCGGGCATCTGTCCCGCGGGGTA"] = "MLST type 01"
-    mlst_dictionary["CTCCCGGGGCGACCCGAGCGAAGCGGGAAGGCCACGGCGCGTGAGCAGCCGGGCATCTGTCCCGCGGGGTA"] = "MLST type 02"
-    mlst_dictionary["CTCCCGTGGCGACCCGAGCGAAGCGGGAAGGCCACGGCGCGTGAGCAGCCGGGCATCTGTCCCGCGGGGTA"] = "MLST type 03"
-    mlst_dictionary["CTCCCGGGGCGACCCGAGCGAAGCGGGAAGGCCAAGGCGCGTGAGCAGCCGGGCATCTGTCCCGCGGGGTA"] = "MLST type 04"
-    mlst_dictionary["CTCCCGGGGCGACCCGATCGAAGCGGGAAGGCCACGGCGAGTGAGCAGCCGGGCATCTGTCCCGCGGGGTA"] = "MLST type 05"
-    mlst_dictionary["TTCCTGGGGCAACCCGAGCGAGGCAGGGAGGCCGCGGCTCGTGAGCGGTCGGGCATCTGTCCCGCGGGGTA"] = "MLST type 06"
-    mlst_dictionary["CTTCCTGGCCGAGCCGAGTGAAGGGGGGAGGCCACGGCGCGTGCTCGGCTGGGTACCTGTCTCGCGGTGCT"] = "MLST type 07"
-    mlst_dictionary["CTTCCTGGCCGACCCGAGTGAAGGGGGGAGGCCACGGCGCGTGCGCGGCTGGGTACCCGTCTCGCGGTGCT"] = "MLST type 08"
-    mlst_dictionary["CTTCCTGGCCGACCCGAGTGAAGGGGGGAGGCCACGGCGCGTGCGCGGCTGGGTACCTGTCTCGTGGTGCT"] = "MLST type 09"
-    mlst_dictionary["CTTCCTGGCCGACCCGAGTGAAGGGGGGGGGCCACGGCGCGTGCTCGGCTGGGTACCTGTCTCGCGGTGCT"] = "MLST type 10"
-    mlst_dictionary["CTTCCTGGCCGACCCGAGTGAAGGGGGGAGGCCACGGCGCGTGCGCGGCTGGGTACCTGTCTCGCGGTGCT"] = "MLST type 11"
-    mlst_dictionary["CTTCCTGGCCGACCCGAGTGAAGGGGGGAGGCCACGGCGCGTGCTCGGCTGGGTACCTGTCTCGCGGTGCT"] = "MLST type 12"
-    mlst_dictionary["CCCCCGGGCCGACTCGAGCGAAGCGAAGAGGCCACGGCGCGTGAGTGACCAGGCACCTATCCCACGGGGTA"] = "MLST type 13"
-    mlst_dictionary["CCCCCGGGCCGGCCCAAGCGAAGCGGGGAGGCTACAGTGCGTGAGTGGCCAGGCACCTGTCCCGCGGGGTA"] = "MLST type 14"
-    mlst_dictionary["CCCCCGGGCCGACCCGGGCGAAGCGGGGAGGCTACGGTGCGTGAGTGGCCAGGCACCTGTCCCGCGAGGTA"] = "MLST type 15"
-    mlst_dictionary["CCCCCGGCCCGACCCGGGCGAAGCGGGGAGGCTACGGTGCGTGAGTGGCCAGGCACCTGTCCCGCGAGGTA"] = "MLST type 16"
-    mlst_dictionary["CCCCCGGGCCGGCCCAAGCGAAGCGGGGAGGCTACAATGCGTGAGTGGCCAGGCACCTGTCCCGCAGGGTA"] = "MLST type 17"
-    mlst_dictionary["CCCCCGGGCCGGCCCAAGCGAAGCGGGGAGGCTACAATGCGTGAGTGGCCAGGCACCTGTCCCGCAGGCTA"] = "MLST type 18"
-    mlst_dictionary["CCCCCGGGCCGACCCGAGCGAAGCGGGGAGGACACGGCGCGTGAGTGGCCAGGCACCTGTCCCGCGGGGTA"] = "MLST type 19"
-    mlst_dictionary["CCCCCGGGCCGGCCCAAGCGAAGCGGGGAGGCTACAATGCGTGAGTGGCCAGGCACATGTCCCGCAGGGTA"] = "MLST type 20"
-    mlst_dictionary["CCCCCGGGCCGGCCCAAGCGAAGCGGGGAGGCTACAATGCGTGAGTGGCCAGGCACATGCCCCGCAGGGTA"] = "MLST type 21"
-    mlst_dictionary["CCCCCGGGCCGACCCGAGCGAGGCGGGGAGGCCACGGCGCGGGAGTGGCCAGACACCTGTCCTGCGGGGTA"] = "MLST type 22"
-    mlst_dictionary["CCCCCGGGCTGACCCGAGCGAAACGGGGAAGCCACGGCGCGTAAGTGGCCAGGCACCTGTCCCGCGGGGTA"] = "MLST type 23"
-    mlst_dictionary["CCCCCGGGCTGACCCGAGCGGAACGGGGAAGCCACGGCGCGTAAGTGGCCAGGCACCTGTCCCGCGGGGTA"] = "MLST type 23x"
-    mlst_dictionary["CCCCCGGGCCGACCCGAGCAAAGCGGGGAGGCCACGGCGCGTAAGTGGCCAGGCACCTGTCCCGCGGGGTA"] = "MLST type 24"
-    mlst_dictionary["CCCCCGGGCCGACCCGAGCGAAGCGGGGAGGCCACGGCGCGTAAGTGGCCAGGCACCTGTCCCGCGGGGTA"] = "MLST type 25"
-    mlst_dictionary["CCCCCGGGCCGACCCGAGCGAAGCGGGGAGGCCACGGCGCGTAAGTGGCCAAGCACCTGTTCCGCGGGGTA"] = "MLST type 26"
-    mlst_dictionary["CCCCCGGGCCGACCCGAGCGAAGCGGGGAGACCACGGCGCATAAGTGGCCAGGCACCTGTCCCGCGGGGTA"] = "MLST type 27"
-    mlst_dictionary["CCCTCGGGCCGACCTGAGCGAAGCGGGGAGACCACGGCGCATAAGTGGCCAGGCTCCTGTCCCGCGGGGTA"] = "MLST type 28"
-
-    for i in fastqs: #remove unzipped fastq files to save space
-        os.remove(i)
-
-    remove_files = glob.glob('ST1-MLST*')
-    for i in remove_files:
-        os.remove(i)
-    remove_files = glob.glob('*-mlst*')
-    for i in remove_files:
-        os.remove(i)
-    remove_files = glob.glob('*_mlst.vcf.idx')
-    for i in remove_files:
-        os.remove(i)
-
-    write_out = open("mlst.txt", 'w')
-    
-    if mlst_join in mlst_dictionary:
-        mlst_type = mlst_dictionary[mlst_join]
-        print(mlst_type)
-        print(mlst_type, file=write_out)
-    else:
-        print("NO MLST MATCH FOUND\n")
-        print("NO MLST MATCH FOUND", file=write_out)
-    
-    write_out.close()
-
-def finding_sp(v):
-    total=0
-    total_finds=0
-    #if total < 6: # doesn't make a big different.  Might as well get full counts
-    # total += sum(seq.count(x) for x in (v)) #v=list of for and rev spacer
-    total_finds = [len(regex.findall("(" + spacer + "){s<=1}", seq_string)) for spacer in v]
-    for number in total_finds:
-        total += number
-    return(v, total)
-
-def binary_to_octal(binary):
-    binary_len = len(binary)
-    i = 0
-    ie = 1
-    octal = ""
-    while ie < 43:
-        ie = i + 3
-        print(binary[i:ie])
-        region = binary[i:ie]
-        region_len = len(region)
-        i += 3
-        if int(region[0]) == 1:
-            if region_len < 2: # for the lone spacer 43.  When present needs to be 1 not 4.
-                oct = 1
-            else:
-                oct = 4
-        else:
-            oct = 0
-        try:
-            if int(region[1]) == 1:
-                oct += 2
-            if int(region[2]) == 1:
-                oct += 1
-        except IndexError:
-            pass
-        octal = octal + str(oct)
-    return(octal)
-
-def binary_to_hex(binary):
-    section1 = binary[0:7]
-    section2 = binary[7:14]
-    section3 = binary[14:21]
-    section4 = binary[21:28]
-    section5 = binary[28:36]
-    section6 = binary[36:43]
-
-    hex_section1 = hex(int(section1, 2))
-    hex_section2 = hex(int(section2, 2))
-    hex_section3 = hex(int(section3, 2))
-    hex_section4 = hex(int(section4, 2))
-    hex_section5 = hex(int(section5, 2))
-    hex_section6 = hex(int(section6, 2))
-
-    return(hex_section1.replace('0x', '').upper() + "-" + hex_section2.replace('0x', '').upper() + "-" + hex_section3.replace('0x', '').upper() + "-" + hex_section4.replace('0x', '').upper() + "-" + hex_section5.replace('0x', '').upper() + "-" + hex_section6.replace('0x', '').upper())
-
-def spoligo(self):
-    
-    print("\nFinding spoligotype pattern...\n")
-    
-    fastqs = glob.glob(zips + '/*.fastq')
-    if len(fastqs) < 2:
-        script1.unzipfiles()
-    fastqs = glob.glob(zips + '/*.fastq')
-    
-    '''spoligo spacers'''
-    spoligo_dictionary = {}
-    spoligo_dictionary["spacer01"] = ["TGATCCAGAGCCGGCGACCCTCTAT", "ATAGAGGGTCGCCGGCTCTGGATCA"]
-    spoligo_dictionary["spacer02"] = ["CAAAAGCTGTCGCCCAAGCATGAGG", "CCTCATGCTTGGGCGACAGCTTTTG"]
-    spoligo_dictionary["spacer03"] = ["CCGTGCTTCCAGTGATCGCCTTCTA", "TAGAAGGCGATCACTGGAAGCACGG"]
-    spoligo_dictionary["spacer04"] = ["ACGTCATACGCCGACCAATCATCAG", "CTGATGATTGGTCGGCGTATGACGT"]
-    spoligo_dictionary["spacer05"] = ["TTTTCTGACCACTTGTGCGGGATTA", "TAATCCCGCACAAGTGGTCAGAAAA"]
-    spoligo_dictionary["spacer06"] = ["CGTCGTCATTTCCGGCTTCAATTTC", "GAAATTGAAGCCGGAAATGACGACG"]
-    spoligo_dictionary["spacer07"] = ["GAGGAGAGCGAGTACTCGGGGCTGC", "GCAGCCCCGAGTACTCGCTCTCCTC"]
-    spoligo_dictionary["spacer08"] = ["CGTGAAACCGCCCCCAGCCTCGCCG", "CGGCGAGGCTGGGGGCGGTTTCACG"]
-    spoligo_dictionary["spacer09"] = ["ACTCGGAATCCCATGTGCTGACAGC", "GCTGTCAGCACATGGGATTCCGAGT"]
-    spoligo_dictionary["spacer10"] = ["TCGACACCCGCTCTAGTTGACTTCC", "GGAAGTCAACTAGAGCGGGTGTCGA"]
-    spoligo_dictionary["spacer11"] = ["GTGAGCAACGGCGGCGGCAACCTGG", "CCAGGTTGCCGCCGCCGTTGCTCAC"]
-    spoligo_dictionary["spacer12"] = ["ATATCTGCTGCCCGCCCGGGGAGAT", "ATCTCCCCGGGCGGGCAGCAGATAT"]
-    spoligo_dictionary["spacer13"] = ["GACCATCATTGCCATTCCCTCTCCC", "GGGAGAGGGAATGGCAATGATGGTC"]
-    spoligo_dictionary["spacer14"] = ["GGTGTGATGCGGATGGTCGGCTCGG", "CCGAGCCGACCATCCGCATCACACC"]
-    spoligo_dictionary["spacer15"] = ["CTTGAATAACGCGCAGTGAATTTCG", "CGAAATTCACTGCGCGTTATTCAAG"]
-    spoligo_dictionary["spacer16"] = ["CGAGTTCCCGTCAGCGTCGTAAATC", "GATTTACGACGCTGACGGGAACTCG"]
-    spoligo_dictionary["spacer17"] = ["GCGCCGGCCCGCGCGGATGACTCCG", "CGGAGTCATCCGCGCGGGCCGGCGC"]
-    spoligo_dictionary["spacer18"] = ["CATGGACCCGGGCGAGCTGCAGATG", "CATCTGCAGCTCGCCCGGGTCCATG"]
-    spoligo_dictionary["spacer19"] = ["TAACTGGCTTGGCGCTGATCCTGGT", "ACCAGGATCAGCGCCAAGCCAGTTA"]
-    spoligo_dictionary["spacer20"] = ["TTGACCTCGCCAGGAGAGAAGATCA", "TGATCTTCTCTCCTGGCGAGGTCAA"]
-    spoligo_dictionary["spacer21"] = ["TCGATGTCGATGTCCCAATCGTCGA", "TCGACGATTGGGACATCGACATCGA"]
-    spoligo_dictionary["spacer22"] = ["ACCGCAGACGGCACGATTGAGACAA", "TTGTCTCAATCGTGCCGTCTGCGGT"]
-    spoligo_dictionary["spacer23"] = ["AGCATCGCTGATGCGGTCCAGCTCG", "CGAGCTGGACCGCATCAGCGATGCT"]
-    spoligo_dictionary["spacer24"] = ["CCGCCTGCTGGGTGAGACGTGCTCG", "CGAGCACGTCTCACCCAGCAGGCGG"]
-    spoligo_dictionary["spacer25"] = ["GATCAGCGACCACCGCACCCTGTCA", "TGACAGGGTGCGGTGGTCGCTGATC"]
-    spoligo_dictionary["spacer26"] = ["CTTCAGCACCACCATCATCCGGCGC", "GCGCCGGATGATGGTGGTGCTGAAG"]
-    spoligo_dictionary["spacer27"] = ["GGATTCGTGATCTCTTCCCGCGGAT", "ATCCGCGGGAAGAGATCACGAATCC"]
-    spoligo_dictionary["spacer28"] = ["TGCCCCGGCGTTTAGCGATCACAAC", "GTTGTGATCGCTAAACGCCGGGGCA"]
-    spoligo_dictionary["spacer29"] = ["AAATACAGGCTCCACGACACGACCA", "TGGTCGTGTCGTGGAGCCTGTATTT"]
-    spoligo_dictionary["spacer30"] = ["GGTTGCCCCGCGCCCTTTTCCAGCC", "GGCTGGAAAAGGGCGCGGGGCAACC"]
-    spoligo_dictionary["spacer31"] = ["TCAGACAGGTTCGCGTCGATCAAGT", "ACTTGATCGACGCGAACCTGTCTGA"]
-    spoligo_dictionary["spacer32"] = ["GACCAAATAGGTATCGGCGTGTTCA", "TGAACACGCCGATACCTATTTGGTC"]
-    spoligo_dictionary["spacer33"] = ["GACATGACGGCGGTGCCGCACTTGA", "TCAAGTGCGGCACCGCCGTCATGTC"]
-    spoligo_dictionary["spacer34"] = ["AAGTCACCTCGCCCACACCGTCGAA", "TTCGACGGTGTGGGCGAGGTGACTT"]
-    spoligo_dictionary["spacer35"] = ["TCCGTACGCTCGAAACGCTTCCAAC", "GTTGGAAGCGTTTCGAGCGTACGGA"]
-    spoligo_dictionary["spacer36"] = ["CGAAATCCAGCACCACATCCGCAGC", "GCTGCGGATGTGGTGCTGGATTTCG"]
-    spoligo_dictionary["spacer37"] = ["CGCGAACTCGTCCACAGTCCCCCTT", "AAGGGGGACTGTGGACGAGTTCGCG"]
-    spoligo_dictionary["spacer38"] = ["CGTGGATGGCGGATGCGTTGTGCGC", "GCGCACAACGCATCCGCCATCCACG"]
-    spoligo_dictionary["spacer39"] = ["GACGATGGCCAGTAAATCGGCGTGG", "CCACGCCGATTTACTGGCCATCGTC"]
-    spoligo_dictionary["spacer40"] = ["CGCCATCTGTGCCTCATACAGGTCC", "GGACCTGTATGAGGCACAGATGGCG"]
-    spoligo_dictionary["spacer41"] = ["GGAGCTTTCCGGCTTCTATCAGGTA", "TACCTGATAGAAGCCGGAAAGCTCC"]
-    spoligo_dictionary["spacer42"] = ["ATGGTGGGACATGGACGAGCGCGAC", "GTCGCGCTCGTCCATGTCCCACCAT"]
-    spoligo_dictionary["spacer43"] = ["CGCAGAATCGCACCGGGTGCGGGAG", "CTCCCGCACCCGGTGCGATTCTGCG"]
-
-    count_summary={}
-
-    global seq_string
-    sequence_list = []
-    for fastq in R1unzip, R2unzip:
-        with open(fastq) as in_handle:
-            # all 3, title and seq and qual, were needed
-            for title, seq, qual in FastqGeneralIterator(in_handle):
-                sequence_list.append(seq)
-    seq_string = "".join(sequence_list)
-
-    with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool: #max_workers=4
-        for v, count in pool.map(script1.finding_sp, spoligo_dictionary.values()):
-            for k, value in spoligo_dictionary.items():
-                if v == value:
-                    count_summary.update({k:count})
-                    count_summary=OrderedDict(sorted(count_summary.items()))
-    seq_string = ""
-
-    spoligo_binary_dictionary={}
-    for k, v in count_summary.items():
-        if v > 4:
-            spoligo_binary_dictionary.update({k:1})
-        else:
-            spoligo_binary_dictionary.update({k:0})
-    spoligo_binary_dictionary=OrderedDict(sorted(spoligo_binary_dictionary.items()))
-    
-    spoligo_binary_list=[]
-    for v in spoligo_binary_dictionary.values():
-        spoligo_binary_list.append(v)
-    bovis_string=''.join(str(e) for e in spoligo_binary_list) #bovis_string correct
-    hexadecimal = script1.binary_to_hex(bovis_string)
-    
-    write_out = open("spoligo.txt", 'w')
-    
-    found = False
-    with open(spoligo_db) as f: # put into dictionary or list
-        for line in f:
-            line=line.rstrip()
-            octalcode = line.split()[0] #no arg splits on whitespace
-            sbcode = line.split()[1]
-            binarycode = line.split()[2]
-            if bovis_string == '0000000000000000000000000000000000000000000':
-                found=True
-                octalcode = "spoligo not found"
-                sbcode = "spoligo not found"
-                hexadecimal = "SB2277 ???"
-                binarycode = "0000000000000000000000000000000000000000000"
-                print("CHECK SAMPLE!  NO SPACERS FOUND.  LIKELY NOT TB COMPLEX.  ALTHOUGH SB2277 IS A ZERO STRING BINARY\n")
-                print("CHECK SAMPLE!  NO SPACERS FOUND.  LIKELY NOT TB COMPLEX.  ALTHOUGH SB2277 IS A ZERO STRING BINARY", file=write_out)
-                print("\nOne mismatch allowed spacers search against both R1 and R2 reads.\n", file=write_out)
-                for k, v in count_summary.items():
-                    print(k, v, file=write_out)
-            elif bovis_string == binarycode:
-                found=True
-                print("Pattern found:")
-                print("%s %s %s %s" % (octalcode, sbcode, hexadecimal, binarycode))
-                print("%s %s %s %s" % (octalcode, sbcode, hexadecimal, binarycode), file=write_out)
-                print("\One mismatch allowed spacer search against both R1 and R2 reads.\n", file=write_out)
-                for k, v in count_summary.items():
-                    print(k, v, file=write_out)
-    if not found:
-        octal = script1.binary_to_octal(bovis_string)
-        sbcode = "N/A"
-        print("%s %s %s %s" % (octal, sbcode, hexadecimal, bovis_string))
-        print("%s %s %s %s" % (octal, sbcode, hexadecimal, bovis_string), file=write_out)
-        print("SPOLIGO SB NUMBER NOT FOUND\n")
-        print("\nSPOLIGO SB NUMBER NOT FOUND\n", file=write_out)
-        print("\nOne mismatch allowed spacer search against both R1 and R2 reads.\n", file=write_out)
-        
-        for k, v in count_summary.items():
-            print(k, v, file=write_out)
-
-    print("bovis_string: %s" % bovis_string, file=write_out)
-    print("binarycode  : %s" % binarycode, file=write_out)
-
-    for i in fastqs: #remove unzipped fastq files to save space
-        os.remove(i)
-        
-    write_out.close()
-
+                # df_stat_summary = pd.DataFrame.from_dict(stat_summary, orient='index') #convert stat_summary to df
+                # frames.append(df_stat_summary) #frames to concatenate
+                    # col = 0
+                    # row += 1
+                    # #run stats
+            #         for v in stat_summary.values():
+            #             worksheet.write(row, col, v) #stat summary to be attached in email and left in root directory
+            #             col += 1
+            # workbook.close()
+            # if not quiet_call and path_found:
+            #     try:
+            #         open_check = open(summary_cumulative_file, 'a') #'a' is very important, 'w' will leave you with an empty file
+            #         open_check.close()
+            #         df_all=pd.read_excel(summary_cumulative_file)
+            #         df_all_trans = df_all.T #indexed on column headers
+            #         # save back the old and remake the working stats file
+            #         shutil.move(summary_cumulative_file, '{}' .format(temp_folder + '/stat_backup' + st + '.xlsx'))
+            #         sorter = list(df_all_trans.index) #list of original column order
+            #         frames.insert(0, df_all_trans) #put as first item in list
+            #         df_concat = pd.concat(frames, axis=1) #cat frames
+            #         df_sorted = df_concat.loc[sorter] #sort based on sorter order
+            #         df_sorted.T.to_excel(summary_cumulative_file, index=False) #transpose before writing to excel, numerical index not needed
+            #     except BlockingIOError:
+            #         sorter = list(df_stat_summary.index) #list of original column order
+            #         df_concat = pd.concat(frames, axis=1) #cat frames
+            #         df_sorted = df_concat.loc[sorter] #sort based on sorter order
+            #         df_sorted.T.to_excel(summary_cumulative_file_temp, index=False)
+            #     except OSError:
+            #         sorter = list(df_stat_summary.index) #list of original column order
+            #         df_concat = pd.concat(frames, axis=1) #cat frames
+            #         df_sorted = df_concat.loc[sorter] #sort based on sorter order
+            #         df_sorted.T.to_excel(summary_cumulative_file_temp, index=False)
+            # else:
+            #     print("Path to cumulative stat summary file not found")
 
 
 # if args.email == "none":

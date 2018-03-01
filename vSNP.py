@@ -5,19 +5,24 @@ import sys
 import argparse
 import glob
 import multiprocessing
+from concurrent import futures
 import textwrap
 from datetime import datetime
 
-import vAttributes
-from vFunctions import run_loop
+from vFunctions import make_global
 from vFunctions import get_species
 from vFunctions import send_email
 from vFunctions import run_script2
+from vFunctions import loop_all
+from vFunctions import loop_resticted
+from vFunctions import read_aligner
+from vFunctions import make_species_call_global
 
 startTime = datetime.now()
 print ("\n\n*** START ***\n")
 print ("Start time: %s" % startTime)
 
+home = os.path.expanduser("~")
 root_dir = str(os.getcwd())
 cpu_count = multiprocessing.cpu_count()
 limited_cpu_count = int(cpu_count/6)
@@ -80,21 +85,35 @@ else:
 
 ##############################
 
+fastq_check = 0
+vcf_check = 0
 all_file_types_count = len(glob.glob('*.*'))
 fastq_check = len(glob.glob('*fastq.gz'))
 vcf_check = len(glob.glob('*vcf'))
 
-if fastq_check > 0:
-    fastq_check = True
-if vcf_check > 0:
-    vcf_check = True
-if fastq_check and vcf_check:
-    print("\n#####You have a mix of FASTQ and VCF files.  This is not allowed\n\n")
-    sys.exit(0)
+make_global(home, startTime, root_dir, limited_cpu_count, debug_call, quiet_call)
 
-if fastq_check:
-    run_loop(root_dir, limited_cpu_count, species_call, debug_call, quiet_call)
-elif vcf_check:
+if species_call:
+    make_species_call_global(species_call)
+
+master_stat_summary = []
+if fastq_check > 0 and vcf_check == 0:
+    list_of_files = glob.glob('*gz')
+    directory_list = loop_all(list_of_files) #1
+    run_list = loop_resticted(directory_list) #2
+    if debug_call:
+        for single_directory in run_list:
+            print("DEBUGGING, SAMPLES RAN INDIVIDUALLY")
+            stat_summary = read_aligner(single_directory) #3
+            master_stat_summary.append(stat_summary)
+    else:
+        print("SAMPLES RAN IN PARALLEL")
+        with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool: 
+            for stat_summary in pool.map(read_aligner, run_list):
+                master_stat_summary.append(stat_summary)
+    print("Done")
+
+elif vcf_check > 0 and fastq_check == 0:
     if not species_call:
         species_call = get_species()
         print("species_call %s" % species_call)
@@ -114,7 +133,7 @@ elif vcf_check:
                 print("#####Based on VCF CHROM id (reference used to build VCF) a matching species cannot be found neither was there a -s option given")
                 sys.exit(0)
 else:
-    print ("#####Error determining file type.")
+    print("\n#####You have a mix of FASTQ and VCF files.  This is not allowed\n\n")
     sys.exit(0)
 
 if args.email:

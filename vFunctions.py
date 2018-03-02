@@ -110,9 +110,13 @@ def read_aligner(single_directory):
     print("R1 and R2: %s %s" % (R1, R2))
     try:
         if species_call:
-            sample_attributes = set_variables(R1, R2, species_call)
-    except NameError:
-        sample_attributes = set_variables(R1, R2, None)
+            sample_attributes = set_variables(R1, R2, species_call) #4
+        else:
+            species_call = False
+            sample_attributes = set_variables(R1, R2, species_call) #4
+    except:
+        species_call = False
+        sample_attributes = set_variables(R1, R2, species_call) #4
     stat_summary = align_reads(sample_attributes) #5
     return stat_summary
     
@@ -232,8 +236,8 @@ def align_reads(sample_attributes):
         if species_call in ["ab1", "ab3", "suis1", "suis3", "suis4", "mel1", "mel1b", "mel2", "mel3", "canis", "ceti1", "ceti2"]:
             mlst(R1, R2)
         elif species_call in ["h37", "af"]: #removed bovis
-            print("\n**** -> Skipping spoligo\n")
-            #spoligo(R1unzip, R2unzip, spoligo_db)
+            # print("\n**** -> Skipping spoligo\n")
+            spoligo(R1unzip, R2unzip, spoligo_db)
         
         print ("reference: %s" % reference)
         ref=re.sub('\.fasta', '', os.path.basename(reference))
@@ -650,7 +654,9 @@ def best_reference(R1unzip, R2unzip):
             if v == value:
                 count_summary.update({k:count})
                 count_summary=OrderedDict(sorted(count_summary.items()))
-
+    pool.close()
+    pool.join()
+    
     count_list=[]
     for v in count_summary.values():
         count_list.append(v)
@@ -1230,7 +1236,7 @@ def step1_stats_out(master_stat_summary):
 
     workbook.close()
 
-    if path_found:
+    if not quiet_call and path_found:
         try:
             open_check = open(summary_cumulative_file, 'a') #'a' is very important, 'w' will leave you with an empty file
             open_check.close()

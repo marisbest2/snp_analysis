@@ -18,6 +18,7 @@ from vFunctions import loop_all
 from vFunctions import loop_resticted
 from vFunctions import read_aligner
 from vFunctions import make_species_call_global
+from vFunctions import step1_stats_out
 
 startTime = datetime.now()
 print ("\n\n*** START ***\n")
@@ -114,7 +115,7 @@ if fastq_check > 0 and vcf_check == 0:
                 master_stat_summary.append(stat_summary)
     print("Done")
     with open("master_stat_summary.json", 'w') as outfile:
-        json.dump(master_stat_summary, outfile)
+        json.dump("master_stat_summary.json", outfile)
     outfile.close()
     step1_stats_out(master_stat_summary)
 

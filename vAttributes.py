@@ -168,7 +168,7 @@ class Step1:
             self.remote = step1_dependents.remote
             self.script_dependents = step1_dependents.path
         
-        if species == "ab3":
+        elif species == "ab3":
             self.dependents_dir="/brucella/abortus3/script_dependents/script1"
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
@@ -180,7 +180,7 @@ class Step1:
             self.remote = step1_dependents.remote
             self.script_dependents = step1_dependents.path
             
-        if species == "canis":
+        elif species == "canis":
             self.dependents_dir="/brucella/canis/script_dependents/script1"
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
@@ -192,7 +192,7 @@ class Step1:
             self.remote = step1_dependents.remote
             self.script_dependents = step1_dependents.path
         
-        if species == "ceti1":
+        elif species == "ceti1":
             self.dependents_dir="/brucella/ceti1/script_dependents/script1"
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
@@ -204,7 +204,7 @@ class Step1:
             self.remote = step1_dependents.remote
             self.script_dependents = step1_dependents.path
 
-        if species == "ceti2":
+        elif species == "ceti2":
             self.dependents_dir="/brucella/ceti2/script_dependents/script1"
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
@@ -216,7 +216,7 @@ class Step1:
             self.remote = step1_dependents.remote
             self.script_dependents = step1_dependents.path
 
-        if species == "mel1":
+        elif species == "mel1":
             self.dependents_dir="/brucella/melitensis-bv1/script_dependents/script1"
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
@@ -228,7 +228,7 @@ class Step1:
             self.remote = step1_dependents.remote
             self.script_dependents = step1_dependents.path
         
-        if species == "mel1b":
+        elif species == "mel1b":
             self.dependents_dir="/brucella/melitensis-bv1b/script_dependents/script1"
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
@@ -240,7 +240,7 @@ class Step1:
             self.remote = step1_dependents.remote
             self.script_dependents = step1_dependents.path
         
-        if species == "mel2":
+        elif species == "mel2":
             self.dependents_dir="/brucella/melitensis-bv2/script_dependents/script1"
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
@@ -252,7 +252,7 @@ class Step1:
             self.remote = step1_dependents.remote
             self.script_dependents = step1_dependents.path
             
-        if species == "mel3":
+        elif species == "mel3":
             self.dependents_dir="/brucella/melitensis-bv3/script_dependents/script1"
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
@@ -264,7 +264,7 @@ class Step1:
             self.remote = step1_dependents.remote
             self.script_dependents = step1_dependents.path
         
-        if species == "suis1":
+        elif species == "suis1":
             self.dependents_dir="/brucella/suis1/script_dependents/script1"
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
@@ -276,7 +276,7 @@ class Step1:
             self.remote = step1_dependents.remote
             self.script_dependents = step1_dependents.path
             
-        if species == "suis3":
+        elif species == "suis3":
             self.dependents_dir="/brucella/suis3/script_dependents/script1"
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
@@ -288,7 +288,7 @@ class Step1:
             self.remote = step1_dependents.remote
             self.script_dependents = step1_dependents.path
             
-        if species == "suis4":
+        elif species == "suis4":
             self.dependents_dir="/brucella/suis4/script_dependents/script1"
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
@@ -300,7 +300,7 @@ class Step1:
             self.remote = step1_dependents.remote
             self.script_dependents = step1_dependents.path
        
-        if species == "ovis":
+        elif species == "ovis":
             self.dependents_dir="/brucella/ovis/script_dependents/script1"
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
@@ -312,7 +312,7 @@ class Step1:
             self.remote = step1_dependents.remote
             self.script_dependents = step1_dependents.path
             
-        if species == "neo":
+        elif species == "neo":
             self.dependents_dir="/brucella/neotomae/script_dependents/script1"
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
@@ -324,7 +324,7 @@ class Step1:
             self.remote = step1_dependents.remote
             self.script_dependents = step1_dependents.path
             
-        if species == "af":
+        elif species == "af":
             self.dependents_dir="/mycobacterium/tbc/af2122/script_dependents/script1"
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/spoligotype_db.txt"
@@ -336,7 +336,7 @@ class Step1:
             self.remote = step1_dependents.remote
             self.script_dependents = step1_dependents.path
         
-        if species == "h37":
+        elif species == "h37":
             self.dependents_dir="/mycobacterium/tbc/h37/script_dependents/script1"
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/spoligotype_db.txt"
@@ -348,7 +348,7 @@ class Step1:
             self.remote = step1_dependents.remote
             self.script_dependents = step1_dependents.path
             
-        if species == "para":
+        elif species == "para":
             self.dependents_dir="/mycobacterium/avium_complex/para_cattle-bison/script_dependents/script1"
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"

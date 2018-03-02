@@ -185,10 +185,13 @@ def set_variables(R1, R2, species_call):
     ### SET PARAMETERS
     if species_call:
         print("Forcing species --> Sample will be ran as %s" % species_call)
+        print("Getting attributes for {}" .format(species_call))
         species_attributes = Step1(species_call) #making object from attribute file
         sample_attributes["dependents_dir"] = species_attributes.dependents_dir
         sample_attributes["reference"] = species_attributes.reference
+        reference = sample_attributes["reference"]
         sample_attributes["hqs"] = species_attributes.hqs
+        hqs = sample_attributes["hqs"]
         sample_attributes["gbk_file"] = species_attributes.gbk_file
         sample_attributes["upload_to"] = species_attributes.upload_to
         sample_attributes["remote"] = species_attributes.remote
@@ -197,11 +200,14 @@ def set_variables(R1, R2, species_call):
         sample_attributes["species_call"] = species_call
     else:
         species_call = best_reference(R1unzip, R2unzip)
+        print("Getting attributes for {}" .format(species_call))
         try: # exit if best ref isn't in parameter list
             species_attributes = Step1(species_call) #making object from attribute file
             sample_attributes["dependents_dir"] = species_attributes.dependents_dir
             sample_attributes["reference"] = species_attributes.reference
+            reference = sample_attributes["reference"]
             sample_attributes["hqs"] = species_attributes.hqs
+            hqs = sample_attributes["hqs"]
             sample_attributes["gbk_file"] = species_attributes.gbk_file
             sample_attributes["upload_to"] = species_attributes.upload_to
             sample_attributes["remote"] = species_attributes.remote
@@ -231,19 +237,19 @@ def set_variables(R1, R2, species_call):
 def align_reads(sample_attributes):
     working_directory = sample_attributes["directory"]
     R1 = sample_attributes["R1"]
-    R2 = sample_attributes["R2"] = R2
-    R1unzip = sample_attributes["R1unzip"] = R1unzip
-    R2unzip = sample_attributes["R2unzip"] = R2unzip
+    R2 = sample_attributes["R2"]
+    R1unzip = sample_attributes["R1unzip"]
+    R2unzip = sample_attributes["R2unzip"]
 
-    dependents_dir = sample_attributes["dependents_dir"] = species_attributes.dependents_dir
-    reference = sample_attributes["reference"] = species_attributes.reference
-    hqs = sample_attributes["hqs"] = species_attributes.hqs
-    gbk_file = sample_attributes["gbk_file"] = species_attributes.gbk_file
-    upload_to = sample_attributes["upload_to"] = species_attributes.upload_to
-    remote = sample_attributes["remote"] = species_attributes.remote
-    script_dependents = sample_attributes["script_dependents"] = species_attributes.script_dependents
-    spoligo_db = sample_attributes["spoligo_db"] = species_attributes.spoligo_db
-    species_call = sample_attributes["species_call"] = species_call
+    dependents_dir = sample_attributes["dependents_dir"]
+    reference = sample_attributes["reference"]
+    hqs = sample_attributes["hqs"]
+    gbk_file = sample_attributes["gbk_file"]
+    upload_to = sample_attributes["upload_to"]
+    remote = sample_attributes["remote"]
+    script_dependents = sample_attributes["script_dependents"]
+    spoligo_db = sample_attributes["spoligo_db"]
+    species_call = sample_attributes["species_call"]
 
     if species_call == "NO FINDINGS":
         read_base = os.path.basename(R1)
@@ -251,7 +257,6 @@ def align_reads(sample_attributes):
         R1size = sizeof_fmt(os.path.getsize(R1))
         R2size = sizeof_fmt(os.path.getsize(R2))
         stat_summary = {}
-        stat_summary["time_stamp"] = st
         stat_summary["sample_name"] = sample_name
         stat_summary["species_call"] = "NOT_FOUND"
         stat_summary["reference_sequence_name"] = "N/A"
@@ -269,7 +274,7 @@ def align_reads(sample_attributes):
             mlst(R1, R2)
         elif species_call in ["h37", "af"]: #removed bovis
             print("TB")
-            spoligo(R1unzip, R2unzip)
+            spoligo(R1unzip, R2unzip, spoligo_db)
         
         print ("reference: %s" % reference)
         ref=re.sub('\.fasta', '', os.path.basename(reference[0]))
@@ -689,12 +694,13 @@ def best_reference(R1unzip, R2unzip):
 
     count_summary={}
 
-    with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool: 
-        for v, count in pool.map(finding_best_ref, oligo_dictionary.values()):
-            for k, value in oligo_dictionary.items():
-                if v == value:
-                    count_summary.update({k:count})
-                    count_summary=OrderedDict(sorted(count_summary.items()))
+    pool = multiprocessing.Pool()
+    func = partial(finding_best_ref, R1unzip, R2unzip)
+    for v, count in pool.map(func, oligo_dictionary.values()):
+        for k, value in oligo_dictionary.items():
+            if v == value:
+                count_summary.update({k:count})
+                count_summary=OrderedDict(sorted(count_summary.items()))
 
     count_list=[]
     for v in count_summary.values():
@@ -761,7 +767,7 @@ def best_reference(R1unzip, R2unzip):
 
     write_out.close()
 
-def finding_best_ref(v):
+def finding_best_ref(R1unzip, R2unzip, v):
     count=0
     for fastq in R1unzip, R2unzip:
         with open(fastq) as in_handle:
@@ -901,7 +907,7 @@ def mlst(R1, R2):
     
     write_out.close()
 
-def finding_sp(v):
+def finding_sp(R1unzip, R2unzip, v):
     total=0
     total_finds=0
     #if total < 6: # doesn't make a big different.  Might as well get full counts
@@ -956,7 +962,7 @@ def binary_to_hex(binary):
 
     return(hex_section1.replace('0x', '').upper() + "-" + hex_section2.replace('0x', '').upper() + "-" + hex_section3.replace('0x', '').upper() + "-" + hex_section4.replace('0x', '').upper() + "-" + hex_section5.replace('0x', '').upper() + "-" + hex_section6.replace('0x', '').upper())
 
-def spoligo(R1unzip, R2unzip):
+def spoligo(R1unzip, R2unzip, spoligo_db):
     
     print("\nFinding spoligotype pattern...\n")
     
@@ -1017,12 +1023,16 @@ def spoligo(R1unzip, R2unzip):
                 sequence_list.append(seq)
     seq_string = "".join(sequence_list)
 
-    with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool: #max_workers=4
-        for v, count in pool.map(finding_sp, spoligo_dictionary.values()):
-            for k, value in spoligo_dictionary.items():
-                if v == value:
-                    count_summary.update({k:count})
-                    count_summary=OrderedDict(sorted(count_summary.items()))
+    pool = multiprocessing.Pool()
+    func = partial(finding_sp, R1unzip, R2unzip)
+    for v, count in pool.map(func, spoligo_dictionary.values()):
+        for k, value in spoligo_dictionary.items():
+            if v == value:
+                count_summary.update({k:count})
+                count_summary=OrderedDict(sorted(count_summary.items()))
+    pool.close()
+    pool.join()
+
     seq_string = ""
 
     spoligo_binary_dictionary={}

@@ -1,9 +1,11 @@
 from Bio.SeqIO.QualityIO import FastqGeneralIterator
 from concurrent import futures
+import multiprocessing
 import regex
 from collections import OrderedDict
+from functools import partial
 
-def finding_sp(v):
+def finding_sp(R1unzip, R2unzip, v):
     total=0
     total_finds=0
     #if total < 6: # doesn't make a big different.  Might as well get full counts
@@ -58,13 +60,8 @@ def binary_to_hex(binary):
 
     return(hex_section1.replace('0x', '').upper() + "-" + hex_section2.replace('0x', '').upper() + "-" + hex_section3.replace('0x', '').upper() + "-" + hex_section4.replace('0x', '').upper() + "-" + hex_section5.replace('0x', '').upper() + "-" + hex_section6.replace('0x', '').upper())
 
-def spoligo(R1un, R2un):
+def spoligo(R1unzip, R2unzip):
 
-    global R1unzip
-    global R2unzip
-    R1unzip = R1un
-    R2unzip = R2un
-    
     print("\nFinding spoligotype pattern...\n")
     
     '''spoligo spacers'''
@@ -123,15 +120,35 @@ def spoligo(R1un, R2un):
             for title, seq, qual in FastqGeneralIterator(in_handle):
                 sequence_list.append(seq)
     seq_string = "".join(sequence_list)
-    
-#max_workers=limited_cpu_count
 
-    with futures.ProcessPoolExecutor() as pool:
-        for v, count in pool.map(finding_sp, spoligo_dictionary.values()):
-            for k, value in spoligo_dictionary.items():
-                if v == value:
-                    count_summary.update({k:count})
-                    count_summary=OrderedDict(sorted(count_summary.items()))
+#    with futures.ProcessPoolExecutor() as pool:
+#        for v, count in pool.map(finding_sp, spoligo_dictionary.values()):
+#            for k, value in spoligo_dictionary.items():
+#                if v == value:
+#                    count_summary.update({k:count})
+#                    count_summary=OrderedDict(sorted(count_summary.items()))
+
+    pool = multiprocessing.Pool()
+    func = partial(finding_sp, R1unzip, R2unzip)
+    for v, count in pool.map(func, spoligo_dictionary.values()):
+        for k, value in spoligo_dictionary.items():
+            if v == value:
+                count_summary.update({k:count})
+                count_summary=OrderedDict(sorted(count_summary.items()))
+    pool.close()
+    pool.join()
+
+#    pool = multiprocessing.Pool()
+#    func = partial(finding_best_ref, R1unzip, R2unzip)
+#    for v, count in pool.map(func, oligo_dictionary.values()):
+#        for k, value in oligo_dictionary.items():
+#            if v == value:
+#                count_summary.update({k:count})
+#                count_summary=OrderedDict(sorted(count_summary.items()))
+#    pool.close()
+#    pool.join()
+
+
     seq_string = ""
 
     spoligo_binary_dictionary={}
@@ -195,3 +212,197 @@ def spoligo(R1un, R2un):
         os.remove(i)
     
     write_out.close()
+
+########
+########
+
+def finding_best_ref(R1unzip, R2unzip, v):
+    count=0
+    for fastq in R1unzip, R2unzip:
+        with open(fastq) as in_handle:
+            # all 3, title and seq and qual, were needed
+            for title, seq, qual in FastqGeneralIterator(in_handle):
+                count += seq.count(v)
+    return(v, count)
+
+def best_reference(R1unzip, R2unzip):
+    
+#    global R1unzip
+#    global R2unzip
+#    R1unzip = R1un
+#    R2unzip = R2un
+
+    '''Use oligos to determine species.  Most often if the absents of a single oligo from a set specific for either brucella or bovis will confer species type.  Some species will the absents of more than one oligo.  Oligo findings are translated to binary patterns.'''
+
+    print("\nFinding the best reference\n")
+    
+    write_out = open("best_reference.txt", 'w')
+    
+    '''get the species'''
+    oligo_dictionary = {}
+    oligo_dictionary["01_ab1"] = "AATTGTCGGATAGCCTGGCGATAACGACGC"
+    oligo_dictionary["02_ab3"] = "CACACGCGGGCCGGAACTGCCGCAAATGAC"
+    oligo_dictionary["03_ab5"] = "GCTGAAGCGGCAGACCGGCAGAACGAATAT"
+    oligo_dictionary["04_mel"] = "TGTCGCGCGTCAAGCGGCGTGAAATCTCTG"
+    oligo_dictionary["05_suis1"] = "TGCGTTGCCGTGAAGCTTAATTCGGCTGAT"
+    oligo_dictionary["06_suis2"] = "GGCAATCATGCGCAGGGCTTTGCATTCGTC"
+    oligo_dictionary["07_suis3"] = "CAAGGCAGATGCACATAATCCGGCGACCCG"
+    oligo_dictionary["08_ceti1"] = "GTGAATATAGGGTGAATTGATCTTCAGCCG"
+    oligo_dictionary["09_ceti2"] = "TTACAAGCAGGCCTATGAGCGCGGCGTGAA"
+    oligo_dictionary["10_canis4"] = "CTGCTACATAAAGCACCCGGCGACCGAGTT"
+    oligo_dictionary["11_canis"] = "ATCGTTTTGCGGCATATCGCTGACCACAGC"
+    oligo_dictionary["12_ovis"] = "CACTCAATCTTCTCTACGGGCGTGGTATCC"
+    oligo_dictionary["13_ether2"] = "CGAAATCGTGGTGAAGGACGGGACCGAACC"
+    oligo_dictionary["14_63B1"] = "CCTGTTTAAAAGAATCGTCGGAACCGCTCT"
+    oligo_dictionary["15_16M0"] = "TCCCGCCGCCATGCCGCCGAAAGTCGCCGT"
+    oligo_dictionary["16_mel1b"] = "TCTGTCCAAACCCCGTGACCGAACAATAGA" #added 2018-01-30
+    oligo_dictionary["17_tb157"] = "CTCTTCGTATACCGTTCCGTCGTCACCATGGTCCT"
+    oligo_dictionary["18_tb7"] = "TCACGCAGCCAACGATATTCGTGTACCGCGACGGT"
+    oligo_dictionary["19_tbbov"] = "CTGGGCGACCCGGCCGACCTGCACACCGCGCATCA"
+    oligo_dictionary["20_tb5"] = "CCGTGGTGGCGTATCGGGCCCCTGGATCGCGCCCT"
+    oligo_dictionary["21_tb2"] = "ATGTCTGCGTAAAGAAGTTCCATGTCCGGGAAGTA"
+    oligo_dictionary["22_tb3"] = "GAAGACCTTGATGCCGATCTGGGTGTCGATCTTGA"
+    oligo_dictionary["23_tb4"] = "CGGTGTTGAAGGGTCCCCCGTTCCAGAAGCCGGTG"
+    oligo_dictionary["24_tb6"] = "ACGGTGATTCGGGTGGTCGACACCGATGGTTCAGA"
+    oligo_dictionary["25_para"] = "CCTTTCTTGAAGGGTGTTCG"
+    oligo_dictionary["26_para2"] = "CGAACACCCTTCAAGAAAGG"
+
+    brucella_identifications = {}
+    brucella_identifications["1111111111111111"] = "odd" #Unexpected findings
+    brucella_identifications["0111111111111111"] = "ab1" #Brucella abortus bv 1, 2 or 4
+    brucella_identifications["1011111111111111"] = "ab3" #Brucella abortus bv 3
+    brucella_identifications["1101111111111111"] = "ab1" #Brucella abortus bv 5, 6 or 9
+    brucella_identifications["1110111111111101"] = "mel1"
+    brucella_identifications["0000010101101101"] = "mel1"
+    brucella_identifications["1110111111111100"] = "mel1b" #added 2018-01-30
+    brucella_identifications["0000010101101100"] = "mel1b" #added 2018-01-30
+    brucella_identifications["1110111111111011"] = "mel2"
+    brucella_identifications["0000010101101001"] = "mel2"
+    brucella_identifications["0100010101101001"] = "mel2"
+    brucella_identifications["1110011111101011"] = "mel2"
+    brucella_identifications["1110111111110111"] = "mel3"
+    brucella_identifications["1110011111100111"] = "mel3"
+    brucella_identifications["1111011111111111"] = "suis1"
+    brucella_identifications["1111101111111111"] = "suis2"
+    brucella_identifications["1111110111111101"] = "suis3"
+    brucella_identifications["1111111011111111"] = "ceti1"
+    brucella_identifications["1111111001111111"] = "ceti1"
+    brucella_identifications["1111111101111111"] = "ceti2"
+    brucella_identifications["1111111110111101"] = "suis4"
+    brucella_identifications["1111111110011101"] = "canis"
+    brucella_identifications["1111111111101111"] = "ovis"
+
+    bovis_identifications = {}
+    bovis_identifications["11101111"] = "h37" #tb1
+    bovis_identifications["11101101"] = "h37" #tb1
+    bovis_identifications["01100111"] = "h37" #tb2
+    bovis_identifications["01101011"] = "h37" #tb3
+    bovis_identifications["11101011"] = "h37" #tb3
+    bovis_identifications["01101111"] = "h37" #tb4a
+    bovis_identifications["01101101"] = "h37" #tb4b
+    bovis_identifications["11101101"] = "h37" #tb4b
+    bovis_identifications["01101111"] = "h37" #tb4b
+    bovis_identifications["11111111"] = "h37" #tb5
+    bovis_identifications["11001111"] = "h37" #tb6
+    bovis_identifications["10101110"] = "h37" #tb7
+    bovis_identifications["11001110"] = "af" #bovis
+    bovis_identifications["11011110"] = "af" #bovis
+    bovis_identifications["11001100"] = "af" #bovis
+    
+    para_identifications = {}
+    para_identifications["1"] = "para"
+    para_identifications["01"] = "para"
+    para_identifications["11"] = "para"
+
+    count_summary={}
+
+#    with futures.ProcessPoolExecutor() as pool:
+#        for v, count in pool.map(finding_best_ref, oligo_dictionary.values()):
+#            for k, value in oligo_dictionary.items():
+#                if v == value:
+#                    count_summary.update({k:count})
+#                    count_summary=OrderedDict(sorted(count_summary.items()))
+
+    pool = multiprocessing.Pool()
+    func = partial(finding_best_ref, R1unzip, R2unzip)
+    for v, count in pool.map(func, oligo_dictionary.values()):
+        for k, value in oligo_dictionary.items():
+            if v == value:
+                count_summary.update({k:count})
+                count_summary=OrderedDict(sorted(count_summary.items()))
+    pool.close()
+    pool.join()
+
+    count_list=[]
+    for v in count_summary.values():
+        count_list.append(v)
+    brucella_sum=sum(count_list[:16])
+    bovis_sum=sum(count_list[16:24])
+    para_sum=sum(count_list[24:])
+    
+    print("Best reference Brucella counts:", file=write_out)
+    for i in count_list[:16]:
+        print(i,  end=',', file=write_out)
+    
+    print("\nBest reference TB counts:", file=write_out)
+    for i in count_list[16:24]:
+        print(i,  end=',', file=write_out)
+
+    print("\nBest reference Para counts:", file=write_out)
+    for i in count_list[24:]:
+        print(i,  end=',', file=write_out)
+
+    #Binary dictionary
+    binary_dictionary={}
+    for k, v in count_summary.items():
+        if v > 1:
+            binary_dictionary.update({k:1})
+        else:
+            binary_dictionary.update({k:0})
+    binary_dictionary=OrderedDict(sorted(binary_dictionary.items()))
+
+    binary_list=[]
+    for v in binary_dictionary.values():
+        binary_list.append(v)
+    brucella_binary=binary_list[:16]
+    brucella_string=''.join(str(e) for e in brucella_binary)
+    bovis_binary=binary_list[16:24]
+    bovis_string=''.join(str(e) for e in bovis_binary)
+    para_binary=binary_list[24:]
+    para_string=''.join(str(e) for e in para_binary)
+
+    if brucella_sum > 3:
+        if brucella_string in brucella_identifications:
+            print("Brucella group, species %s" % brucella_identifications[brucella_string])
+            print("\n\nBrucella group, species %s" % brucella_identifications[brucella_string], file=write_out)
+            return(brucella_identifications[brucella_string]) # return to set parameters
+        else:
+            print("Brucella group, but no match")
+            print("\n\nBrucella group, but no match", file=write_out)
+    elif bovis_sum > 3:
+        if bovis_string in bovis_identifications:
+            print("TB group, species %s" % bovis_identifications[bovis_string])
+            print("\n\nTB group, species %s" % bovis_identifications[bovis_string], file=write_out)
+            return(bovis_identifications[bovis_string]) # return to set parameters
+        else:
+            print("TB group, but no match")
+            print("\n\nTB group, but no match", file=write_out)
+    elif para_sum >= 1:
+        if para_string in para_identifications:
+            print("Para group")
+            print("\n\nPara group", file=write_out)
+            return("para") # return to set parameters
+        else:
+            print("No match")
+            print("\n\nNo match", file=write_out)
+
+    write_out.close()
+
+
+
+
+
+
+
+
+

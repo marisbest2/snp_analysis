@@ -161,7 +161,7 @@ class Step1:
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
             self.reference = step1_dependents.path + "/NC_00693c.fasta"
-            print("Reference being used: %s" % self.reference)
+            print("Reference used: %s" % self.reference)
             self.hqs = step1_dependents.path + "/NC_00693cHighestQualitySNPs.vcf"
             self.gbk_file = step1_dependents.path + "/NC_006932-NC_006933.gbk"
             self.upload_to = step1_dependents.upload_to
@@ -173,7 +173,7 @@ class Step1:
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
             self.reference = step1_dependents.path + "/CP007682-7683c.fasta"
-            print("Reference being used: %s" % self.reference)
+            print("Reference used: %s" % self.reference)
             self.hqs = step1_dependents.path + "/CP007682-7683cHighestQualitySNPs.vcf"
             self.gbk_file = step1_dependents.path + "/CP007682-CP007683.gbk"
             self.upload_to = step1_dependents.upload_to
@@ -185,7 +185,7 @@ class Step1:
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
             self.reference = step1_dependents.path + "/BcanisATCC23365.fasta"
-            print("Reference being used: %s" % self.reference)
+            print("Reference used: %s" % self.reference)
             self.hqs = step1_dependents.path + "/canisHighestQualitySNPs.vcf"
             self.gbk_file = step1_dependents.path + "/NC_010103-NC_010104.gbk"
             self.upload_to = step1_dependents.upload_to
@@ -197,7 +197,7 @@ class Step1:
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
             self.reference = step1_dependents.path + "/Bceti1Cudo.fasta"
-            print("Reference being used: %s" % self.reference)
+            print("Reference used: %s" % self.reference)
             self.hqs = step1_dependents.path + "/ceti1HighestQualitySNPs.vcf"
             self.gbk_file = None #script_dependents + "/no.gff"
             self.upload_to = step1_dependents.upload_to
@@ -209,7 +209,7 @@ class Step1:
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
             self.reference = step1_dependents.path + "/Bceti2-TE10759.fasta"
-            print("Reference being used: %s" % self.reference)
+            print("Reference used: %s" % self.reference)
             self.hqs = step1_dependents.path + "/ceti2HighestQualitySNPs.vcf"
             self.gbk_file = step1_dependents.path + "/NC_022905-NC_022906.gbk"
             self.upload_to = step1_dependents.upload_to
@@ -221,7 +221,7 @@ class Step1:
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
             self.reference = step1_dependents.path + "/mel-bv1-NC003317.fasta"
-            print("Reference being used: %s" % self.reference)
+            print("Reference used: %s" % self.reference)
             self.hqs = step1_dependents.path + "/mel-bv1-NC003317-highqualitysnps.vcf"
             self.gbk_file = step1_dependents.path + "/NC_003317-NC_003318.gbk"
             self.upload_to = step1_dependents.upload_to
@@ -233,7 +233,7 @@ class Step1:
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
             self.reference = step1_dependents.path + "/mel-bv1b-CP018508.fasta"
-            print("Reference being used: %s" % self.reference)
+            print("Reference used: %s" % self.reference)
             self.hqs = step1_dependents.path + "/mel-bv1b-CP018508-highqualitysnps.vcf"
             self.gbk_file = step1_dependents.path + "/mel-bv1b-CP018508.gbk"
             self.upload_to = step1_dependents.upload_to
@@ -245,7 +245,7 @@ class Step1:
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
             self.reference = step1_dependents.path + "/mel-bv2-NC012441.fasta"
-            print("Reference being used: %s" % self.reference)
+            print("Reference used: %s" % self.reference)
             self.hqs = step1_dependents.path + "/mel-bv2-NC012441-highqualitysnps.vcf"
             self.gbk_file = step1_dependents.path + "/NC_012441-NC_012442.gbk"
             self.upload_to = step1_dependents.upload_to
@@ -257,7 +257,7 @@ class Step1:
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
             self.reference = step1_dependents.path + "/mel-bv3-NZCP007760.fasta"
-            print("Reference being used: %s" % self.reference)
+            print("Reference used: %s" % self.reference)
             self.hqs = step1_dependents.path + "/mel-bv3-NZCP007760-highqualitysnps.vcf"
             self.gbk_file = step1_dependents.path + "/NZ_CP007760-NZ_CP007761.gbk"
             self.upload_to = step1_dependents.upload_to
@@ -269,7 +269,7 @@ class Step1:
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
             self.reference = step1_dependents.path + "/NC_017251-NC_017250.fasta"
-            print("Reference being used: %s" % self.reference)
+            print("Reference used: %s" % self.reference)
             self.hqs = step1_dependents.path + "/B00-0468-highqualitysnps.vcf"
             self.gbk_file = step1_dependents.path + "/NC_017251-NC_017250.gbk"
             self.upload_to = step1_dependents.upload_to
@@ -281,7 +281,7 @@ class Step1:
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
             self.reference = step1_dependents.path + "/NZ_CP007719-NZ_CP007718.fasta"
-            print("Reference being used: %s" % self.reference)
+            print("Reference used: %s" % self.reference)
             self.hqs = step1_dependents.path + "/highqualitysnps.vcf"
             self.gbk_file = None #script_dependents + "/no.gff"
             self.upload_to = step1_dependents.upload_to
@@ -293,7 +293,7 @@ class Step1:
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
             self.reference = step1_dependents.path + "/B-REF-BS4-40.fasta"
-            print("Reference being used: %s" % self.reference)
+            print("Reference used: %s" % self.reference)
             self.hqs = step1_dependents.path + "/suis4HighestQualitySNPs.vcf"
             self.gbk_file = None #script_dependents + "/no.gff"
             self.upload_to = step1_dependents.upload_to
@@ -305,7 +305,7 @@ class Step1:
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
             self.reference = step1_dependents.path + "/BovisATCC25840.fasta"
-            print("Reference being used: %s" % self.reference)
+            print("Reference used: %s" % self.reference)
             self.hqs = step1_dependents.path + "/BovisATCC25840HighestQualitySNPs.vcf"
             self.gbk_file = step1_dependents.path + "/NC_009505-NC_009504.gbk"
             self.upload_to = step1_dependents.upload_to
@@ -317,7 +317,7 @@ class Step1:
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
             self.reference = step1_dependents.path + "/KN046827.fasta"
-            print("Reference being used: %s" % self.reference)
+            print("Reference used: %s" % self.reference)
             self.hqs = step1_dependents.path + "/ERR1845155-highqualitysnps.vcf"
             self.gbk_file = step1_dependents.path + "/KN046827.gbk"
             self.upload_to = step1_dependents.upload_to
@@ -329,7 +329,7 @@ class Step1:
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/spoligotype_db.txt"
             self.reference = step1_dependents.path + "/NC_002945v4.fasta"
-            print("Reference being used: %s" % self.reference)
+            print("Reference used: %s" % self.reference)
             self.hqs = step1_dependents.path + "/highqualitysnps.vcf"
             self.gbk_file = step1_dependents.path + "/NC_002945v4.gbk"
             self.upload_to = step1_dependents.upload_to
@@ -341,7 +341,7 @@ class Step1:
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/spoligotype_db.txt"
             self.reference = step1_dependents.path + "/NC000962.fasta"
-            print("Reference being used: %s" % self.reference)
+            print("Reference used: %s" % self.reference)
             self.hqs = step1_dependents.path + "/15-3162-highqualitysnps.vcf"
             self.gbk_file = step1_dependents.path + "/NC_000962.gbk"
             self.upload_to = step1_dependents.upload_to
@@ -353,7 +353,7 @@ class Step1:
             step1_dependents = Update_Directory(self.dependents_dir) #OBJECT not variable made
             self.spoligo_db = step1_dependents.path + "/nospoligo.txt"
             self.reference = step1_dependents.path + "/NC_002944.fasta"
-            print("Reference being used: %s" % self.reference)
+            print("Reference used: %s" % self.reference)
             self.hqs = step1_dependents.path + "/HQ-NC002944.vcf"
             self.gbk_file = step1_dependents.path + "/NC_002944.gbk"
             self.upload_to = step1_dependents.upload_to

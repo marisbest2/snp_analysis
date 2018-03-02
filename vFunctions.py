@@ -94,9 +94,9 @@ def loop_all(list_of_files):
 
     for file in list_of_files:
         prefix_name=re.sub('_.*', '', file)
-        print(prefix_name)
         if not os.path.exists(prefix_name):
             os.makedirs(prefix_name)
+            print("Packaged: {}" .format(prefix_name))
         shutil.move(file, prefix_name)
 
     directory_list=[]
@@ -167,7 +167,7 @@ def set_variables(R1, R2, species_call):
 
     sample_attributes = {}
     directory = str(os.getcwd())
-    sample_attributes["directory"] = directory
+    sample_attributes["directory"] = directory + "/"
     zips = directory + "/zips"
     os.makedirs(zips)
     shutil.move(R1, zips)
@@ -223,11 +223,19 @@ def set_variables(R1, R2, species_call):
             sample_attributes["species_call"] = species_call
     try:
         shutil.copy2(reference, directory)
+        reference = sample_attributes["directory"] + glob.glob('*fasta')[0]
+        sample_attributes["reference"] = reference #change to local working dir not source
         shutil.copy2(hqs, directory)
+        hqs = sample_attributes["directory"] + glob.glob('*vcf')[0]
+        sample_attributes["hqs"] = hqs #change to local working dir not source
     except FileNotFoundError:
         time.sleep(5)
         shutil.copy2(reference, directory)
+        reference = sample_attributes["directory"] + glob.glob('*fasta')[0]
+        sample_attributes["reference"] = reference #change to local working dir not source
         shutil.copy2(hqs, directory)
+        hqs = sample_attributes["directory"] + glob.glob('*vcf')[0]
+        sample_attributes["hqs"] = hqs #change to local working dir not source
     except NameError:
         print("No parameters options for best_ref_found or species given - NameError")
         species_call = "NO FINDINGS"
@@ -235,7 +243,7 @@ def set_variables(R1, R2, species_call):
     return sample_attributes
 
 def align_reads(sample_attributes):
-    working_directory = sample_attributes["directory"]
+    directory = sample_attributes["directory"]
     R1 = sample_attributes["R1"]
     R2 = sample_attributes["R2"]
     R1unzip = sample_attributes["R1unzip"]
@@ -268,22 +276,14 @@ def align_reads(sample_attributes):
         read_base = os.path.basename(R1)
         sample_name=re.sub('_.*', '', read_base)
         
-        print("species_call: %s" % species_call)
         if species_call in ["ab1", "ab3", "suis1", "suis3", "suis4", "mel1", "mel1b", "mel2", "mel3", "canis", "ceti1", "ceti2"]:
-            print("Brucella")
             mlst(R1, R2)
         elif species_call in ["h37", "af"]: #removed bovis
-            print("TB")
-            spoligo(R1unzip, R2unzip, spoligo_db)
+            print("skipping spoligo")
+            #spoligo(R1unzip, R2unzip, spoligo_db)
         
         print ("reference: %s" % reference)
-        ref=re.sub('\.fasta', '', os.path.basename(reference[0]))
-        if len(reference) != 1:
-            print("### ERROR reference not available or too many")
-            sys.exit(0)
-        if len(hqs) != 1:
-            print("### ERROR high quality snps not available or too many")
-            sys.exit(0)
+        ref=re.sub('\.fasta', '', os.path.basename(reference))
         
         print ("--")
         print("sample name: %s" % sample_name)
@@ -295,7 +295,8 @@ def align_reads(sample_attributes):
 
         loc_sam=directory + "/" + sample_name
         
-        os.system("samtools faidx {}" .format(reference))
+        #os.system("samtools faidx {}" .format(reference))
+        subprocess.run(["samtools", "faidx", reference])
         os.system("picard CreateSequenceDictionary REFERENCE={} OUTPUT={}" .format(reference, directory + "/" + ref + ".dict"))
         os.system("bwa index {}" .format(reference))
         samfile = loc_sam + ".sam"
@@ -1092,8 +1093,8 @@ def spoligo(R1unzip, R2unzip, spoligo_db):
     print("bovis_string: %s" % bovis_string, file=write_out)
     print("binarycode  : %s" % binarycode, file=write_out)
 
-    for i in fastqs: #remove unzipped fastq files to save space
-        os.remove(i)
+    os.remove(R1unzip)
+    os.remove(R2unzip)
         
     write_out.close()
 

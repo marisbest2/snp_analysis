@@ -4,6 +4,7 @@ import os
 import sys
 import argparse
 import glob
+import json
 import multiprocessing
 from concurrent import futures
 import textwrap
@@ -91,7 +92,7 @@ all_file_types_count = len(glob.glob('*.*'))
 fastq_check = len(glob.glob('*fastq.gz'))
 vcf_check = len(glob.glob('*vcf'))
 
-make_global(home, startTime, root_dir, limited_cpu_count, debug_call, quiet_call)
+make_global(home, startTime, root_dir, cpu_count, limited_cpu_count, debug_call, quiet_call)
 
 if species_call:
     make_species_call_global(species_call)
@@ -112,9 +113,13 @@ if fastq_check > 0 and vcf_check == 0:
             for stat_summary in pool.map(read_aligner, run_list):
                 master_stat_summary.append(stat_summary)
     print("Done")
+    with open("master_stat_summary.json", 'w') as outfile:
+        json.dump(master_stat_summary, outfile)
+    outfile.close()
 
 elif vcf_check > 0 and fastq_check == 0:
     if not species_call:
+        print("Checking VCF file for species type...")
         species_call = get_species()
         print("species_call %s" % species_call)
     vcfs_count = len(glob.glob('*vcf'))

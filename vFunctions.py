@@ -40,7 +40,8 @@ from Bio import SeqIO
 
 from vAttributes import Step1
 
-def unzipfiles(R1, R2): # don't "self" if called from within
+################# STEP 1
+def unzipfiles(R1, R2):
     try:
         for zip_filename in R1, R2:
             print("Unzipping... %s" % zip_filename)
@@ -66,21 +67,6 @@ def unzipfiles(R1, R2): # don't "self" if called from within
         for zip_filename in R1, R2:
             os.remove(zip_filename)
         os.rename("zips", "zips_currupt")
-
-def make_global(myhome, mystartTime, rd, lcc, dc, qc):
-    global home
-    global startTime
-    global root_dir 
-    global limited_cpu_count
-    global species_call
-    global debug_call
-    global quiet_call
-    home = myhome
-    startTime = mystartTime
-    root_dir = rd
-    limited_cpu_count = lcc
-    debug_call = dc
-    quiet_call = qc
 
 def make_species_call_global(sc):
     global species_call
@@ -279,7 +265,7 @@ def align_reads(sample_attributes):
         if species_call in ["ab1", "ab3", "suis1", "suis3", "suis4", "mel1", "mel1b", "mel2", "mel3", "canis", "ceti1", "ceti2"]:
             mlst(R1, R2)
         elif species_call in ["h37", "af"]: #removed bovis
-            print("skipping spoligo")
+            print("\n**** -> Skipping spoligo\n")
             #spoligo(R1unzip, R2unzip, spoligo_db)
         
         print ("reference: %s" % reference)
@@ -293,12 +279,11 @@ def align_reads(sample_attributes):
         print("directory: %s" % directory)
         print ("--")
 
-        loc_sam=directory + "/" + sample_name
+        loc_sam=directory + sample_name
         
-        #os.system("samtools faidx {}" .format(reference))
         subprocess.run(["samtools", "faidx", reference])
-        os.system("picard CreateSequenceDictionary REFERENCE={} OUTPUT={}" .format(reference, directory + "/" + ref + ".dict"))
-        os.system("bwa index {}" .format(reference))
+        subprocess.run(["picard", "CreateSequenceDictionary", "REFERENCE={}" .format(reference), "OUTPUT={}" .format(directory + "/" + ref + ".dict")])
+        subprocess.run(["bwa", "index", reference])
         samfile = loc_sam + ".sam"
         allbam = loc_sam + "-all.bam"
         unmapsam = loc_sam + "-unmapped.sam"
@@ -321,7 +306,6 @@ def align_reads(sample_attributes):
         
         print("\n@@@ BWA mem")
         os.system("bwa mem -M -t 16 {} {} {} > {}" .format(reference, R1, R2, samfile))
-
         print("\nAdd read group and out all BAM")
         os.system("picard AddOrReplaceReadGroups INPUT={} OUTPUT={} RGLB=lib1 RGPU=unit1 RGSM={} RGPL=illumina" .format(samfile, allbam, sample_name))
         os.system("samtools index {}" .format(allbam))
@@ -429,9 +413,6 @@ def align_reads(sample_attributes):
             smtp = smtplib.SMTP('10.10.8.12')
             smtp.send_message(msg)
             smtp.quit()
-
-            # process_id = os.getpid()
-            # os.kill(process_id, signal.SIGKILL)
 
         ###
         if gbk_file is not "None":
@@ -569,7 +550,7 @@ def align_reads(sample_attributes):
         stat_summary={}
         stat_summary["time_stamp"] = st
         stat_summary["sample_name"] = sample_name
-        stat_summary["self.species"] = self.species
+        stat_summary["species"] = species_call
         stat_summary["reference_sequence_name"] = reference_sequence_name
         stat_summary["R1size"] = R1size
         stat_summary["R2size"] = R2size
@@ -1098,37 +1079,476 @@ def spoligo(R1unzip, R2unzip, spoligo_db):
         
     write_out.close()
 
+def add_zero_coverage(coverage_in, vcf_file, loc_sam):
+    
+    temp_vcf = loc_sam + "-temp.vcf"
+    zero_coverage_vcf = loc_sam + "_zc.vcf"
+    
+    zero_position=[]
+    total_length = 0
+    total_zero_coverage = 0
+    with open(coverage_in) as f:
+        for line in f:
+            total_length = total_length + 1
+            line.rstrip()
+            line=re.split(':|\t', line)
+            chromosome=line[0]
+            position=line[1]
+            abs_pos = chromosome + "-" + position
+            depth=line[2]
+            if depth == "0":
+                zero_position.append(abs_pos) #positions with zero coverage in coverage file
+                total_zero_coverage = total_zero_coverage + 1
+        print(len(zero_position))
+                
+    genome_coverage = 0
+    total_coverage = total_length - total_zero_coverage
+
+    genome_coverage =  "{:.2%}".format(total_coverage/total_length)
+
+    average_list = []
+    with open(coverage_in) as f:
+        for line in f:
+            line.rstrip()
+            line=re.split(':|\t', line)
+            depth=str(line[2])
+            if depth.isdigit():
+                depth = int(depth)
+                average_list.append(depth)
+        ave_coverage = mean(average_list)
+
+    zero_position_found=[]
+    write_out=open(temp_vcf, 'w')
+    with open(vcf_file) as f:
+        for line in f:
+            line=line.rstrip()
+            if line.startswith("#"): # save headers to file
+                print(line, file=write_out)
+            elif not line.startswith("#"): # position rows
+                split_line = line.split('\t')
+                chromosome=split_line[0] # get chromosome
+                position=split_line[1] # get position
+                abs_pos = chromosome + "-" + position
+                ref=split_line[3] # REF
+                alt=split_line[4] # ALT
+                ref_len=len(ref)
+                alt_len=len(alt)
+                if abs_pos in zero_position: # if a position has zero coverage
+                    print("%s is in zeropostions" % position)
+                    zero_position_found.append(position)
+                    print("%s\t%s\t.\tN\t.\t.\t.\t.\tGT\t./." % (chromosome, position), file=write_out) # print a zero coverage line
+                elif ref_len == 1 and alt_len == 1:
+                    print(line, file=write_out)
+        print("##### Chromosome: %s" % chromosome)
+        #zero_position = list(map(int, zero_position)) # change list items from string to numbers
+        #zero_position_found = list(map(int, zero_position_found))
+
+        print("using list comprehension")
+        zero_not_added = [x for x in zero_position if x not in  zero_position_found] # use list comprehension to subtract one list from the other
+        for abs_position in zero_not_added:
+            split_line = abs_position.split('-')
+            chromosome=split_line[0]
+            position=split_line[1]
+            print("%s\t%s\t.\tN\t.\t.\t.\t.\tGT\t./." % (chromosome, position), file=write_out) # print a zero coverage line
+    write_out.close()
+
+    os.system("picard SortVcf INPUT={} OUTPUT={}" .format(temp_vcf, zero_coverage_vcf))
+    #os.system("vcf-sort {} > {}" .format(temp_vcf, zero_coverage_vcf))
+    os.remove(temp_vcf)
+    
+    vcf_reader = vcf.Reader(open(zero_coverage_vcf, 'r'))
+    good_snp_count = 0
+    for record in vcf_reader:
+        try:
+            chrom = record.CHROM
+            position = record.POS
+            try:
+                if str(record.ALT[0]) != "None" and record.INFO['AC'][0] == 2 and len(record.REF) == 1 and record.QUAL > 150:
+                    good_snp_count = good_snp_count + 1
+            except KeyError:
+                pass
+        except ZeroDivisionError:
+            print ("ZeroDivisionError error found")
+        except ValueError:
+            print ("ValueError error found")
+        except UnboundLocalError:
+            print ("UnboundLocalError error found")
+        except TypeError:
+            print ("TypeError error found")
+
+    return(zero_coverage_vcf, good_snp_count, ave_coverage, genome_coverage)
+
+def get_annotations(line, in_annotation_as_dict): #for line in vfile
+    #pos_found = False
+    line=line.rstrip()
+    if line.startswith("#"): # save headers to file
+        return(line)
+    elif not line.startswith("#"): # position rows
+        #pos_found = False
+        split_line = line.split('\t')
+        chrom = split_line[0]
+        position = split_line[1] # get position
+    #print ("Getting annotations")
+        for each_key, each_value in in_annotation_as_dict.items():
+            pos_found = False
+            if chrom == each_key:
+                for feature in each_value.features:
+                    position = int(position)
+                    #print(position)
+                    if position in feature and "CDS" in feature.type:
+                        myproduct = "none list"
+                        mylocus = "none list"
+                        mygene = "none list"
+                        for p in feature.qualifiers['product']:
+                            myproduct = p
+                        for l in feature.qualifiers['locus_tag']:
+                            mylocus = l
+                        if "gene" in feature.qualifiers:
+                            gene = feature.qualifiers['gene']
+                            for g in gene:
+                                mygene = g
+                        annotation_found = myproduct + ", gene: " + mygene + ", locus_tag: " + mylocus
+                        pos_found = True
+            if pos_found == False:
+                annotation_found = "No annotated product"
+            #print(annotation_found)
+            split_line[2] = annotation_found
+            annotated_line = "\t".join(split_line)
+            return(annotated_line)
 
 
+################# STEP 2
+def get_species():
+    #species = corresponding NCBI accession
+    species_cross_reference = {}
+    species_cross_reference["salmonella"] = ["016856, 016855"]
+    species_cross_reference["bovis"] = ["AF2122_NC002945", "00879"]
+    species_cross_reference["af"] = ["NC_002945.4"]
+    species_cross_reference["h37"] = ["000962", "002755", "009525", "018143"]
+    species_cross_reference["para"] = ["NC_002944"]
+    species_cross_reference["ab1"] = ["006932", "006933"]
+    species_cross_reference["ab3"] = ["007682", "007683"]
+    species_cross_reference["canis"] = ["010103", "010104"]
+    species_cross_reference["ceti1"] = ["Bceti1Cudo"]
+    species_cross_reference["ceti2"] = ["022905", "022906"]
+    species_cross_reference["mel1"] = ["003317", "003318"]
+    species_cross_reference["mel1b"] = ["CP018508", "CP018509"]
+    species_cross_reference["mel2"] = ["012441", "012442"]
+    species_cross_reference["mel3"] = ["007760", "007761"]
+    species_cross_reference["ovis"] = ["009504", "009505"]
+    species_cross_reference["neo"] = ["KN046827"]
+    species_cross_reference["suis1"] = ["017250", "017251"]
+    species_cross_reference["suis3"] = ["007719", "007718"]
+    species_cross_reference["suis4"] = ["B-REF-BS4-40"]
+    
+    vcf_list = glob.glob('*vcf')
+    for each_vcf in vcf_list:
+        print(each_vcf)
+        mal = fix_vcf(each_vcf)
+        vcf_reader = vcf.Reader(open(each_vcf, 'r'))
+        print("single_vcf %s" % each_vcf)
+        for record in vcf_reader:
+            header = record.CHROM
+            for k, vlist in species_cross_reference.items():
+                for l in vlist:
+                    if l in header:
+                        return(k)
 
+def run_script2():
+  
+    global sys_raxml
+    global raxml_cpu
+    
+    # IF AVX2 IS AVAILABE (CHECK WITH `cat /proc/cpuinfo | grep -i "avx"`). CREATE A LINK TO: `ln -s path_to_raxmlHPC-PTHREADS-AVX2 raxml.  Place "raxml" in your path.  This will allow "raxml" to be found first which will call AVX2 version of RAxML
+    
+    try:
+        subprocess.call("raxml", stdout=open(os.devnull, 'wb'))
+        sys_raxml = "raxml"
+        #print ("%s found" % sys_raxml)
+    except OSError:
+        print ("looking for RAxML")
+        try:
+            subprocess.call("raxmlHPC-PTHREADS")
+            sys_raxml = "raxmlHPC-PTHREADS"
+            print ("%s found" % sys_raxml)
+        except OSError:
+            try:
+                subprocess.call("raxmlHPC-SSE3")
+                sys_raxml = "raxmlHPC-SSE3"
+                print ("%s found" % sys_raxml)
+            except OSError:
+                print ("looking for RAxML")
+                try:
+                    subprocess.call("raxmlHPC")
+                    sys_raxml = "raxmlHPC"
+                    print ("RAxML found")
+                except OSError:
+                    print ("#####RAxML is not in you PATH")
+                    print ("#####See help page for support")
+                    sys.exit(0)
 
-def send_email(email_list):
-    text = "See attached:  "
-    send_from = "tod.p.stuber@aphis.usda.gov"
-    send_to = email_list
-    msg = MIMEMultipart()
-    msg['From'] = send_from
-    msg['To'] = send_to
-    msg['Date'] = formatdate(localtime = True)
-    if not path_found:
-        msg['Subject'] = "###CUMULATIVE STATS NOT UPDATED - Script1 stats summary"
+    print ("\n\n----> RAxML found in $PATH as: %s <-----" % sys_raxml)
+
+    if cpu_count < 20:
+        raxml_cpu = 2
     else:
-        msg['Subject'] = "Script1 stats summary"
-    msg.attach(MIMEText(text))
+        raxml_cpu = int(cpu_count/10)
 
-    part = MIMEBase('application', "octet-stream")
-    part.set_payload(open(summary_file, "rb").read())
-    encoders.encode_base64(part)
-    part.add_header('Content-Disposition', 'attachment; filename="summary_file.xlsx"')
-    msg.attach(part)
+    print ("\nSET VARIABLES")
+    print ("\tgenotypingcodes: %s " % genotypingcodes)
 
-    #context = ssl.SSLContext(ssl.PROTOCOL_SSLv3)
-    #SSL connection only working on Python 3+
-    smtp = smtplib.SMTP('10.10.8.12')
+    htmlfile_name = root_dir+ "/summary_log.html"
+    htmlfile = open(htmlfile_name, 'at')
 
-    smtp.send_message(msg)
-    #smtp.sendmail(send_from, send_to, msg.as_string())
-    smtp.quit()
+    # DIRECTORY TEST AND BACKUP
+    if getattr(sys, 'frozen', False):
+        script_used = os.path.realpath(sys.executable)
+    elif __file__:
+        script_used = os.path.realpath(__file__)
+
+    print ("\nScript used: %s \n" % script_used)
+
+    # make backup
+    os.makedirs('starting_files')
+    all_starting_files = glob.glob('*vcf')
+    for i in all_starting_files:
+        shutil.copy(i, 'starting_files')
+
+    test_duplicate() #***FUNCTION CALL
+    
+    global mygbk
+    try:
+        mygbk = True
+        print ("\tgbk_file: %s " % gbk_file)
+    except NameError:
+        mygbk = False
+        print ("There is not a gbk file available")
+    print ("\tdefiningSNPs: %s " % definingSNPs)
+    print ("\texcelinfile: %s " % excelinfile)
+    print ("\tremove_from_analysis: %s " % remove_from_analysis)
+    print ("\tfilter_files: %s " % filter_files)
+    print ("\tbioinfoVCF: %s \n" % bioinfoVCF)
+    ###
+
+    if os.path.isfile(genotypingcodes):
+        print ("\nChanging the VCF names")
+        names_not_changed = change_names() # check if genotypingcodes exist.  if not skip.
+    else:
+        print("No mapping file for VCF names")
+        names_not_changed = glob.glob("*.vcf")
+
+    files = glob.glob('*vcf')
+    print ("REMOVING FROM ANALYSIS...")
+    wb = xlrd.open_workbook(remove_from_analysis)
+    ws = wb.sheet_by_index(0)
+    for each_sample in ws.col_values(0):
+        each_sample = str(each_sample)
+        each_sample = re.sub(r'(.*?)[._].*', r'\1', each_sample)
+        #print("each sample %s" % each_sample)
+        myregex = re.compile(each_sample + '.*') # create regular expression to search for in VCF list
+        #print("myregex %s" % myregex)
+        for i in files:
+            if myregex.search(i):
+                print ("### --> %s removed from the analysis" % i)
+                #print (files)
+                #print ("\n<h4>### --> %s removed from the analysis</h4>" % i, file=htmlfile)
+                try:
+                    os.remove(i)
+                except FileNotFoundError:
+                    print ("FileNotFoundError:")
+    vcf_starting_list = glob.glob("*.vcf")
+
+    print ("CHECKING FOR EMPTY FILES...")
+    files = glob.glob('*vcf')
+    for i in files:
+        if os.stat(i).st_size == 0:
+            print ("### %s is an empty file and has been deleted" % i)
+            malformed.append("File was empty %s" % i)
+            os.remove(i)
+
+    all_starting_files = glob.glob('*vcf')
+    file_number = len(all_starting_files)
+
+    print ("SORTING FILES...")
+    global defining_snps
+    defining_snps = {}
+    global inverted_position
+    inverted_position = {}
+    wb = xlrd.open_workbook(definingSNPs)
+    ws = wb.sheet_by_index(0)
+
+    for rownum in range(ws.nrows):
+        position = ws.row_values(rownum)[1:][0]
+        grouping = ws.row_values(rownum)[:1][0]
+        # inverted positions will NOT be found in the passing positions
+        # inverted positions are indicated in Defining SNPs by ending with "!"
+        if position.endswith('!'):
+            position = re.sub('!', '', position)
+            inverted_position.update({position:grouping})
+        else:
+            defining_snps.update({position:grouping})
+    files = glob.glob('*vcf')
+
+    all_list_amb = {}
+    group_calls_list = []
+
+    print ("Grouping files...")
+    if debug_call:
+        for i in files:
+            dict_amb, group_calls, mal = group_files(i)
+            all_list_amb.update(dict_amb)
+            group_calls_list.append(group_calls)
+            malformed.append(mal)
+    else:
+        with futures.ProcessPoolExecutor() as pool:
+            for dict_amb, group_calls, mal in pool.map(group_files, files):
+                all_list_amb.update(dict_amb)
+                group_calls_list.append(group_calls) # make list of list
+                malformed.append(mal)
+    malformed = [x for x in malformed if x] # remove empty sets from list
+
+    print ("Getting directory list\n")
+    directory_list = next(os.walk('.'))[1] # get list of subdirectories
+    directory_list.remove('starting_files')
+
+    samples_in_output = []
+    print ("Getting SNPs in each directory")
+    if debug_call:
+        for i in directory_list:
+            samples_in_fasta = get_snps(i)
+            samples_in_output.append(samples_in_fasta)
+    else:
+        with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool:
+            for samples_in_fasta in pool.map(get_snps, directory_list):
+                samples_in_output.append(samples_in_fasta)
+
+    flattened_list = []
+    for i in flatten(samples_in_output):
+        flattened_list.append(i)
+    flattened_list = set(flattened_list)
+
+    count_flattened_list = len(flattened_list)
+    count_vcf_starting_list = len(vcf_starting_list)
+    start_end_file_diff_count = count_vcf_starting_list - count_flattened_list
+
+    pretext_flattened_list = get_pretext_list(flattened_list)
+    pretext_vcf_starting_list = get_pretext_list(vcf_starting_list)
+    pretext_vcf_starting_list = set(pretext_vcf_starting_list)
+    pretext_flattened_list.remove('root')
+    difference_start_end_file = pretext_vcf_starting_list.symmetric_difference(pretext_flattened_list)
+    difference_start_end_file = list(difference_start_end_file)
+    difference_start_end_file.sort()
+
+    # Zip dependency files
+    dependents_dir = root_dir + "/dependents"
+    os.makedirs(dependents_dir)
+    shutil.copy(definingSNPs, dependents_dir)
+    shutil.copy(excelinfile, dependents_dir)
+    zip(dependents_dir, dependents_dir)
+    shutil.rmtree(dependents_dir)
+
+    runtime = (datetime.now() - startTime)
+    print ("\n\nruntime: %s:  \n" % runtime)
+
+    #############################################
+    #MAKE HTML FILE:
+    print ("<html>\n<head><style> table { font-family: arial, sans-serif; border-collapse: collapse; width: 40%; } td, th { border: 1px solid #dddddd; padding: 4px; text-align: left; font-size: 11px; } </style></head>\n<body style=\"font-size:12px;\">", file=htmlfile)
+    print ("<h2>Script ran using <u>%s</u> variables</h2>" % species_call.upper(), file=htmlfile)
+    print ("<h4>There are %s VCFs in this run</h4>" % file_number, file=htmlfile)
+
+    #OPTIONS
+    print ("Additional options ran: email: %s, args.filter: %s, all_vcf: %s, elite: %s, debug: %s, uploaded: %s" % (args.email, args.filter, args.all_vcf, args.elite, debug_call, args.upload), file=htmlfile)
+    if args.all_vcf:
+        print ("\n<h4>All_VCFs is available</h4>", file=htmlfile)
+    elif args.elite:
+        print ("\n<h4>Elite VCF comparison available</h4>", file=htmlfile)
+
+    #TIME
+    print ("\n<h4>Start time: %s <br>" % startTime, file=htmlfile)
+    print ("End time: %s <br>" % datetime.now(), file=htmlfile)
+    print ("Total run time: %s: </h4>" % runtime, file=htmlfile)
+
+    # ERROR LIST
+    if len(malformed) < 1:
+        print ("<h2>No corrupt VCF removed</h2>", file=htmlfile)
+
+    else:
+        print ("\n<h2>Corrupt VCF removed</h2>", file=htmlfile)
+        for i in malformed:
+            print ("%s <br>" % i, file=htmlfile)
+        print ("<br>", file=htmlfile)
+
+    # AMBIGIOUS DEFINING SNPS
+    if len(all_list_amb) < 1:
+        print ("\n<h2>No ambiguous defining SNPs</h2>", file=htmlfile)
+    else:
+        print ("\n<h2>Defining SNPs are ambiguous.  They may be mixed isolates.</h2>", file=htmlfile)
+        print ("<table>", file=htmlfile)
+        print ("<tr align=\"left\"><th>Sample Name</th><th>Division</th><th>Absolute Position</th><tr>", file=htmlfile)
+        ordered_all_list_amb = OrderedDict(sorted(all_list_amb.items()))
+        for k, v in ordered_all_list_amb.items():
+            k_split = k.split('\t')
+            print ("<tr><td>%s</td><td>%s</td><td>%s</td></tr>" % (k_split[0], k_split[1], v), file=htmlfile)
+        print ("</table>", file=htmlfile)
+        print ("<br>", file=htmlfile)
+
+    #GROUPING TABLE
+    print ("<h2>Groupings</h2>", file=htmlfile)
+    print ("<table>", file=htmlfile)
+    print ("<tr align=\"left\"><th>Sample Name</th><tr>", file=htmlfile)
+
+    group_calls_list = list(filter(None, group_calls_list))
+    try:
+        group_calls_list.sort(key=lambda x: x[0]) # sort list of list by first element
+    except IndexError:
+        print("Unable to sort grouping list")
+        pass
+
+    for i in group_calls_list:
+        print ("<tr>", file=htmlfile)
+        for x in i:
+            print ("<td>%s</td>" % x, end='\t', file=htmlfile)
+        print ("</tr>", file=htmlfile)
+    print ("</table>", file=htmlfile)
+
+    # REPORT DIFFERENCES BETWEEN STARTING FILES AND ENDING FILES REPRESENTED IN ALIGNMENTS AND TABLES
+    if start_end_file_diff_count < 1:
+        print ("\n<h2>No files dropped from the analysis.  Input files are equal to those represented in output.</h2>", file=htmlfile)
+    else:
+        print ("\n<h2>{} files have been dropped.  They either need a group, mixed and not finding a group or an error occured.</h2>" .format(start_end_file_diff_count), file=htmlfile)
+        print ("<table>", file=htmlfile)
+        print ("<tr align=\"left\"><th>Sample Name</th><tr>", file=htmlfile)
+        for i in difference_start_end_file:
+            print ("<tr><td>{}</td></tr>" .format(i), file=htmlfile)
+        print ("</table>", file=htmlfile)
+        print ("<br>", file=htmlfile)
+    
+    #Capture program versions for step 2
+    try:
+        print ("\n<h2>Program versions:</h2>", file=htmlfile)
+        versions = os.popen('conda list biopython | grep -v "^#"; \
+        conda list numpy | egrep -v "^#|numpydoc"; \
+        conda list pandas | grep -v "^#"; \
+        conda list raxml | grep -v "^#"').read()
+        versions = versions.split('\n')
+        for i in versions:
+            print ("%s<br>" % i, file=htmlfile)
+    except:
+        pass
+
+    #FILES NOT RENAMED
+    if names_not_changed:
+        print ("\n<h2>File names did not get changed:</h2>", file=htmlfile)
+        for i in sorted(names_not_changed):
+            print ("%s<br>" % i, file=htmlfile)
+
+    print ("</body>\n</html>", file=htmlfile)
+    #############################################
+    os.chdir(root_dir)
+    zip("starting_files", "starting_files") # zip starting files directory
+    shutil.rmtree("starting_files")
+
+    htmlfile.close()
 
 def get_annotations_table(parsimony_positions):
     print ("Getting annotations...")
@@ -1869,7 +2289,6 @@ def get_snps(directory):
 
     return(samples_in_fasta)
 
-# Group files, map pooled from script 2
 def find_positions(filename):
     found_positions = {}
     vcf_reader = vcf.Reader(open(filename, 'r'))
@@ -1907,7 +2326,6 @@ def find_positions(filename):
         print ("TypeError error found")
     return found_positions
 
-# Group files, map pooled from script 2
 def group_files(each_vcf):
     mal = ""
     list_pass = []
@@ -2035,42 +2453,6 @@ def group_files(each_vcf):
         group_calls = the_sample_name
     return dict_amb, group_calls, mal
 
-def get_species():
-    #species = corresponding NCBI accession
-    species_cross_reference = {}
-    species_cross_reference["salmonella"] = ["016856, 016855"]
-    species_cross_reference["bovis"] = ["AF2122_NC002945", "00879"]
-    species_cross_reference["af"] = ["NC_002945.4"]
-    species_cross_reference["h37"] = ["000962", "002755", "009525", "018143"]
-    species_cross_reference["para"] = ["NC_002944"]
-    species_cross_reference["ab1"] = ["006932", "006933"]
-    species_cross_reference["ab3"] = ["007682", "007683"]
-    species_cross_reference["canis"] = ["010103", "010104"]
-    species_cross_reference["ceti1"] = ["Bceti1Cudo"]
-    species_cross_reference["ceti2"] = ["022905", "022906"]
-    species_cross_reference["mel1"] = ["003317", "003318"]
-    species_cross_reference["mel1b"] = ["CP018508", "CP018509"]
-    species_cross_reference["mel2"] = ["012441", "012442"]
-    species_cross_reference["mel3"] = ["007760", "007761"]
-    species_cross_reference["ovis"] = ["009504", "009505"]
-    species_cross_reference["neo"] = ["KN046827"]
-    species_cross_reference["suis1"] = ["017250", "017251"]
-    species_cross_reference["suis3"] = ["007719", "007718"]
-    species_cross_reference["suis4"] = ["B-REF-BS4-40"]
-    
-    vcf_list = glob.glob('*vcf')
-    for each_vcf in vcf_list:
-        print(each_vcf)
-        mal = fix_vcf(each_vcf)
-        vcf_reader = vcf.Reader(open(each_vcf, 'r'))
-        print("single_vcf %s" % each_vcf)
-        for record in vcf_reader:
-            header = record.CHROM
-            for k, vlist in species_cross_reference.items():
-                for l in vlist:
-                    if l in header:
-                        return(k)
-
 def find_filter_dict(each_vcf):
     dict_qual = {}
     dict_map = {}
@@ -2151,32 +2533,6 @@ def copytree(src, dst, symlinks=False, ignore=None): #required to ignore permiss
     except FileNotFoundError:
         print ("except FileNotFoundError: file not found")
 
-def send_email():
-    print ("Sending Email...")
-    print ("Sending to:")
-
-    msg = MIMEMultipart()
-    msg['From'] = "tod.p.stuber@aphis.usda.gov"
-    msg['To'] = email_list
-    msg['Subject'] = "Script 2 " + species_call
-    with open(htmlfile_name) as fp:
-        msg.attach(MIMEText(fp.read(), 'html'))
-
-    part = MIMEBase('application', "octet-stream")
-    part.set_payload(open("summary_log.html", "r").read())
-    encoders.encode_base64(part)
-    part.add_header('Content-Disposition', 'attachment; filename="summary_log.html"')
-    msg.attach(part)
-
-    smtp = smtplib.SMTP('10.10.8.12')
-    smtp.send_message(msg)
-
-    #smtp.send_message(msg)
-    #smtp.send_message(msg.as_string())
-    #smtp.sendmail(email_list, msg.as_string())
-    #smtp.sendmail("tod.p.stuber@aphis.usda.gov", email_list, msg.as_string())
-    smtp.quit()
-
 def get_pretext_list(in_list):
     outlist = []
     for i in in_list:
@@ -2191,7 +2547,6 @@ def flatten(l):
         else:
             yield el
 
-# Change file names
 def change_names():
     global malformed
     code_dictionary = {}
@@ -2309,7 +2664,6 @@ def zip(src, dst):
             zf.write(absname, arcname)
     zf.close()
 
-# Test for duplicate samples
 def test_duplicate():
     dup_list = []
     list_of_files = glob.glob('*vcf')
@@ -2325,429 +2679,6 @@ def test_duplicate():
     else:
         print ("\nno duplicate VCFs\n")
 
-def run_script2():
-    home = os.path.expanduser("~")
-    
-    global sys_raxml
-    
-    # IF AVX2 IS AVAILABE (CHECK WITH `cat /proc/cpuinfo | grep -i "avx"`). CREATE A LINK TO: `ln -s path_to_raxmlHPC-PTHREADS-AVX2 raxml.  Place "raxml" in your path.  This will allow "raxml" to be found first which will call AVX2 version of RAxML
-    
-    try:
-        subprocess.call("raxml", stdout=open(os.devnull, 'wb'))
-        sys_raxml = "raxml"
-        #print ("%s found" % sys_raxml)
-    except OSError:
-        print ("looking for RAxML")
-        try:
-            subprocess.call("raxmlHPC-PTHREADS")
-            sys_raxml = "raxmlHPC-PTHREADS"
-            print ("%s found" % sys_raxml)
-        except OSError:
-            try:
-                subprocess.call("raxmlHPC-SSE3")
-                sys_raxml = "raxmlHPC-SSE3"
-                print ("%s found" % sys_raxml)
-            except OSError:
-                print ("looking for RAxML")
-                try:
-                    subprocess.call("raxmlHPC")
-                    sys_raxml = "raxmlHPC"
-                    print ("RAxML found")
-                except OSError:
-                    print ("#####RAxML is not in you PATH")
-                    print ("#####See help page for support")
-                    sys.exit(0)
-
-    print ("\n\n----> RAxML found in $PATH as: %s <-----" % sys_raxml)
-
-    global raxml_cpu
-
-    if cpu_count < 20:
-        raxml_cpu = 2
-    else:
-        raxml_cpu = int(cpu_count/10)
-
-    print ("\nSET VARIABLES")
-    print ("\tgenotypingcodes: %s " % genotypingcodes)
-
-    htmlfile_name = root_dir+ "/summary_log.html"
-    htmlfile = open(htmlfile_name, 'at')
-
-    startTime = datetime.now()
-    print ("\n\n*** START ***\n")
-    print ("Start time: %s" % startTime)
-
-    # DIRECTORY TEST AND BACKUP
-    if getattr(sys, 'frozen', False):
-        script_used = os.path.realpath(sys.executable)
-    elif __file__:
-        script_used = os.path.realpath(__file__)
-
-    print ("\nScript used: %s \n" % script_used)
-
-    # make backup
-    os.makedirs('starting_files')
-    all_starting_files = glob.glob('*vcf')
-    for i in all_starting_files:
-        shutil.copy(i, 'starting_files')
-
-    test_duplicate() #***FUNCTION CALL
-    
-    global mygbk
-    try:
-        mygbk = True
-        print ("\tgbk_file: %s " % gbk_file)
-    except NameError:
-        mygbk = False
-        print ("There is not a gbk file available")
-    print ("\tdefiningSNPs: %s " % definingSNPs)
-    print ("\texcelinfile: %s " % excelinfile)
-    print ("\tremove_from_analysis: %s " % remove_from_analysis)
-    print ("\tfilter_files: %s " % filter_files)
-    print ("\tbioinfoVCF: %s \n" % bioinfoVCF)
-    ###
-
-    if os.path.isfile(genotypingcodes):
-        print ("\nChanging the VCF names")
-        names_not_changed = change_names() # check if genotypingcodes exist.  if not skip.
-    else:
-        print("No mapping file for VCF names")
-        names_not_changed = glob.glob("*.vcf")
-
-    files = glob.glob('*vcf')
-    print ("REMOVING FROM ANALYSIS...")
-    wb = xlrd.open_workbook(remove_from_analysis)
-    ws = wb.sheet_by_index(0)
-    for each_sample in ws.col_values(0):
-        each_sample = str(each_sample)
-        each_sample = re.sub(r'(.*?)[._].*', r'\1', each_sample)
-        #print("each sample %s" % each_sample)
-        myregex = re.compile(each_sample + '.*') # create regular expression to search for in VCF list
-        #print("myregex %s" % myregex)
-        for i in files:
-            if myregex.search(i):
-                print ("### --> %s removed from the analysis" % i)
-                #print (files)
-                #print ("\n<h4>### --> %s removed from the analysis</h4>" % i, file=htmlfile)
-                try:
-                    os.remove(i)
-                except FileNotFoundError:
-                    print ("FileNotFoundError:")
-    vcf_starting_list = glob.glob("*.vcf")
-
-    print ("CHECKING FOR EMPTY FILES...")
-    files = glob.glob('*vcf')
-    for i in files:
-        if os.stat(i).st_size == 0:
-            print ("### %s is an empty file and has been deleted" % i)
-            malformed.append("File was empty %s" % i)
-            os.remove(i)
-
-    all_starting_files = glob.glob('*vcf')
-    file_number = len(all_starting_files)
-
-    print ("SORTING FILES...")
-    global defining_snps
-    defining_snps = {}
-    global inverted_position
-    inverted_position = {}
-    wb = xlrd.open_workbook(definingSNPs)
-    ws = wb.sheet_by_index(0)
-
-    for rownum in range(ws.nrows):
-        position = ws.row_values(rownum)[1:][0]
-        grouping = ws.row_values(rownum)[:1][0]
-        # inverted positions will NOT be found in the passing positions
-        # inverted positions are indicated in Defining SNPs by ending with "!"
-        if position.endswith('!'):
-            position = re.sub('!', '', position)
-            inverted_position.update({position:grouping})
-        else:
-            defining_snps.update({position:grouping})
-    files = glob.glob('*vcf')
-
-    all_list_amb = {}
-    group_calls_list = []
-
-    print ("Grouping files...")
-    if debug_call:
-        for i in files:
-            dict_amb, group_calls, mal = group_files(i)
-            all_list_amb.update(dict_amb)
-            group_calls_list.append(group_calls)
-            malformed.append(mal)
-    else:
-        with futures.ProcessPoolExecutor() as pool:
-            for dict_amb, group_calls, mal in pool.map(group_files, files):
-                all_list_amb.update(dict_amb)
-                group_calls_list.append(group_calls) # make list of list
-                malformed.append(mal)
-    malformed = [x for x in malformed if x] # remove empty sets from list
-
-    print ("Getting directory list\n")
-    directory_list = next(os.walk('.'))[1] # get list of subdirectories
-    directory_list.remove('starting_files')
-
-    samples_in_output = []
-    print ("Getting SNPs in each directory")
-    if debug_call:
-        for i in directory_list:
-            samples_in_fasta = get_snps(i)
-            samples_in_output.append(samples_in_fasta)
-    else:
-        with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool:
-            for samples_in_fasta in pool.map(get_snps, directory_list):
-                samples_in_output.append(samples_in_fasta)
-
-    flattened_list = []
-    for i in flatten(samples_in_output):
-        flattened_list.append(i)
-    flattened_list = set(flattened_list)
-
-    count_flattened_list = len(flattened_list)
-    count_vcf_starting_list = len(vcf_starting_list)
-    start_end_file_diff_count = count_vcf_starting_list - count_flattened_list
-
-    pretext_flattened_list = get_pretext_list(flattened_list)
-    pretext_vcf_starting_list = get_pretext_list(vcf_starting_list)
-    pretext_vcf_starting_list = set(pretext_vcf_starting_list)
-    pretext_flattened_list.remove('root')
-    difference_start_end_file = pretext_vcf_starting_list.symmetric_difference(pretext_flattened_list)
-    difference_start_end_file = list(difference_start_end_file)
-    difference_start_end_file.sort()
-
-    # Zip dependency files
-    dependents_dir = root_dir + "/dependents"
-    os.makedirs(dependents_dir)
-    shutil.copy(definingSNPs, dependents_dir)
-    shutil.copy(excelinfile, dependents_dir)
-    zip(dependents_dir, dependents_dir)
-    shutil.rmtree(dependents_dir)
-
-    runtime = (datetime.now() - startTime)
-    print ("\n\nruntime: %s:  \n" % runtime)
-
-    #############################################
-    #MAKE HTML FILE:
-    print ("<html>\n<head><style> table { font-family: arial, sans-serif; border-collapse: collapse; width: 40%; } td, th { border: 1px solid #dddddd; padding: 4px; text-align: left; font-size: 11px; } </style></head>\n<body style=\"font-size:12px;\">", file=htmlfile)
-    print ("<h2>Script ran using <u>%s</u> variables</h2>" % species_call.upper(), file=htmlfile)
-    print ("<h4>There are %s VCFs in this run</h4>" % file_number, file=htmlfile)
-
-    #OPTIONS
-    print ("Additional options ran: email: %s, args.filter: %s, all_vcf: %s, elite: %s, debug: %s, uploaded: %s" % (args.email, args.filter, args.all_vcf, args.elite, debug_call, args.upload), file=htmlfile)
-    if args.all_vcf:
-        print ("\n<h4>All_VCFs is available</h4>", file=htmlfile)
-    elif args.elite:
-        print ("\n<h4>Elite VCF comparison available</h4>", file=htmlfile)
-
-    #TIME
-    print ("\n<h4>Start time: %s <br>" % startTime, file=htmlfile)
-    print ("End time: %s <br>" % datetime.now(), file=htmlfile)
-    print ("Total run time: %s: </h4>" % runtime, file=htmlfile)
-
-    # ERROR LIST
-    if len(malformed) < 1:
-        print ("<h2>No corrupt VCF removed</h2>", file=htmlfile)
-
-    else:
-        print ("\n<h2>Corrupt VCF removed</h2>", file=htmlfile)
-        for i in malformed:
-            print ("%s <br>" % i, file=htmlfile)
-        print ("<br>", file=htmlfile)
-
-    # AMBIGIOUS DEFINING SNPS
-    if len(all_list_amb) < 1:
-        print ("\n<h2>No ambiguous defining SNPs</h2>", file=htmlfile)
-    else:
-        print ("\n<h2>Defining SNPs are ambiguous.  They may be mixed isolates.</h2>", file=htmlfile)
-        print ("<table>", file=htmlfile)
-        print ("<tr align=\"left\"><th>Sample Name</th><th>Division</th><th>Absolute Position</th><tr>", file=htmlfile)
-        ordered_all_list_amb = OrderedDict(sorted(all_list_amb.items()))
-        for k, v in ordered_all_list_amb.items():
-            k_split = k.split('\t')
-            print ("<tr><td>%s</td><td>%s</td><td>%s</td></tr>" % (k_split[0], k_split[1], v), file=htmlfile)
-        print ("</table>", file=htmlfile)
-        print ("<br>", file=htmlfile)
-
-    #GROUPING TABLE
-    print ("<h2>Groupings</h2>", file=htmlfile)
-    print ("<table>", file=htmlfile)
-    print ("<tr align=\"left\"><th>Sample Name</th><tr>", file=htmlfile)
-
-    group_calls_list = list(filter(None, group_calls_list))
-    try:
-        group_calls_list.sort(key=lambda x: x[0]) # sort list of list by first element
-    except IndexError:
-        print("Unable to sort grouping list")
-        pass
-
-    for i in group_calls_list:
-        print ("<tr>", file=htmlfile)
-        for x in i:
-            print ("<td>%s</td>" % x, end='\t', file=htmlfile)
-        print ("</tr>", file=htmlfile)
-    print ("</table>", file=htmlfile)
-
-    # REPORT DIFFERENCES BETWEEN STARTING FILES AND ENDING FILES REPRESENTED IN ALIGNMENTS AND TABLES
-    if start_end_file_diff_count < 1:
-        print ("\n<h2>No files dropped from the analysis.  Input files are equal to those represented in output.</h2>", file=htmlfile)
-    else:
-        print ("\n<h2>{} files have been dropped.  They either need a group, mixed and not finding a group or an error occured.</h2>" .format(start_end_file_diff_count), file=htmlfile)
-        print ("<table>", file=htmlfile)
-        print ("<tr align=\"left\"><th>Sample Name</th><tr>", file=htmlfile)
-        for i in difference_start_end_file:
-            print ("<tr><td>{}</td></tr>" .format(i), file=htmlfile)
-        print ("</table>", file=htmlfile)
-        print ("<br>", file=htmlfile)
-    
-    #Capture program versions for step 2
-    try:
-        print ("\n<h2>Program versions:</h2>", file=htmlfile)
-        versions = os.popen('conda list biopython | grep -v "^#"; \
-        conda list numpy | egrep -v "^#|numpydoc"; \
-        conda list pandas | grep -v "^#"; \
-        conda list raxml | grep -v "^#"').read()
-        versions = versions.split('\n')
-        for i in versions:
-            print ("%s<br>" % i, file=htmlfile)
-    except:
-        pass
-
-    #FILES NOT RENAMED
-    if names_not_changed:
-        print ("\n<h2>File names did not get changed:</h2>", file=htmlfile)
-        for i in sorted(names_not_changed):
-            print ("%s<br>" % i, file=htmlfile)
-
-    print ("</body>\n</html>", file=htmlfile)
-    #############################################
-    os.chdir(root_dir)
-    zip("starting_files", "starting_files") # zip starting files directory
-    shutil.rmtree("starting_files")
-
-    htmlfile.close()
-
-def add_zero_coverage(coverage_in, vcf_file, loc_sam):
-    
-    temp_vcf = loc_sam + "-temp.vcf"
-    zero_coverage_vcf = loc_sam + "_zc.vcf"
-    
-    zero_position=[]
-    total_length = 0
-    total_zero_coverage = 0
-    with open(coverage_in) as f:
-        for line in f:
-            total_length = total_length + 1
-            line.rstrip()
-            line=re.split(':|\t', line)
-            chromosome=line[0]
-            position=line[1]
-            abs_pos = chromosome + "-" + position
-            depth=line[2]
-            if depth == "0":
-                zero_position.append(abs_pos) #positions with zero coverage in coverage file
-                total_zero_coverage = total_zero_coverage + 1
-        print(len(zero_position))
-
-def add_zero_coverage(coverage_in, vcf_file, loc_sam):
-    
-    temp_vcf = loc_sam + "-temp.vcf"
-    zero_coverage_vcf = loc_sam + "_zc.vcf"
-    
-    zero_position=[]
-    total_length = 0
-    total_zero_coverage = 0
-    with open(coverage_in) as f:
-        for line in f:
-            total_length = total_length + 1
-            line.rstrip()
-            line=re.split(':|\t', line)
-            chromosome=line[0]
-            position=line[1]
-            abs_pos = chromosome + "-" + position
-            depth=line[2]
-            if depth == "0":
-                zero_position.append(abs_pos) #positions with zero coverage in coverage file
-                total_zero_coverage = total_zero_coverage + 1
-        print(len(zero_position))
-                
-    genome_coverage = 0
-    total_coverage = total_length - total_zero_coverage
-
-    genome_coverage =  "{:.2%}".format(total_coverage/total_length)
-
-    average_list = []
-    with open(coverage_in) as f:
-        for line in f:
-            line.rstrip()
-            line=re.split(':|\t', line)
-            depth=str(line[2])
-            if depth.isdigit():
-                depth = int(depth)
-                average_list.append(depth)
-        ave_coverage = mean(average_list)
-
-    zero_position_found=[]
-    write_out=open(temp_vcf, 'w')
-    with open(vcf_file) as f:
-        for line in f:
-            line=line.rstrip()
-            if line.startswith("#"): # save headers to file
-                print(line, file=write_out)
-            elif not line.startswith("#"): # position rows
-                split_line = line.split('\t')
-                chromosome=split_line[0] # get chromosome
-                position=split_line[1] # get position
-                abs_pos = chromosome + "-" + position
-                ref=split_line[3] # REF
-                alt=split_line[4] # ALT
-                ref_len=len(ref)
-                alt_len=len(alt)
-                if abs_pos in zero_position: # if a position has zero coverage
-                    print("%s is in zeropostions" % position)
-                    zero_position_found.append(position)
-                    print("%s\t%s\t.\tN\t.\t.\t.\t.\tGT\t./." % (chromosome, position), file=write_out) # print a zero coverage line
-                elif ref_len == 1 and alt_len == 1:
-                    print(line, file=write_out)
-        print("##### Chromosome: %s" % chromosome)
-        #zero_position = list(map(int, zero_position)) # change list items from string to numbers
-        #zero_position_found = list(map(int, zero_position_found))
-
-        print("using list comprehension")
-        zero_not_added = [x for x in zero_position if x not in  zero_position_found] # use list comprehension to subtract one list from the other
-        for abs_position in zero_not_added:
-            split_line = abs_position.split('-')
-            chromosome=split_line[0]
-            position=split_line[1]
-            print("%s\t%s\t.\tN\t.\t.\t.\t.\tGT\t./." % (chromosome, position), file=write_out) # print a zero coverage line
-    write_out.close()
-
-    os.system("picard SortVcf INPUT={} OUTPUT={}" .format(temp_vcf, zero_coverage_vcf))
-    #os.system("vcf-sort {} > {}" .format(temp_vcf, zero_coverage_vcf))
-    os.remove(temp_vcf)
-    
-    vcf_reader = vcf.Reader(open(zero_coverage_vcf, 'r'))
-    good_snp_count = 0
-    for record in vcf_reader:
-        try:
-            chrom = record.CHROM
-            position = record.POS
-            try:
-                if str(record.ALT[0]) != "None" and record.INFO['AC'][0] == 2 and len(record.REF) == 1 and record.QUAL > 150:
-                    good_snp_count = good_snp_count + 1
-            except KeyError:
-                pass
-        except ZeroDivisionError:
-            print ("ZeroDivisionError error found")
-        except ValueError:
-            print ("ValueError error found")
-        except UnboundLocalError:
-            print ("UnboundLocalError error found")
-        except TypeError:
-            print ("TypeError error found")
-
-    return(zero_coverage_vcf, good_snp_count, ave_coverage, genome_coverage)
-
 def show_fastqs(self):
     '''show FASTQs being used'''
     print("R1: %s\nR2: %s" % (R1, R2))
@@ -2758,45 +2689,57 @@ def sizeof_fmt(num, suffix='B'):
             return "%3.1f%s%s" % (num, unit, suffix)
         num /= 1024.0
     return "%.1f%s%s" % (num, 'Yi', suffix)
-
-def get_annotations(line, in_annotation_as_dict): #for line in vfile
-    #pos_found = False
-    line=line.rstrip()
-    if line.startswith("#"): # save headers to file
-        return(line)
-    elif not line.startswith("#"): # position rows
-        #pos_found = False
-        split_line = line.split('\t')
-        chrom = split_line[0]
-        position = split_line[1] # get position
-    #print ("Getting annotations")
-        for each_key, each_value in in_annotation_as_dict.items():
-            pos_found = False
-            if chrom == each_key:
-                for feature in each_value.features:
-                    position = int(position)
-                    #print(position)
-                    if position in feature and "CDS" in feature.type:
-                        myproduct = "none list"
-                        mylocus = "none list"
-                        mygene = "none list"
-                        for p in feature.qualifiers['product']:
-                            myproduct = p
-                        for l in feature.qualifiers['locus_tag']:
-                            mylocus = l
-                        if "gene" in feature.qualifiers:
-                            gene = feature.qualifiers['gene']
-                            for g in gene:
-                                mygene = g
-                        annotation_found = myproduct + ", gene: " + mygene + ", locus_tag: " + mylocus
-                        pos_found = True
-            if pos_found == False:
-                annotation_found = "No annotated product"
-            #print(annotation_found)
-            split_line[2] = annotation_found
-            annotated_line = "\t".join(split_line)
-            return(annotated_line)
         
+
+
+################# SHARED
+def send_email(email_list):
+    text = "See attached:  "
+    send_from = "tod.p.stuber@aphis.usda.gov"
+    send_to = email_list
+    msg = MIMEMultipart()
+    msg['From'] = send_from
+    msg['To'] = send_to
+    msg['Date'] = formatdate(localtime = True)
+    if not path_found:
+        msg['Subject'] = "###CUMULATIVE STATS NOT UPDATED - Script1 stats summary"
+    else:
+        msg['Subject'] = "Script1 stats summary"
+    msg.attach(MIMEText(text))
+
+    part = MIMEBase('application', "octet-stream")
+    part.set_payload(open(summary_file, "rb").read())
+    encoders.encode_base64(part)
+    part.add_header('Content-Disposition', 'attachment; filename="summary_file.xlsx"')
+    msg.attach(part)
+
+    #context = ssl.SSLContext(ssl.PROTOCOL_SSLv3)
+    #SSL connection only working on Python 3+
+    smtp = smtplib.SMTP('10.10.8.12')
+
+    smtp.send_message(msg)
+    #smtp.sendmail(send_from, send_to, msg.as_string())
+    smtp.quit()
+
+def make_global(myhome, mystartTime, rd, cc, lcc, dc, qc):
+    global home
+    global startTime
+    global root_dir 
+    global cpu_count
+    global limited_cpu_count
+    global species_call
+    global debug_call
+    global quiet_call
+    home = myhome
+    startTime = mystartTime
+    root_dir = rd
+    cpu_count = cc
+    limited_cpu_count = lcc
+    debug_call = dc
+    quiet_call = qc
+
+
+
 #               def iterating_dirs(run_list):
         #     frames = []
         #     if debug_call: #run just one sample at a time to debug

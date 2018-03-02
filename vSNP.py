@@ -116,6 +116,7 @@ if fastq_check > 0 and vcf_check == 0:
     with open("master_stat_summary.json", 'w') as outfile:
         json.dump(master_stat_summary, outfile)
     outfile.close()
+    step1_stats_out(master_stat_summary)
 
 elif vcf_check > 0 and fastq_check == 0:
     if not species_call:

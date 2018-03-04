@@ -1259,6 +1259,9 @@ class script1():
 
         def align_reads(self):
         
+            ts = time.time()
+            st = datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H-%M-%S')
+
             if self.species == "NO FINDINGS":
                 read_base = os.path.basename(R1)
                 sample_name=re.sub('_.*', '', read_base)
@@ -3991,6 +3994,7 @@ class loop():
 
         ###
         #Run stats
+
         ts = time.time()
         st = datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H-%M-%S')
 

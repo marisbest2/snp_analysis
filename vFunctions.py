@@ -1204,7 +1204,6 @@ def step1_stats_out(master_stat_summary):
     with open(master_stat_summary) as infile:
         master_stat_list_dict = json.load(infile)
 
-    st = "test"
     summary_file = root_dir+ '/stat_alignment_summary_' + st + '.xlsx'
     workbook = xlsxwriter.Workbook(summary_file)
     worksheet = workbook.add_worksheet()

@@ -847,8 +847,8 @@ def mlst(R1, R2):
     mlst_dictionary["CCCCCGGGCCGACCCGAGCGAAGCGGGGAGACCACGGCGCATAAGTGGCCAGGCACCTGTCCCGCGGGGTA"] = "MLST type 27"
     mlst_dictionary["CCCTCGGGCCGACCTGAGCGAAGCGGGGAGACCACGGCGCATAAGTGGCCAGGCTCCTGTCCCGCGGGGTA"] = "MLST type 28"
 
-    for i in fastqs: #remove unzipped fastq files to save space
-        os.remove(i)
+    # for i in fastqs: #remove unzipped fastq files to save space
+    #     os.remove(i)
 
     remove_files = glob.glob('ST1-MLST*')
     for i in remove_files:

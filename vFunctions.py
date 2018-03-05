@@ -525,9 +525,6 @@ def align_reads(sample_attributes):
         ave_read_length = total_length/sequence_count
         ave_read_length = "{:0.1f}".format(float(ave_read_length))
 
-        ts = time.time()
-        st = datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H-%M-%S')
-
         stat_summary={}
         stat_summary["time_stamp"] = st
         stat_summary["sample_name"] = sample_name
@@ -1270,6 +1267,34 @@ def step1_stats_out(master_stat_summary):
             df_sorted.T.to_excel(summary_cumulative_file_temp, index=False)
     else:
         print("Path to cumulative stat summary file not found")
+
+def step1_send_email(email_list, stats_file, path_found):
+    text = "See attached:  "
+    send_from = "tod.p.stuber@aphis.usda.gov"
+    send_to = email_list
+    msg = MIMEMultipart()
+    msg['From'] = send_from
+    msg['To'] = send_to
+    msg['Date'] = formatdate(localtime = True)
+    if not path_found:
+        msg['Subject'] = "###CUMULATIVE STATS NOT UPDATED - Script1 stats summary"
+    else:
+        msg['Subject'] = "Script1 stats summary"
+    msg.attach(MIMEText(text))
+
+    part = MIMEBase('application', "octet-stream")
+    part.set_payload(open(stats_file, "rb").read())
+    encoders.encode_base64(part)
+    part.add_header('Content-Disposition', 'attachment; filename="summary_file.xlsx"')
+    msg.attach(part)
+
+    #context = ssl.SSLContext(ssl.PROTOCOL_SSLv3)
+    #SSL connection only working on Python 3+
+    smtp = smtplib.SMTP('10.10.8.12')
+
+    smtp.send_message(msg)
+    #smtp.sendmail(send_from, send_to, msg.as_string())
+    smtp.quit()
 
         
 ################# STEP 2
@@ -2748,35 +2773,8 @@ def sizeof_fmt(num, suffix='B'):
 
 
 ################# SHARED
-def send_email(email_list):
-    text = "See attached:  "
-    send_from = "tod.p.stuber@aphis.usda.gov"
-    send_to = email_list
-    msg = MIMEMultipart()
-    msg['From'] = send_from
-    msg['To'] = send_to
-    msg['Date'] = formatdate(localtime = True)
-    if not path_found:
-        msg['Subject'] = "###CUMULATIVE STATS NOT UPDATED - Script1 stats summary"
-    else:
-        msg['Subject'] = "Script1 stats summary"
-    msg.attach(MIMEText(text))
 
-    part = MIMEBase('application', "octet-stream")
-    part.set_payload(open(summary_file, "rb").read())
-    encoders.encode_base64(part)
-    part.add_header('Content-Disposition', 'attachment; filename="summary_file.xlsx"')
-    msg.attach(part)
-
-    #context = ssl.SSLContext(ssl.PROTOCOL_SSLv3)
-    #SSL connection only working on Python 3+
-    smtp = smtplib.SMTP('10.10.8.12')
-
-    smtp.send_message(msg)
-    #smtp.sendmail(send_from, send_to, msg.as_string())
-    smtp.quit()
-
-def make_global(myhome, mystartTime, rd, cc, lcc, dc, qc):
+def make_global(myhome, mystartTime, myts, myst, rd, cc, lcc, dc, qc):
     global home
     global startTime
     global root_dir 
@@ -2787,6 +2785,8 @@ def make_global(myhome, mystartTime, rd, cc, lcc, dc, qc):
     global quiet_call
     home = myhome
     startTime = mystartTime
+    ts = myts
+    st = myst
     root_dir = rd
     cpu_count = cc
     limited_cpu_count = lcc

@@ -5,6 +5,7 @@ import sys
 import argparse
 import glob
 import json
+import time
 from functools import partial
 import multiprocessing
 from concurrent import futures
@@ -13,22 +14,28 @@ from datetime import datetime
 
 from vFunctions import make_global
 from vFunctions import get_species
-from vFunctions import send_email
 from vFunctions import run_script2
 from vFunctions import loop_all
 from vFunctions import loop_resticted
 from vFunctions import read_aligner
 from vFunctions import make_species_call_global
 from vFunctions import step1_stats_out
-
-startTime = datetime.now()
-print ("\n\n*** START ***\n")
-print ("Start time: %s" % startTime)
+from vFunctions import step1_send_email
 
 home = os.path.expanduser("~")
+startTime = datetime.now()
+ts = time.time()
+st = datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H-%M-%S')
 root_dir = str(os.getcwd())
 cpu_count = multiprocessing.cpu_count()
 limited_cpu_count = int(cpu_count/6)
+debug_call = None
+quiet_call = None
+
+print ("\n\n*** START ***\n")
+print ("Start time: %s" % startTime)
+
+
 if limited_cpu_count == 0:
     limited_cpu_count = 1
 
@@ -51,7 +58,6 @@ See documentation at: https://usda-vs.github.io/snp_analysis/
 
 #universal
 parser.add_argument('-s', '--species', action='store', dest='species', help='OPTIONAL: Used to FORCE species type <see options above>')
-
 parser.add_argument('-d', '--debug', action='store_true', dest='debug_call', help='debug, run without loop.map for loops')
 parser.add_argument('-a', '--all_vcf', action='store_true', dest='all_vcf', help='make tree using all VCFs')
 parser.add_argument('-e', '--elite', action='store_true', dest='elite', help='create a tree with on elite sample representation')
@@ -59,7 +65,6 @@ parser.add_argument('-f', '--filter', action='store_true', dest='filter', help='
 parser.add_argument('-q', '--quiet', action='store_true', dest='quiet', help='[**APHIS only**] prevent stats going to cumlative collection')
 parser.add_argument('-m', '--email', action='store', dest='email', help='[**APHIS only**, specify own SMTP address for functionality] email options: all, s, tod, jess, suelee, chris, email_address')
 parser.add_argument('-u', '--upload', action='store_true', dest='upload', help='[**APHIS only**, specify own storage for functionality] upload files to the bioinfo drive')
-
 parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.0.1')
 
 species_call = False
@@ -94,7 +99,7 @@ all_file_types_count = len(glob.glob('*.*'))
 fastq_check = len(glob.glob('*fastq.gz'))
 vcf_check = len(glob.glob('*vcf'))
 
-make_global(home, startTime, root_dir, cpu_count, limited_cpu_count, debug_call, quiet_call)
+make_global(home, startTime, ts, st, root_dir, cpu_count, limited_cpu_count, debug_call, quiet_call)
 
 if species_call:
     make_species_call_global(species_call)
@@ -114,16 +119,6 @@ if fastq_check > 0 and vcf_check == 0:
         with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool: 
             for stat_summary in pool.map(read_aligner, run_list):
                 master_stat_summary.append(stat_summary)
-
-        # master_stat_summary = []
-        # species_call = 'af'
-        # pool = multiprocessing.Pool()
-        # func = partial(read_aligner, species_call)
-        # for stat_summary in pool.map(func, run_list):
-        #     master_stat_summary.append(stat_summary)
-
-        # pool.close()
-        # pool.join()
 
     print("Done")
     with open("master_stat_summary.json", 'w') as outfile:

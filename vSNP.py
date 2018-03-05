@@ -62,6 +62,7 @@ parser.add_argument('-u', '--upload', action='store_true', dest='upload', help='
 
 parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.0.1')
 
+species_call = False
 args = parser.parse_args()
 species_call = args.species
 debug_call = args.debug_call

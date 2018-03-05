@@ -102,8 +102,9 @@ def loop_resticted(directory_list):
             directory_list.remove(i)
         total_samples = len(directory_list)
         return run_list
-
+    
 def read_aligner(single_directory):
+    global species_call
     os.chdir(single_directory)
     R1 = glob.glob('*_R1*fastq.gz')[0]
     R2 = glob.glob('*_R2*fastq.gz')[0]
@@ -112,14 +113,13 @@ def read_aligner(single_directory):
         if species_call:
             sample_attributes = set_variables(R1, R2, species_call) #4
         else:
-            species_call = False
             sample_attributes = set_variables(R1, R2, species_call) #4
     except:
         species_call = False
         sample_attributes = set_variables(R1, R2, species_call) #4
     stat_summary = align_reads(sample_attributes) #5
     return stat_summary
-    
+
 def set_variables(R1, R2, species_call):
 
     sample_attributes = {}

@@ -103,14 +103,29 @@ def loop_resticted(directory_list):
         total_samples = len(directory_list)
         return run_list
 
-
+def read_aligner(single_directory):
+    os.chdir(single_directory)
+    R1 = glob.glob('*_R1*fastq.gz')[0]
+    R2 = glob.glob('*_R2*fastq.gz')[0]
+    print("R1 and R2: %s %s" % (R1, R2))
+    try:
+        if species_call:
+            sample_attributes = set_variables(R1, R2, species_call) #4
+        else:
+            species_call = False
+            sample_attributes = set_variables(R1, R2, species_call) #4
+    except:
+        species_call = False
+        sample_attributes = set_variables(R1, R2, species_call) #4
+    stat_summary = align_reads(sample_attributes) #5
+    return stat_summary
     
 def set_variables(R1, R2, species_call):
 
     sample_attributes = {}
-    directory = str(os.getcwd())
-    sample_attributes["directory"] = directory + "/"
-    zips = directory + "/zips"
+    directory = str(os.getcwd()) + "/"
+    sample_attributes["directory"] = directory
+    zips = directory + "zips"
     os.makedirs(zips)
     shutil.move(R1, zips)
     shutil.move(R2, zips)
@@ -182,6 +197,16 @@ def set_variables(R1, R2, species_call):
         print("No parameters options for best_ref_found or species given - NameError")
         species_call = "NO FINDINGS"
         sample_attributes["species_call"] = species_call
+    except PermissionError:
+        try:
+            reference = sample_attributes["directory"] + glob.glob('*fasta')[0]
+            sample_attributes["reference"] = reference #change to local working dir not source
+            shutil.copy2(hqs, directory)
+            hqs = sample_attributes["directory"] + glob.glob('*vcf')[0]
+            sample_attributes["hqs"] = hqs #change to local working dir not source
+        except PermissionError:
+            hqs = sample_attributes["directory"] + glob.glob('*vcf')[0]
+            sample_attributes["hqs"] = hqs #change to local working dir not source
     return sample_attributes
 
 def align_reads(sample_attributes):

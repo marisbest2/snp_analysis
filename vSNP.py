@@ -5,6 +5,7 @@ import sys
 import argparse
 import glob
 import json
+from functools import partial
 import multiprocessing
 from concurrent import futures
 import textwrap
@@ -55,7 +56,6 @@ parser.add_argument('-d', '--debug', action='store_true', dest='debug_call', hel
 parser.add_argument('-a', '--all_vcf', action='store_true', dest='all_vcf', help='make tree using all VCFs')
 parser.add_argument('-e', '--elite', action='store_true', dest='elite', help='create a tree with on elite sample representation')
 parser.add_argument('-f', '--filter', action='store_true', dest='filter', help='Find possible positions to filter')
-
 parser.add_argument('-q', '--quiet', action='store_true', dest='quiet', help='[**APHIS only**] prevent stats going to cumlative collection')
 parser.add_argument('-m', '--email', action='store', dest='email', help='[**APHIS only**, specify own SMTP address for functionality] email options: all, s, tod, jess, suelee, chris, email_address')
 parser.add_argument('-u', '--upload', action='store_true', dest='upload', help='[**APHIS only**, specify own storage for functionality] upload files to the bioinfo drive')
@@ -113,6 +113,17 @@ if fastq_check > 0 and vcf_check == 0:
         with futures.ProcessPoolExecutor(max_workers=limited_cpu_count) as pool: 
             for stat_summary in pool.map(read_aligner, run_list):
                 master_stat_summary.append(stat_summary)
+
+        # master_stat_summary = []
+        # species_call = 'af'
+        # pool = multiprocessing.Pool()
+        # func = partial(read_aligner, species_call)
+        # for stat_summary in pool.map(func, run_list):
+        #     master_stat_summary.append(stat_summary)
+
+        # pool.close()
+        # pool.join()
+
     print("Done")
     with open("master_stat_summary.json", 'w') as outfile:
         json.dump("master_stat_summary.json", outfile)
